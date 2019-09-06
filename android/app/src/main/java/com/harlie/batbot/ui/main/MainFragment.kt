@@ -45,9 +45,8 @@ class MainFragment : Fragment() {
 
         mainViewModel.inputCommand.observe(this, Observer {
             it?.let {
-                var theInputCommand = mainViewModel.inputCommand.getValue()
-                Log.d(TAG, "inputCommand=" + theInputCommand)
-                setTextOutput(theInputCommand)
+                Log.d(TAG, "it=" + it)
+                setTextOutput(it)
             }
         })
     }
