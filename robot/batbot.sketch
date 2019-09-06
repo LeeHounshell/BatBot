@@ -1,0 +1,703 @@
+//----------------------------------------
+//----------------- BATBOT ---------------
+//----------------------------------------
+
+
+#include <IRremote.h>
+#include <Servo.h>
+
+
+//----------------------------------------
+//--------------- CAR SPEED --------------
+
+#define carSpeed 190  // initial speed of car >=0 to <=255
+int speedDelta = 0;
+
+//----------------------------------------
+//----------- IR REMOTE CODES ------------
+
+#define IR_FORWARD 16736925
+#define IR_BACK    16754775
+#define IR_LEFT    16720605
+#define IR_RIGHT   16761405
+#define IR_STOP    16712445
+#define IR_ONE     16738455
+#define IR_TWO     16750695
+#define IR_THREE   16756815
+#define IR_FOUR    16724175
+#define IR_FIVE    16718055
+#define IR_SIX     16743045
+#define IR_SEVEN   16716015
+#define IR_EIGHT   16726215
+#define IR_NINE    16734885
+#define IR_ZERO    16730805
+#define IR_STAR    16728765
+#define IR_SHARP   16732845
+
+//----------------------------------------
+//-------------- COMMANDS ----------------
+
+#define SET_TIME          88 // 'X'
+
+#define UPARROW           70 // 'F'
+#define DOWNARROW         66 // 'B'
+#define RIGHTARROW        82 // 'R'
+#define LEFTARROW         76 // 'L'
+#define ALLSTOP           72 // 'H'
+#define DO_FUNCTION_ONE   49 // '1'
+#define DO_FUNCTION_TWO   50 // '2'
+#define DO_FUNCTION_THREE 51 // '3'
+#define DO_FUNCTION_FOUR  52 // '4'
+#define DO_FUNCTION_FIVE  53 // '5'
+#define DO_FUNCTION_SIX   54 // '6'
+#define DO_FUNCTION_SEVEN 55 // '7'
+#define DO_FUNCTION_EIGHT 56 // '8'
+#define DO_FUNCTION_NINE  57 // '9'
+#define DO_FUNCTION_ZERO  48 // '0'
+#define DO_FUNCTION_STAR  42 // '*'
+#define DO_FUNCTION_SHARP 35 // '#'
+
+#define GAME_W            87 // 'W'
+#define GAME_A            65 // 'A'
+#define GAME_S            83 // 'S'
+#define GAME_D            68 // 'D'
+#define GAME_STOP         32 // ' '
+
+//----------------------------------------
+//-------------- HARDWARE ----------------
+
+#define RECV_PIN   12
+#define SRVO_PIN    3
+
+#define ENB         5  // Left  wheel speed
+#define IN1         7  // Left  wheel forward
+#define IN2         8  // Left  wheel reverse
+#define IN3         9  // Right wheel reverse
+#define IN4        11  // Right wheel forward
+#define ENA         6  // Right wheel speed
+
+int Echo =         A4; // ultrasonic
+int Trig =         A5; // ultrasonic
+
+//----------------------------------------
+//--------------- TIMING -----------------
+
+#define servoAngleStart  90
+#define moveFast        500
+#define moveNormal      750
+#define moveSlow       1000
+
+//----------------------------------------
+//-------------- DEFAULTS ----------------
+
+#define servoDeltaRight  10
+#define servoDeltaLeft  -10
+
+//----------------------------------------
+//-------------- SENSORS -----------------
+
+//Line Tracking IO define
+#define LT_R !digitalRead(10)
+#define LT_M !digitalRead(4)
+#define LT_L !digitalRead(2)
+
+unsigned int lt_r, lt_m, lt_l;
+unsigned int previous_lt_r, previous_lt_m, previous_lt_l;
+
+//----------------------------------------
+//-------------- DISTANCE ----------------
+
+unsigned int rightDistance    = 0;
+unsigned int leftDistance     = 0;
+unsigned int aheadDistance    = 0;
+unsigned int distance         = 0;
+unsigned int previousDistance = 0;
+
+int previousDistanceAngle     = 0;
+int distanceDelta             = 3;
+
+//----------------------------------------
+//--------------- ANGLES -----------------
+
+int servoAngle                = servoAngleStart;
+int previousServoAngle        = 0;
+int delta                     = 0; // for servoAngle movement
+
+//----------------------------------------
+//-------------- INFRA RED ---------------
+
+IRrecv irrecv(RECV_PIN);
+decode_results results;
+
+unsigned long ir_value;
+
+//----------------------------------------
+//--------------- SERIAL -----------------
+
+unsigned long se_value;
+
+//----------------------------------------
+//--------------- SERVO ------------------
+
+Servo myservo; // used to control the ultrasonics servo
+
+//----------------------------------------
+//--------------- CLOCKS -----------------
+
+#define YEAR_OFFSET     1900
+#define MONTH_OFFSET    1
+
+unsigned long time_now = 0L;
+unsigned long curMillis = 0L;
+unsigned long senMillis = 0L;
+unsigned long ircMillis = 0L;
+
+//----------------------------------------
+//--------------- COMMAND ----------------
+
+int cmd;
+long servo_movement_time; // time servo last moved
+
+boolean have_cmd = 0;
+boolean move_servo = 0;
+boolean send_sensor_data = 0;
+boolean stop_everything = 0;
+boolean read_time = 0;
+boolean good = 0;
+
+//----------------------------------------
+//------------ MISCELLANEOUS -------------
+
+int servoSpeed = moveSlow;
+int sensorSpeed = moveNormal;
+
+char buffer[33];
+char number[13];
+
+//========================================
+
+
+void forward(){
+  analogWrite(ENA, carSpeed + speedDelta);
+  analogWrite(ENB, carSpeed + speedDelta);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+void back() {
+  analogWrite(ENA, carSpeed + speedDelta);
+  analogWrite(ENB, carSpeed + speedDelta);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void left() {
+  analogWrite(ENA, carSpeed + speedDelta);
+  analogWrite(ENB, carSpeed + speedDelta);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+void right() {
+  analogWrite(ENA, carSpeed + speedDelta);
+  analogWrite(ENB, carSpeed + speedDelta);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void stop() {
+  digitalWrite(ENA, LOW);
+  digitalWrite(ENB, LOW);
+}
+
+//Ultrasonic distance measurement Sub function
+int getDistance() {
+  digitalWrite(Trig, LOW);
+  delayMicroseconds(2);
+  digitalWrite(Trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(Trig, LOW);
+  return (int)pulseIn(Echo, HIGH) / 58;
+}
+
+void getDistanceUsingBounceWrapper() {
+  distance = getDistance();
+  if (isOutsideDelta(distance, previousDistance, distanceDelta)) {
+    distance = getDistance();
+    if (distance > 50000) {
+      distance = getDistance();
+    }
+  }
+}
+
+void setup() {
+  myservo.attach(SRVO_PIN);  // attach servo on pin 3 to servo object
+  Serial.begin(9600);
+  pinMode(Echo, INPUT);
+  pinMode(Trig, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
+  stop();
+  irrecv.enableIRIn();
+  println("Ready", 1);
+  delayMicroseconds(3);
+}
+
+void loop() {
+  // the IR button effects only last 1 second
+  if (ircMillis != 0) {
+    if (have_cmd && millis() - ircMillis > 1000) {
+      stop();
+      have_cmd = 0;
+      ircMillis = 0L;
+    }
+  }
+
+  // check interrupt
+  if (irrecv.decode(&results)) {
+    ir_value = results.value;
+    ircMillis = millis();
+    irrecv.resume();
+    if (ir_value != -1) {
+      cmd = 0;
+      if (ir_value == IR_FORWARD) {
+        cmd = UPARROW;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_BACK) {
+        cmd = DOWNARROW;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_RIGHT) {
+        cmd = RIGHTARROW;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_LEFT) {
+        cmd = LEFTARROW;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_STOP) {
+        cmd = ALLSTOP;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_ONE) {
+        cmd = DO_FUNCTION_ONE;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_TWO) {
+        cmd = DO_FUNCTION_TWO;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_THREE) {
+        cmd = DO_FUNCTION_THREE;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_FOUR) {
+        cmd = DO_FUNCTION_FOUR;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_FIVE) {
+        cmd = DO_FUNCTION_FIVE;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_SIX) {
+        cmd = DO_FUNCTION_SIX;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_SEVEN) {
+        cmd = DO_FUNCTION_SEVEN;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_EIGHT) {
+        cmd = DO_FUNCTION_EIGHT;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_NINE) {
+        cmd = DO_FUNCTION_NINE;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_ZERO) {
+        cmd = DO_FUNCTION_ZERO;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_STAR) {
+        cmd = DO_FUNCTION_STAR;
+        have_cmd = 1;
+      }
+      if (ir_value == IR_SHARP) {
+        cmd = DO_FUNCTION_SHARP;
+        have_cmd = 1;
+      }
+      if (have_cmd) {
+        good = execute_command(cmd);
+        if (good) {
+          print("IR=", 1);
+          println(toString(ir_value), 0);
+        }
+      }
+    }
+  }
+
+  if (! stop_everything) {
+    // handle input from Jetson Nano
+    if (Serial.available()) {
+      if (read_time) {
+        read_time = 0;
+        time_now = Serial.read();
+        print("TIME=", 1);
+        println(toString(time_now), 0);
+      }
+      else {
+        se_value = Serial.read();
+        good = execute_command(se_value);
+      }
+    }
+
+    send_sensor_data = (millis() - senMillis > sensorSpeed) ? 1 : 0;
+    if (send_sensor_data) {
+      transmit_sensor_data(servoSpeed);
+      senMillis = millis();
+    }
+  }
+}
+
+int randomServoDelta() {
+  do {
+    delta = random(servoDeltaLeft, servoDeltaRight);
+  } while (delta == 0);
+  if (delta > 0) {
+    delta += distanceDelta;
+  }
+  else {
+    delta -= distanceDelta;
+  }
+  print(" random delta=", 1);
+  println(toString(delta), 0);
+  return delta;
+}
+
+void setAngle(int newAngle, int newDelta) {
+  servoAngle = newAngle;
+  delta = newDelta;
+}
+
+void incrementAngle() {
+  servoAngle += delta;
+  if (servoAngle > 180) {
+    delta = -delta;
+    servoAngle = 180;
+  }
+  if (servoAngle < 0) {
+    delta = -delta;
+    servoAngle = 0;
+  }
+}
+
+void transmit_sensor_data(int speed) {
+  // point the servo to the next servoAngle
+  // transmit the servoAngle value
+  move_servo = (millis() - curMillis > speed) ? 1 : 0;
+  if (move_servo) {
+    curMillis = millis();
+    incrementAngle();
+    if (previousServoAngle != servoAngle) {
+      myservo.write(servoAngle);
+      print(" ServoAngle=", 1);
+      println(toString(servoAngle), 0);
+    }
+    previousServoAngle = servoAngle;
+  }
+
+  // transmit distance sensor value
+  getDistanceUsingBounceWrapper();
+  if (isOutsideDelta(distance, previousDistance, distanceDelta)
+   || (servoAngle != previousDistanceAngle)) {
+
+    if (servoAngle == 0) {
+      leftDistance = distance;
+      print(" LeftDistance=", 1);
+      println(toString(leftDistance), 0);
+    }
+    else if (servoAngle == 90) {
+      aheadDistance = distance;
+      print(" AheadDistance=", 1);
+      println(toString(aheadDistance), 0);
+    }
+    else if (servoAngle == 180) {
+      rightDistance = distance;
+      print(" RightDistance=", 1);
+      println(toString(rightDistance), 0);
+    }
+    else if (isOutsideDelta(distance, previousDistance, distanceDelta)) {
+      print(" Distance=", 1);
+      println(toString(distance), 0);
+    }
+    previousDistance = distance;
+    previousDistanceAngle = servoAngle;
+  }
+
+  // transmit line following sensor values
+  lt_r = LT_R;
+  if (lt_r != previous_lt_r) {
+    print(" LT_R=", 1);
+    println(toString(lt_r), 0);
+    previous_lt_r = lt_r;
+  }
+  lt_m = LT_M;
+  if (lt_m != previous_lt_m) {
+    print(" LT_M=", 1);
+    println(toString(lt_m), 0);
+    previous_lt_m = lt_m;
+  }
+  lt_l = LT_L;
+  if (lt_l != previous_lt_l) {
+    print(" LT_L=", 1);
+    println(toString(lt_l), 0);
+    previous_lt_l = lt_l;
+  }
+}
+
+boolean isOutsideDelta(int distance1, int distance2, int theDelta) {
+  if (distance1 == distance2) {
+    return 0;
+  }
+  else if (distance1 < distance2) {
+    return ((distance1 + theDelta) < distance2);
+  }
+  else {
+    return ((distance2 + theDelta) < distance1);
+  }
+}
+
+void printdate() {
+  time_now = millis();
+  snprintf(buffer, sizeof(buffer), " %0ld ", time_now);
+  Serial.print(buffer);
+}
+
+void print(char *output, boolean showDate) {
+  if (showDate) {
+    printdate();
+  }
+  Serial.print(output);
+}
+
+void println(char *output, boolean showDate) {
+  if (showDate) {
+    printdate();
+  }
+  Serial.println(output);
+}
+
+char * toString(unsigned long num) {
+  snprintf(number, sizeof(number), "%ld", num);
+  return number;
+}
+
+boolean execute_command(int cmd) {
+  boolean valid = 0;
+  if (cmd != 0) {
+    print(" got cmd=", 1);
+    println(toString(cmd), 0);
+    switch(cmd) {
+      case SET_TIME:
+        valid = function_set_time();
+        break;
+      case UPARROW:
+      case GAME_W:
+        valid = function_up();
+        break;
+      case DOWNARROW:
+      case GAME_S:
+        valid = function_down();
+        break;
+      case LEFTARROW:
+      case GAME_A:
+        valid = function_left();
+        break;
+      case RIGHTARROW:
+      case GAME_D:
+        valid = function_right();
+        break;
+      case ALLSTOP:
+      case GAME_STOP:
+        valid = function_ok();
+        break;
+      case DO_FUNCTION_ONE:
+        valid = function_one();
+        break;
+      case DO_FUNCTION_TWO:
+        valid = function_two();
+        break;
+      case DO_FUNCTION_THREE:
+        valid = function_three();
+        break;
+      case DO_FUNCTION_FOUR:
+        valid = function_four();
+        break;
+      case DO_FUNCTION_FIVE:
+        valid = function_five();
+        break;
+      case DO_FUNCTION_SIX:
+        valid = function_six();
+        break;
+      case DO_FUNCTION_SEVEN:
+        valid = function_seven();
+        break;
+      case DO_FUNCTION_EIGHT:
+        valid = function_eight();
+        break;
+      case DO_FUNCTION_NINE:
+        valid = function_nine();
+        break;
+      case DO_FUNCTION_ZERO:
+        valid = function_zero();
+        break;
+      case DO_FUNCTION_STAR:
+        valid = function_star();
+        break;
+      case DO_FUNCTION_SHARP:
+        valid = function_sharp();
+        break;
+    }
+  }
+  return valid;
+}
+
+//-----------------------------------------------------------------
+// CUSTOM IR-REMOTE and SERIAL COMMANDS
+
+boolean function_set_time() {
+  read_time = 1;
+  println(" function_set_time: set", 1);
+  return 1;
+}
+
+boolean function_up() {
+  forward();
+  println(" function_up: go forward", 1);
+  return 1;
+}
+
+boolean function_left() {
+  left();
+  println(" function_left: go left", 1);
+  return 1;
+}
+
+boolean function_right() {
+  right();
+  println(" function_right: go right", 1);
+  return 1;
+}
+
+boolean function_down() {
+  back();
+  println(" function_down: go back", 1);
+  return 1;
+}
+
+boolean function_ok() {
+  stop();
+  speedDelta = 0;
+  delta = 0;
+  println(" function_ok: STOP", 1);
+  return 1;
+}
+
+boolean function_one() {
+  setAngle(45, 0);
+  println(" function_one: look toward right", 1);
+  return 1;
+}
+
+boolean function_two() {
+  setAngle(90, 0);
+  println(" function_two: look ahead", 1);
+  return 1;
+}
+
+boolean function_three() {
+  setAngle(90 + 45, 0);
+  println(" function_three: look toward left", 1);
+  return 1;
+}
+
+boolean function_four() {
+  setAngle(0, 0);
+  println(" function_four: look right", 1);
+  return 1;
+}
+
+boolean function_five() {
+  delta = 10;
+  println(" function_five: delta 10", 1);
+  return 1;
+}
+
+boolean function_six() {
+  setAngle(180, 0);
+  println(" function_six: look left", 1);
+  return 1;
+}
+
+boolean function_seven() {
+  if ((carSpeed + speedDelta) <= 250) {
+    speedDelta += 3;
+  }
+  else {
+    println(" +limit", 1);
+  }
+  print(" function_nine: (faster) speed=", 1);
+  print(toString(carSpeed + speedDelta), 0);
+  return 1;
+}
+
+boolean function_eight() {
+  delta = randomServoDelta();
+  println(" function_eight: random delta", 1);
+  return 1;
+}
+
+boolean function_nine() {
+  if ((carSpeed + speedDelta) >= 170) {
+     speedDelta -= 3;
+  }
+  else {
+    println(" -limit", 1);
+  }
+  print(" function_nine: (slower) speed=", 1);
+  print(toString(carSpeed + speedDelta), 0);
+  return 1;
+}
+
+boolean function_zero() {
+  delta = 0;
+  println(" function_zero: delta zero", 1);
+  return 1;
+}
+
+boolean function_star() {
+  stop_everything = 0;
+  println(" function_star: go everything", 1);
+  return 1;
+}
+
+boolean function_sharp() {
+  stop_everything = 1;
+  println(" function_sharp: stop everything", 1);
+  return 1;
+}
+
