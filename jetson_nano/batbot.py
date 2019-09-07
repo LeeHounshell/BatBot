@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import serial
-import syslog
 import time
 
 #The following line is for serial over GPIO
