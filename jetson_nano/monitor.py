@@ -18,4 +18,6 @@ while True:
     time.sleep(1) # wait for Arduino
     ard.flush()
     msg = ard.read(ard.inWaiting()) # read all characters in buffer
-    print(msg.decode())
+    text = msg.decode().strip()
+    if text != '':
+        print(text)
