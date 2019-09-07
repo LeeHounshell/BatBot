@@ -147,6 +147,7 @@ Servo myservo; // used to control the ultrasonics servo
 #define YEAR_OFFSET          1900
 #define MONTH_OFFSET            1
 
+int adjustTimeZone            = 7; // FIXME: adjust for daylight savings time
 time_t time_offset            = 0L;
 time_t time_now               = 0L;
 time_t curMillis              = 0L;
@@ -507,8 +508,7 @@ boolean isOutsideDelta(int distance1, int distance2, int theDelta) {
 void printdate() {
   time_now = now();
   //snprintf(buffer, sizeof(buffer), " %0ld ", time_now);
-  int adjustPST = 7; // FIXME: adjust for daylight savings time
-  snprintf(buffer, sizeof(buffer), " %02d/%02d/%4d %02d:%02d:%02d ", month(), day(), year(), hour() - adjustPST, minute(), second());
+  snprintf(buffer, sizeof(buffer), " %02d/%02d/%4d %02d:%02d:%02d ", month(), day(), year(), hour() - adjustTimeZone, minute(), second());
   Serial.print(buffer);
 }
 
