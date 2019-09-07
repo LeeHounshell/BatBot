@@ -144,13 +144,14 @@ Servo myservo; // used to control the ultrasonics servo
 //----------------------------------------
 //--------------- CLOCKS -----------------
 
-#define YEAR_OFFSET     1900
-#define MONTH_OFFSET    1
+#define YEAR_OFFSET          1900
+#define MONTH_OFFSET            1
 
-unsigned long time_now = 0L;
-unsigned long curMillis = 0L;
-unsigned long senMillis = 0L;
-unsigned long ircMillis = 0L;
+unsigned long time_offset     = 0L;
+unsigned long time_now        = 0L;
+unsigned long curMillis       = 0L;
+unsigned long senMillis       = 0L;
+unsigned long ircMillis       = 0L;
 
 //----------------------------------------
 //--------------- COMMAND ----------------
@@ -355,9 +356,9 @@ void loop() {
     if (Serial.available()) {
       if (read_time) {
         read_time = 0;
-        time_now = Serial.read();
-        print("TIME=", 1);
-        println(toString(time_now), 0);
+        time_offset = Serial.read();
+        print("TIME OFFSET=", 1);
+        println(toString(time_offset), 0);
       }
       else {
         se_value = Serial.read();
@@ -483,7 +484,7 @@ boolean isOutsideDelta(int distance1, int distance2, int theDelta) {
 
 void printdate() {
   time_now = millis();
-  snprintf(buffer, sizeof(buffer), " %0ld ", time_now);
+  snprintf(buffer, sizeof(buffer), " %0ld ", (time_now + time_offset));
   Serial.print(buffer);
 }
 
