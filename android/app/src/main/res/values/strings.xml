@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">BatBot</string>
+    <string name="command_batbot">Command BatBot</string>
 </resources>

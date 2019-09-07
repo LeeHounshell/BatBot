@@ -2,5 +2,5 @@ android/.gradle
 android/.idea
 android/build
 android/app/build
-android/android-BatBot.iml
-android/app/android-app.iml
+android/android.iml
+android/app/app.iml

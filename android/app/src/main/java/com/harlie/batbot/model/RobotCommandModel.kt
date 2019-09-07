@@ -1,0 +1,17 @@
+package com.harlie.batbot.model
+
+import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
+import com.harlie.batbot.BR
+import kotlin.properties.Delegates
+
+class RobotCommandModel(rc: String, cp: String) : BaseObservable() {
+    @get:Bindable var robotCommand: String by Delegates.observable(rc)
+    { prop, old, new ->
+        notifyPropertyChanged(BR.robotCommand)
+    }
+    @get:Bindable var commandPriority: String by Delegates.observable(cp)
+    { prop, old, new ->
+        notifyPropertyChanged(BR.robotCommand)
+    }
+}
