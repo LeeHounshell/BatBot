@@ -354,12 +354,14 @@ void loop() {
   if (! stop_everything) {
     // handle input from Jetson Nano
     if (Serial.available()) {
+
+      // get the SET_TIME offset
       if (read_time) {
         read_time = 0;
-        time_offset = Serial.read();
-        print("TIME OFFSET=", 1);
-        println(toString(time_offset), 0);
+        time_offset = readPythonIntValue();
       }
+
+      // read next command from jetson nano
       else {
         se_value = Serial.read();
         good = execute_command(se_value);
@@ -372,6 +374,24 @@ void loop() {
       senMillis = millis();
     }
   }
+}
+
+uint32_t readPythonIntValue() {
+  delayMicroseconds(300);
+  char byte1 = 0;
+  Serial.readBytes(&byte1, 1);
+  char byte2 = 0;
+  Serial.readBytes(&byte2, 1);
+  char byte3 = 0;
+  Serial.readBytes(&byte3, 1);
+  char byte4 = 0;
+  Serial.readBytes(&byte4, 1);
+  uint32_t value = ((uint32_t)byte1 << 24) + ((uint32_t)byte2 << 16) + ((uint32_t)byte3 << 8) + (uint32_t)byte4; // big-endian
+  print("TIME OFFSET=", 1);
+  snprintf(buffer, sizeof(buffer), " %0ld ", value);
+  Serial.print(buffer);
+  println("", 0);
+  return value;
 }
 
 int randomServoDelta() {
@@ -701,4 +721,3 @@ boolean function_sharp() {
   println(" function_sharp: stop everything", 1);
   return 1;
 }
-
