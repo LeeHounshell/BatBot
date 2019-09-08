@@ -360,7 +360,7 @@ void loop() {
       if (read_time) {
         read_time = 0;
         time_offset = (time_t) readPythonIntValue();
-        time_now = now() + time_offset;
+        time_now = time_offset;
         setTime(time_now);
       }
 
