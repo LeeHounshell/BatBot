@@ -153,6 +153,7 @@ time_t time_now               = 0L;
 time_t curMillis              = 0L;
 time_t senMillis              = 0L;
 time_t ircMillis              = 0L;
+time_t srvMillis              = 0L;
 
 //----------------------------------------
 //--------------- COMMAND ----------------
@@ -163,7 +164,7 @@ long servo_movement_time; // time servo last moved
 boolean have_cmd = 0;
 boolean move_servo = 0;
 boolean send_sensor_data = 0;
-boolean stop_everything = 0;
+boolean stop_serialio = 0;
 boolean read_time = 0;
 boolean good = 0;
 
@@ -258,9 +259,10 @@ void setup() {
 }
 
 void loop() {
+  curMillis = millis();
   // the IR button effects only last 1 second
   if (ircMillis != 0) {
-    if (have_cmd && millis() - ircMillis > 1000) {
+    if (have_cmd && (curMillis - ircMillis) > 1000) {
       stop();
       have_cmd = 0;
       ircMillis = 0L;
@@ -352,7 +354,7 @@ void loop() {
     }
   }
 
-  if (! stop_everything) {
+  if (! stop_serialio) {
     // handle input from Jetson Nano
     if (Serial.available()) {
 
@@ -429,19 +431,27 @@ void incrementAngle() {
   }
 }
 
-void transmit_sensor_data(int speed) {
+void transmit_sensor_data(int servoSpeed) {
   // point the servo to the next servoAngle
   // transmit the servoAngle value
-  move_servo = (millis() - curMillis > speed) ? 1 : 0;
+  move_servo = (millis() - srvMillis > servoSpeed) ? 1 : 0;
   if (move_servo) {
-    curMillis = millis();
     incrementAngle();
     if (previousServoAngle != servoAngle) {
+      srvMillis = millis();
+      pinMode(SRVO_PIN, OUTPUT);
+      println("SERVO: on", 1);
       myservo.write(servoAngle);
       print(" ServoAngle=", 1);
       println(toString(servoAngle), 0);
     }
     previousServoAngle = servoAngle;
+  }
+  // turn the servo off when not in use
+  if (srvMillis != 0L && ((millis() + 3000L) > srvMillis)) {
+    srvMillis = 0L;
+    pinMode(SRVO_PIN, INPUT); // the idea here is to turn off the servo when not in use.  stops shaking.
+    println("SERVO: off", 1);
   }
 
   // transmit distance sensor value
@@ -451,17 +461,17 @@ void transmit_sensor_data(int speed) {
 
     if (servoAngle == 0) {
       leftDistance = distance;
-      print(" LeftDistance=", 1);
+      print(" Left-Distance=", 1);
       println(toString(leftDistance), 0);
     }
     else if (servoAngle == 90) {
       aheadDistance = distance;
-      print(" AheadDistance=", 1);
+      print(" Ahead-Distance=", 1);
       println(toString(aheadDistance), 0);
     }
     else if (servoAngle == 180) {
       rightDistance = distance;
-      print(" RightDistance=", 1);
+      print(" Right-Distance=", 1);
       println(toString(rightDistance), 0);
     }
     else if (isOutsideDelta(distance, previousDistance, distanceDelta)) {
@@ -715,14 +725,13 @@ boolean function_zero() {
 }
 
 boolean function_star() {
-  stop_everything = 0;
-  println(" function_star: go everything", 1);
+  stop_serialio = 0;
+  println(" function_star: go serialio", 1);
   return 1;
 }
 
 boolean function_sharp() {
-  stop_everything = 1;
-  println(" function_sharp: stop everything", 1);
+  stop_serialio = 1;
+  println(" function_sharp: stop serialio", 1);
   return 1;
 }
-
