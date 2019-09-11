@@ -1,4 +1,4 @@
-package com.harlie.batbot.ui.control
+package com.harlie.batbot.ui.bluetooth
 
 import android.os.Bundle
 import android.util.Log
@@ -75,5 +75,7 @@ class BluetoothFragment : Fragment() {
             m_recyclerAdapter.m_deviceCache = it
             m_recyclerAdapter.notifyDataSetChanged()
         })
+
+        m_bluetoothViewModel.selectedId.observe(this, Observer { Log.d(TAG, "NEW selectedId=" + it) })
     }
 }

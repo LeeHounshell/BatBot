@@ -1,10 +1,11 @@
-package com.harlie.batbot.ui.control
+package com.harlie.batbot.ui.bluetooth
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.harlie.batbot.model.BluetoothDeviceModel
@@ -19,6 +20,18 @@ class Bluetooth_ViewModel : ViewModel() {
 
     lateinit var m_bluetoothAdapter: BluetoothAdapter
     private lateinit var m_pairedDevices: Set<BluetoothDevice>
+
+    private val _selectedId = MutableLiveData<Int>()
+    val selectedId: LiveData<Int> = _selectedId
+
+    init {
+        _selectedId.value = 0
+    }
+
+    fun toggle(selectedId: Int) {
+        Log.d(TAG, "toggle(selectedId=" + selectedId)
+        _selectedId.value = selectedId
+    }
 
 
     fun initializeDeviceList(context: Context): Int {
@@ -40,10 +53,9 @@ class Bluetooth_ViewModel : ViewModel() {
             var count = 0
             for (device: BluetoothDevice in m_pairedDevices) {
                 ++count
-                var btDeviceModel: BluetoothDeviceModel
-                btDeviceModel = BluetoothDeviceModel(device.name, device.type.toString(), device.uuids.joinToString { "|" })
+                var btDeviceModel: BluetoothDeviceModel = BluetoothDeviceModel(device.name)
                 btDevicesList.add(btDeviceModel)
-                Log.i(TAG, "device" + count + "=" + btDeviceModel.bt_name + ":" + btDeviceModel.bt_type + ":" + btDeviceModel.bt_uuids)
+                Log.i(TAG, "device" + count + "=" + btDeviceModel)
             }
             m_bluetoothDevicesList.setValue(btDevicesList)
         } else {

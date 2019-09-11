@@ -8,8 +8,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
-import com.harlie.batbot.ui.control.BluetoothFragment
-import com.harlie.batbot.ui.control.Bluetooth_ViewModel
+import com.harlie.batbot.ui.bluetooth.BluetoothFragment
+import com.harlie.batbot.ui.bluetooth.Bluetooth_ViewModel
 
 class MainActivity : AppCompatActivity() {
     val TAG = "LEE: <" + MainActivity::class.java.getName() + ">";
