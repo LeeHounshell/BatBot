@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">BatBot</string>
+    <string name="command_batbot">Command BatBot</string>
+    <string name="refresh">Refresh</string>
+    <string name="name">Name:</string>
+    <string name="type">Type:</string>
+    <string name="id_list">ID List:</string>
+</resources>

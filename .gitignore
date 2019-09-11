@@ -1,6 +1,7 @@
-android/.gradle
-android/.idea
-android/build
-android/app/build
-android/android.iml
-android/app/app.iml
+batbot_app/.gradle
+batbot_app/.idea
+batbot_app/build
+batbot_app/app/build
+batbot_app/android.iml
+batbot_app/batbot_app.iml
+batbot_app/app/app.iml

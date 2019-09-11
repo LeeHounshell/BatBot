@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="btDeviceModel"
+            type="com.harlie.batbot.model.BluetoothDeviceModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="10dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="10dp">
+
+        <LinearLayout
+            android:id="@+id/name_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/bt_name_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:paddingEnd="13dp"
+                android:text="@string/name"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="22sp"/>
+
+            <TextView
+                android:id="@+id/bt_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="@{btDeviceModel.bt_name}"
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
+                tools:text="The Device Name"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/type_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/bt_type_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:paddingEnd="13dp"
+                android:text="@string/type"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="22sp"/>
+
+            <TextView
+                android:id="@+id/bt_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="@{btDeviceModel.bt_type}"
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
+                tools:text="The Device Type"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/uuids_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/bt_uuids_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:paddingEnd="13dp"
+                android:text="@string/id_list"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="22sp"/>
+
+            <TextView
+                android:id="@+id/bt_uuids"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="@{btDeviceModel.bt_uuids}"
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
+                tools:text="The Device IDs"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</layout>

@@ -1,4 +1,4 @@
-package com.harlie.batbot.ui.main
+package com.harlie.batbot.ui.control
 
 import android.os.Bundle
 import android.util.Log
@@ -12,24 +12,23 @@ import androidx.lifecycle.ViewModelProviders
 import com.harlie.batbot.model.RobotCommandModel
 import com.harlie.batbot.util.CacheManager
 import androidx.annotation.Nullable
-import com.harlie.batbot.databinding.MainFragmentBinding
+import com.harlie.batbot.databinding.ControlFragmentBinding
 
 
-class MainFragment : Fragment() {
-    val TAG = "LEE: <" + MainFragment::class.java.getName() + ">";
+class ControlFragment : Fragment() {
+    val TAG = "LEE: <" + ControlFragment::class.java.getName() + ">";
 
     companion object {
-        val instance = MainFragment()
+        val instance = ControlFragment()
         fun getInstance(): Fragment {
             return instance
         }
     }
 
-    private lateinit var fragBinding : MainFragmentBinding
-    private lateinit var mainViewModel: MainViewModel
+    private var m_robotCommand = RobotCommandModel("", "")
+    private lateinit var m_controlFragBinding : ControlFragmentBinding
+    private lateinit var m_controlViewModel: Control_ViewModel
 
-    private var robotCommand = RobotCommandModel("", "")
-    private val cacheManager: CacheManager = CacheManager.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,12 +36,12 @@ class MainFragment : Fragment() {
         @Nullable savedInstanceState: Bundle?
     ): View? {
         Log.d(TAG, "onCreateView");
-        fragBinding = DataBindingUtil.inflate(
-            inflater, com.harlie.batbot.R.layout.main_fragment, container, false
+        m_controlFragBinding = DataBindingUtil.inflate(
+            inflater, com.harlie.batbot.R.layout.control_fragment, container, false
         )
-        fragBinding.robotCommand = robotCommand
-        fragBinding.setLifecycleOwner(this)
-        val view = fragBinding.getRoot()
+        m_controlFragBinding.robotCommand = m_robotCommand
+        m_controlFragBinding.lifecycleOwner = viewLifecycleOwner
+        val view = m_controlFragBinding.getRoot()
         return view
     }
 
@@ -50,12 +49,12 @@ class MainFragment : Fragment() {
         Log.d(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState)
         activity?.let {
-            mainViewModel = ViewModelProviders.of(it).get(MainViewModel::class.java)
+            m_controlViewModel = ViewModelProviders.of(it).get(Control_ViewModel::class.java)
         }
-        mainViewModel.inputCommand.observe(this, Observer {
+        m_controlViewModel.m_inputCommand.observe(this, Observer {
             it?.let {
-                Log.d(TAG, "it.robotCommand=" + it.robotCommand)
-                robotCommand.robotCommand = it.robotCommand
+                Log.d(TAG, "it.m_robotCommand=" + it.robotCommand)
+                m_robotCommand.robotCommand = it.robotCommand
             }
         })
     }

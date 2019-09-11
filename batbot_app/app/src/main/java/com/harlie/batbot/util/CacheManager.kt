@@ -3,19 +3,6 @@ package com.harlie.batbot.util
 class CacheManager private constructor() {
     val TAG = "LEE: <" + CacheManager::class.java.getName() + ">";
 
-    private val mCache: MutableMap<String, String> = mutableMapOf()
-
-
-    init {
-        /*
-        *  every time init is called increment instance count
-        *  just in case somehow we break singleton rule, this will be
-        *  called more than once and myInstancesCount > 1 == true
-        */
-        ++myInstancesCount
-    }
-
-
     companion object {
         //Debuggable field to check instance count
         var myInstancesCount = 0;
@@ -26,6 +13,18 @@ class CacheManager private constructor() {
             return mInstance
         }
     }
+
+    private val mCache: MutableMap<String, String> = mutableMapOf()
+
+    init {
+        /*
+        *  every time init is called increment instance count
+        *  just in case somehow we break singleton rule, this will be
+        *  called more than once and myInstancesCount > 1 == true
+        */
+        ++myInstancesCount
+    }
+
 
     /*
      * Put a key and corresponding value in a map of String, String
@@ -48,5 +47,4 @@ class CacheManager private constructor() {
             else -> return null
         }
     }
-
 }
