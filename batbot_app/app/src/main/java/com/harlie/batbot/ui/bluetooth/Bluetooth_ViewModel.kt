@@ -5,34 +5,36 @@ import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.harlie.batbot.model.BluetoothDeviceModel
-import com.harlie.batbot.util.CacheManager
 
 
 class Bluetooth_ViewModel : ViewModel() {
     val TAG = "LEE: <" + Bluetooth_ViewModel::class.java.getName() + ">";
 
     val m_bluetoothDevicesList = MutableLiveData<MutableList<BluetoothDeviceModel>>()
-    private val m_cacheManager: CacheManager = CacheManager.getInstance()
+    val m_selectedDevice = MutableLiveData<BluetoothDeviceModel>()
 
     lateinit var m_bluetoothAdapter: BluetoothAdapter
     private lateinit var m_pairedDevices: Set<BluetoothDevice>
 
-    private val _selectedId = MutableLiveData<Int>()
-    val selectedId: LiveData<Int> = _selectedId
 
-    init {
-        _selectedId.value = 0
+    fun getDevice(selectionId: Int): BluetoothDeviceModel {
+        Log.d(TAG, "getDevice(" + selectionId + ")")
+        return m_bluetoothDevicesList.value!!.get(selectionId)
     }
 
-    fun toggle(selectedId: Int) {
-        Log.d(TAG, "toggle(selectedId=" + selectedId)
-        _selectedId.value = selectedId
+    fun selectDevice(btDeviceModel: BluetoothDeviceModel) {
+        Log.d(TAG, "selectDevice(name=" + btDeviceModel.bt_name + ", address=" + btDeviceModel.device.address)
+        for (device in m_bluetoothDevicesList.value!!) {
+            if (device != btDeviceModel) {
+                device.selectDevice(false)
+            }
+        }
+        btDeviceModel.selectDevice(true)
+        m_selectedDevice.value = btDeviceModel
     }
-
 
     fun initializeDeviceList(context: Context): Int {
         m_bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
@@ -53,7 +55,7 @@ class Bluetooth_ViewModel : ViewModel() {
             var count = 0
             for (device: BluetoothDevice in m_pairedDevices) {
                 ++count
-                var btDeviceModel: BluetoothDeviceModel = BluetoothDeviceModel(device.name)
+                var btDeviceModel: BluetoothDeviceModel = BluetoothDeviceModel(device.name, device)
                 btDevicesList.add(btDeviceModel)
                 Log.i(TAG, "device" + count + "=" + btDeviceModel)
             }

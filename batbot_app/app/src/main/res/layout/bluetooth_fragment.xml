@@ -5,33 +5,73 @@
     xmlns:bind="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <import type="android.view.View"/>
+        <variable
+            name="selected"
+            type="Boolean" />
+        <variable
+            name="btFragment"
+            type="com.harlie.batbot.ui.bluetooth.BluetoothFragment" />`
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".MainFragment">
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
-        <Button
-            android:id="@+id/device_refresh"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="160dp"
-            android:layout_marginTop="64dp"
-            android:text="@string/refresh"
-            bind:layout_constraintStart_toStartOf="parent"
-            bind:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="vertical"
-            bind:layout_constraintBottom_toBottomOf="parent"
-            bind:layout_constraintEnd_toEndOf="parent"
-            bind:layout_constraintTop_toBottomOf="@+id/device_refresh"
-            tools:listitem="@layout/bt_item_list_view" />
+            tools:context=".MainFragment">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <Space
+                android:id="@+id/space1"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp" />
+
+            <Button
+                android:id="@+id/device_refresh"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/space1"
+                android:text="@string/refresh"
+                android:onClick="@{() -> btFragment.onClickRefresh()}"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp" />
+
+            <Space
+                android:id="@+id/space2"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_below="@+id/device_refresh" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/space2"
+                android:scrollbars="vertical"
+                android:gravity="top"
+                tools:listitem="@layout/bt_item_list_view" />
+
+            <Space
+                android:id="@+id/space3"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_below="@+id/recycler_view" />
+
+            <Button
+                android:id="@+id/device_connect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/space3"
+                android:onClick="@{() -> btFragment.onClickConnect()}"
+                android:text="@string/connect"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:visibility="@{selected ? View.VISIBLE : View.GONE}" />
+
+        </RelativeLayout>
+
+    </ScrollView>
 
 </layout>

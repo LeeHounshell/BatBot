@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.harlie.batbot.ui.bluetooth.BluetoothFragment
 import com.harlie.batbot.ui.bluetooth.Bluetooth_ViewModel
 
+
 class MainActivity : AppCompatActivity() {
     val TAG = "LEE: <" + MainActivity::class.java.getName() + ">";
 

@@ -35,8 +35,10 @@ class BluetoothRecyclerAdapter(val bluetoothViewModel: Bluetooth_ViewModel) : Re
 
         fun bind(btDeviceModel: BluetoothDeviceModel, selection: Int) {
             Log.d(TAG, "bind: btDeviceModel=" + btDeviceModel.bt_name)
+            btDeviceModel.binding = binding
             binding.selectionId = selection
             binding.btDeviceModel = btDeviceModel
+            binding.selected = false
             binding.executePendingBindings()
         }
     }

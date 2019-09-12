@@ -30,7 +30,9 @@ class ControlActivity : AppCompatActivity() {
         lateinit var    m_progress: ProgressDialog
         lateinit var    m_bluetoothAdapter: BluetoothAdapter
         var             m_isConnected: Boolean = false
+        lateinit var    m_name: String
         lateinit var    m_address: String
+        val             EXTRA_NAME   : String = "Device_name"
         val             EXTRA_ADDRESS: String = "Device_address"
     }
 
@@ -52,7 +54,10 @@ class ControlActivity : AppCompatActivity() {
                 .commitNow()
         }
 
+        m_name = intent.getStringExtra(ControlActivity.EXTRA_NAME)
         m_address = intent.getStringExtra(ControlActivity.EXTRA_ADDRESS)
+        Log.d(TAG, "selected device name=" + m_name + ", address=" + m_address)
+
         Connection(this).execute()
     }
 
