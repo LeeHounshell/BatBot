@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.harlie.batbot.ControlActivity
 import com.harlie.batbot.ControlActivity.Companion.EXTRA_ADDRESS
+import com.harlie.batbot.ControlActivity.Companion.EXTRA_DEVICE
 import com.harlie.batbot.ControlActivity.Companion.EXTRA_NAME
 import com.harlie.batbot.databinding.BluetoothFragmentBinding
 import com.harlie.batbot.model.BluetoothDeviceModel
@@ -36,11 +37,11 @@ class BluetoothFragment : Fragment() {
     private val m_selected = ObservableBoolean(false)
 
     private lateinit var m_selectedDevice: BluetoothDeviceModel
-    private lateinit var m_view: View
-    private lateinit var m_bluetoothFragmentBinding: BluetoothFragmentBinding
-    private lateinit var m_bluetoothViewModel: Bluetooth_ViewModel
-    private lateinit var m_recyclerView: RecyclerView
-    private lateinit var m_recyclerAdapter: BluetoothRecyclerAdapter
+    private lateinit var m_View: View
+    private lateinit var m_BluetoothFragmentBinding: BluetoothFragmentBinding
+    private lateinit var m_BluetoothViewModel: Bluetooth_ViewModel
+    private lateinit var m_RecyclerView: RecyclerView
+    private lateinit var m_BluetoothRecyclerAdapter: BluetoothRecyclerAdapter
 
 
     override fun onCreateView(
@@ -49,67 +50,70 @@ class BluetoothFragment : Fragment() {
         @Nullable savedInstanceState: Bundle?
     ): View? {
         Log.d(TAG, "onCreateView");
-        m_bluetoothFragmentBinding = DataBindingUtil.inflate(
+        m_BluetoothFragmentBinding = DataBindingUtil.inflate(
             inflater, com.harlie.batbot.R.layout.bluetooth_fragment, container, false
         )
-        m_recyclerView = m_bluetoothFragmentBinding.recyclerView
-        m_bluetoothFragmentBinding.lifecycleOwner = viewLifecycleOwner
-        m_view = m_bluetoothFragmentBinding.getRoot()
-        return m_view
+        m_RecyclerView = m_BluetoothFragmentBinding.recyclerView
+        m_BluetoothFragmentBinding.lifecycleOwner = viewLifecycleOwner
+        m_View = m_BluetoothFragmentBinding.getRoot()
+        return m_View
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Log.d(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState)
         activity?.let {
-            m_bluetoothViewModel = ViewModelProviders.of(it).get(Bluetooth_ViewModel::class.java)
+            m_BluetoothViewModel = ViewModelProviders.of(it).get(Bluetooth_ViewModel::class.java)
         }
 
-        m_recyclerAdapter = BluetoothRecyclerAdapter(m_bluetoothViewModel)
-        m_recyclerView.adapter = m_recyclerAdapter
-        m_recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        m_BluetoothRecyclerAdapter = BluetoothRecyclerAdapter(m_BluetoothViewModel)
+        m_RecyclerView.adapter = m_BluetoothRecyclerAdapter
+        m_RecyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
-        m_bluetoothFragmentBinding.selected = false
-        m_bluetoothFragmentBinding.btFragment = this
-        m_bluetoothFragmentBinding.recyclerView.adapter = m_recyclerAdapter
+        m_BluetoothFragmentBinding.selected = false
+        m_BluetoothFragmentBinding.btFragment = this
+        m_BluetoothFragmentBinding.recyclerView.adapter = m_BluetoothRecyclerAdapter
 
-        m_bluetoothFragmentBinding.recyclerView.apply {
+        m_BluetoothFragmentBinding.recyclerView.apply {
             addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
 
-        m_bluetoothViewModel.m_bluetoothDevicesList.observe(this, Observer {
+        m_BluetoothViewModel.m_bluetoothDevicesList.observe(this, Observer {
             Log.d(TAG, "observe: new m_bluetoothDevicesList content: it=" + it)
-            var count = 0
-            for (btDevice in it) {
-                Log.d(TAG, "observe: device" + count + "=" + btDevice.bt_name)
-            }
-            m_recyclerAdapter.m_deviceCache = it
-            m_recyclerAdapter.notifyDataSetChanged()
+//            var count = 0
+//            for (btDevice in it) {
+//                Log.d(TAG, "observe: device" + count + "=" + btDevice.bt_name)
+//            }
+            m_BluetoothRecyclerAdapter.m_deviceCache = it
+            m_BluetoothRecyclerAdapter.notifyDataSetChanged()
         })
 
-        m_bluetoothViewModel.m_selectedDevice.observe(this, Observer {
+        m_BluetoothViewModel.m_selectedDevice.observe(this, Observer {
             Log.d(TAG, "observe: the selected device=" + it)
             m_selectedDevice = it
-            m_bluetoothFragmentBinding.selected = true
+            m_BluetoothFragmentBinding.selected = true
         })
     }
 
     fun onClickRefresh() {
         Log.d(TAG, "onClickRefresh")
-        m_bluetoothFragmentBinding.selected = false
-        m_bluetoothViewModel.initializeDeviceList(context!!)
+        m_BluetoothFragmentBinding.selected = false
+        m_BluetoothViewModel.initializeDeviceList(context!!)
     }
 
     fun onClickConnect() {
         Log.d(TAG, "onClickConnect")
+        // Cancel discovery because it otherwise slows down the connection.
+        m_BluetoothViewModel.m_BluetoothAdapter?.cancelDiscovery()
         gotoControlActivity(m_selectedDevice)
     }
 
     fun gotoControlActivity(btModel: BluetoothDeviceModel) {
-        Log.d(TAG, "gotoControlActivity")
+        Log.d(TAG, "gotoControlActivity: btModel name=" + btModel.device.name + ", address=" + btModel.device.address)
         val controlIntent: Intent = Intent(context, ControlActivity::class.java)
         controlIntent.putExtra(EXTRA_NAME, btModel.device.name)
         controlIntent.putExtra(EXTRA_ADDRESS, btModel.device.address)
+        controlIntent.putExtra(EXTRA_DEVICE, btModel.device)
         startActivity(controlIntent)
     }
 }

@@ -1,14 +1,11 @@
 package com.harlie.batbot
 
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.ProgressDialog
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothSocket
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.util.Log
@@ -18,47 +15,76 @@ import androidx.lifecycle.ViewModelProviders
 import com.harlie.batbot.model.RobotCommandModel
 import com.harlie.batbot.ui.control.ControlFragment
 import com.harlie.batbot.ui.control.Control_ViewModel
-import java.io.IOException
 import java.util.*
+
 
 class ControlActivity : AppCompatActivity() {
     val TAG = "LEE: <" + ControlActivity::class.java.getName() + ">";
 
     companion object {
-        var             m_myUUID: UUID = UUID.fromString("01010101-0A0B-0C0D-9310-0123456789AB")
-        var             m_bluetoothSocket: BluetoothSocket? = null
-        lateinit var    m_progress: ProgressDialog
-        lateinit var    m_bluetoothAdapter: BluetoothAdapter
-        var             m_isConnected: Boolean = false
-        lateinit var    m_name: String
-        lateinit var    m_address: String
+        lateinit var    m_name: String // name of the batbot machine to connect to
+        lateinit var    m_address: String // address of the batbot machine to connect to
+        lateinit var    m_device: BluetoothDevice // Bluetooth device info of the batbot machine
         val             EXTRA_NAME   : String = "Device_name"
         val             EXTRA_ADDRESS: String = "Device_address"
+        val             EXTRA_DEVICE: String = "Device_data"
     }
 
     private val REQUEST_CODE = 100
+    private val PREF_UNIQUE_ID = "PREF_UNIQUE_ID"
 
-    private lateinit var m_controlViewModel : Control_ViewModel;
+    private var uniqueId: String? = null
+    private lateinit var m_ControlViewModel : Control_ViewModel
+    private lateinit var m_ControlFragment: ControlFragment
 
 
+    @SuppressLint("HardwareIds")
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.control_activity)
         this.let {
-            m_controlViewModel = ViewModelProviders.of(it).get(Control_ViewModel::class.java)
-        }
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.container, ControlFragment.getInstance())
-                .commitNow()
+            m_ControlViewModel = ViewModelProviders.of(it).get(Control_ViewModel::class.java)
         }
 
         m_name = intent.getStringExtra(ControlActivity.EXTRA_NAME)
         m_address = intent.getStringExtra(ControlActivity.EXTRA_ADDRESS)
-        Log.d(TAG, "selected device name=" + m_name + ", address=" + m_address)
+        m_device = intent.getParcelableExtra(ControlActivity.EXTRA_DEVICE)
+        Log.d(TAG, "selected name=" + m_name + ", address=" + m_address)
 
-        Connection(this).execute()
+        uniqueId = id(this)
+        Log.d(TAG, "phone has uniqueId=" + uniqueId)
+
+        if (savedInstanceState == null) {
+            m_ControlFragment = ControlFragment.getInstance() as ControlFragment
+            m_ControlFragment.setDeviceInfo(m_name, m_address, m_device, uniqueId!!)
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.container, m_ControlFragment)
+                .commitNow()
+        }
+    }
+
+    @Synchronized
+    fun id(context: Context): String {
+        if (uniqueId == null) {
+            val sharedPrefs = context.getSharedPreferences(
+                PREF_UNIQUE_ID, Context.MODE_PRIVATE
+            )
+            uniqueId = sharedPrefs.getString(PREF_UNIQUE_ID, null)
+            if (uniqueId == null) {
+                uniqueId = UUID.randomUUID().toString()
+                val editor = sharedPrefs.edit()
+                editor.putString(PREF_UNIQUE_ID, uniqueId)
+                editor.commit()
+            }
+        }
+        return uniqueId as String
+    }
+
+    override fun onResume() {
+        Log.d(TAG, "onResume")
+        super.onResume()
+        Log.d(TAG, "creating Connection to batbot..")
     }
 
     fun onClick(v: View) {
@@ -80,73 +106,20 @@ class ControlActivity : AppCompatActivity() {
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     Log.d(TAG, "result=" + result[0])
                     val robotCommand : RobotCommandModel = RobotCommandModel(result[0], "3")
-                    m_controlViewModel.m_inputCommand.postValue(robotCommand)
+                    m_ControlViewModel.processMessage(robotCommand)
                 }
             }
         }
     }
 
-
-    private fun send(input: String) {
-        if (m_bluetoothSocket != null) {
-            try{
-                m_bluetoothSocket!!.outputStream.write(input.toByteArray())
-            } catch(e: IOException) {
-                e.printStackTrace()
-            }
-        }
+    private fun gotoMainActivity() {
+        Log.d(TAG, "gotoMainActivity")
+        val mainIntent: Intent = Intent(this, ControlActivity::class.java)
+        startActivity(mainIntent)
     }
 
-    private fun disconnect() {
-        if (m_bluetoothSocket != null) {
-            try {
-                m_bluetoothSocket!!.close()
-                m_bluetoothSocket = null
-                m_isConnected = false
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-        finish()
-    }
-
-    private class Connection(c: Context) : AsyncTask<Void, Void, String>() {
-        val TAG = "LEE: <" + Connection::class.java.getName() + ">";
-
-        private val context: Context
-        private var success: Boolean = true
-
-        init {
-            this.context = c
-        }
-
-        override fun onPreExecute() {
-            super.onPreExecute()
-            m_progress = ProgressDialog.show(context, "Connecting...", "please wait")
-        }
-
-        override fun doInBackground(vararg p0: Void?): String? {
-            try {
-                if (m_bluetoothSocket == null || !m_isConnected) {
-                    m_bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-                    val device: BluetoothDevice = m_bluetoothAdapter.getRemoteDevice(m_address)
-                    m_bluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(m_myUUID)
-                    BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
-                    m_bluetoothSocket!!.connect()
-                }
-            } catch (e: IOException) {
-                success = false
-                e.printStackTrace()
-            }
-            return null
-        }
-
-        override fun onPostExecute(result: String?) {
-            Log.d(TAG, "onPostExecute")
-            super.onPostExecute(result)
-            m_isConnected = success
-            Log.i(TAG, "connection status=" + m_isConnected);
-            m_progress.dismiss()
-        }
+    override fun onDestroy() {
+        Log.d(TAG, "onDestroy")
+        super.onDestroy()
     }
 }
