@@ -17,16 +17,18 @@ class MainActivity : AppCompatActivity() {
 
     val REQUEST_ENABLE_BLUETOOTH = 1
 
-    private lateinit var m_bluetoothViewModel: Bluetooth_ViewModel
-
+    private lateinit var m_BluetoothViewModel: Bluetooth_ViewModel
+    private lateinit var m_BluetoothAdapter: BluetoothAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
-        m_bluetoothViewModel = ViewModelProviders.of(this).get(Bluetooth_ViewModel::class.java)
-        if (0 <= m_bluetoothViewModel.initializeDeviceList(this)) {
+        m_BluetoothViewModel = ViewModelProviders.of(this).get(Bluetooth_ViewModel::class.java)
+        m_BluetoothAdapter = m_BluetoothViewModel.initDefaultAdapter()
+
+        if (0 <= m_BluetoothViewModel.initializeDeviceList(this)) {
             val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableBluetoothIntent, REQUEST_ENABLE_BLUETOOTH)
         }
@@ -37,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_ENABLE_BLUETOOTH) {
             if (resultCode == Activity.RESULT_OK) {
-                if (m_bluetoothViewModel.m_bluetoothAdapter!!.isEnabled) {
+                if (m_BluetoothViewModel.m_BluetoothAdapter!!.isEnabled) {
                     Log.i(TAG, "Bluetooth Enabled")
                     Toast.makeText(this@MainActivity,  "Bluetooth Enabled", Toast.LENGTH_LONG).show()
 

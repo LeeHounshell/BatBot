@@ -11,7 +11,7 @@
             type="Boolean" />
         <variable
             name="btFragment"
-            type="com.harlie.batbot.ui.bluetooth.BluetoothFragment" />`
+            type="com.harlie.batbot.ui.bluetooth.BluetoothFragment" />
     </data>
 
     <ScrollView
