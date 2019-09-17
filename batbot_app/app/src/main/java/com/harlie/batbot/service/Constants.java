@@ -20,9 +20,10 @@ public interface Constants {
     public static final String TOAST = "toast";
     public static final String DATA = "data";
     public static final String SIZE = "size";
+    public static final String DISCONNECT = "disconnect";
 
     public static final float BORDER_THICKNESS = (float)0.025;
 
     public static final String PROTOCOL_VERSION = "1";
-    public static final String CLIENT_NAME = "Blue Dot Android app";
+    public static final String CLIENT_NAME = "BatBot Android app";
 }

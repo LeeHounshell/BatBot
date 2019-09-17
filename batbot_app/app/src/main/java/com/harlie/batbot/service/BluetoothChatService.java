@@ -120,14 +120,13 @@ public class BluetoothChatService {
         mNewState = mState;
         Bundle bundle = new Bundle();
         bundle.putString(Constants.DATA, status);
-        notifyStateChange(Constants.MESSAGE_STATE_CHANGE, mState, bundle);
         BluetoothStatusEvent bt_status_event = new BluetoothStatusEvent(status);
         bt_status_event.post();
     }
 
     private void disconnect() {
         Log.d(TAG, "disconnect");
-        notifyBluetoothStatus("disconnected.");
+        notifyBluetoothStatus(Constants.DISCONNECT);
     }
 
     public void send(String message) {
@@ -213,7 +212,7 @@ public class BluetoothChatService {
         mConnectThread = new ConnectThread(device, secure);
         mConnectThread.start();
 
-        notifyBluetoothStatus("connecting..");
+        notifyBluetoothStatus("connecting.. (please wait)");
     }
 
     /**
