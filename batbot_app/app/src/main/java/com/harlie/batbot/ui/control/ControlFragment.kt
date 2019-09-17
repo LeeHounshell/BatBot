@@ -17,6 +17,7 @@ import com.harlie.batbot.util.DynamicMatrix
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.widget.Toast
+import com.harlie.batbot.ControlActivity
 import kotlinx.android.synthetic.main.control_fragment.*
 
 
@@ -30,13 +31,12 @@ class ControlFragment : Fragment() {
         }
     }
 
+    // Initialize the BluetoothChatService to perform bluetooth connections
+    private var m_BluetoothChatService = BluetoothChatService()
     private var m_robotCommand = RobotCommandModel("", "")
     private lateinit var m_ControlFragBinding : ControlFragmentBinding
     private lateinit var m_ControlViewModel: Control_ViewModel
     private lateinit var m_BluetoothAdapter: BluetoothAdapter
-    private lateinit var m_BluetoothChatService: BluetoothChatService
-    private lateinit var m_outStringBuffer: StringBuffer
-    private lateinit var m_inStringBuffer: StringBuffer
 
     private var m_name: String? = null
     private var m_address: String? = null
@@ -61,12 +61,18 @@ class ControlFragment : Fragment() {
         return view
     }
 
+    fun setDeviceInfo(name: String, address: String, device: BluetoothDevice, uniqueId: String) {
+        Log.d(TAG, "setDeviceInfo: name=" + name + ", address=" + address + ", uniqueId=" + uniqueId);
+        this.m_name = name;
+        this.m_address = address
+        this.m_device = device
+        this.m_uniqueId = uniqueId
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Log.d(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState)
-        activity?.let {
-            m_ControlViewModel = ViewModelProviders.of(it).get(Control_ViewModel::class.java)
-        }
+        getViewModel()
         m_ControlViewModel.m_inputCommand.observe(this, Observer {
             it?.let {
                 Log.d(TAG, "it.m_robotCommand=" + it.robotCommand)
@@ -74,30 +80,34 @@ class ControlFragment : Fragment() {
                 send(m_robotCommand.robotCommand) // send command to the robot
             }
         })
+        connect()
+    }
 
+    private fun getViewModel(): Control_ViewModel {
+        Log.d(TAG, "getViewModel");
+        if (! ::m_ControlViewModel.isInitialized) {
+            activity?.let {
+                m_ControlViewModel = ViewModelProviders.of(it).get(Control_ViewModel::class.java)
+            }
+        }
+        return m_ControlViewModel
+    }
+
+    fun connect() {
+        Log.d(TAG, "connect")
         // we need to initialize the bluetooth adapter
+        getViewModel()
         m_BluetoothAdapter = m_ControlViewModel.initDefaultAdapter()
-
-        // Initialize the BluetoothChatService to perform bluetooth connections
-        m_BluetoothChatService = BluetoothChatService()
 
         // Get the BluetoothDevice object
         //val device = mBluetoothAdapter.getRemoteDevice(activity)
         // Attempt to connect to the device
 
+        msg("connecting..")
+
         m_BluetoothChatService.connect(m_device, true)
 
-
-        val out: String = "Hello, BatBot!  i am your friend."
-        val charset = Charsets.UTF_8
-        val outBytes = out.toByteArray(charset)
-
-        m_BluetoothChatService.write(outBytes)
-
-        // Initialize the buffer for outgoing messages
-        m_outStringBuffer = StringBuffer("this is a test of the outgoing buffer")
-        // Initialize the buffer for incoming messages
-        m_inStringBuffer = StringBuffer("")
+        msg("connected.")
 
         // Once connected setup the listener
         bluedot_matrix.setOnUseListener(object : DynamicMatrix.DynamicMatrixListener {
@@ -107,6 +117,7 @@ class ControlFragment : Fragment() {
                 actual_x: Float,
                 actual_y: Float
             ) {
+                Log.d(TAG, "onPress")
                 val x = calcX(cell, actual_x)
                 val y = calcY(cell, actual_y)
                 send(buildMessage("1", x, y))
@@ -120,6 +131,7 @@ class ControlFragment : Fragment() {
                 actual_x: Float,
                 actual_y: Float
             ) {
+                Log.d(TAG, "onMove");
                 val x = calcX(cell, actual_x)
                 val y = calcY(cell, actual_y)
                 if (x != last_x || y != last_y) {
@@ -135,24 +147,14 @@ class ControlFragment : Fragment() {
                 actual_x: Float,
                 actual_y: Float
             ) {
+                Log.d(TAG, "onRelease");
                 val x = calcX(cell, actual_x)
                 val y = calcY(cell, actual_y)
                 send(buildMessage("0", x, y))
-                send(out)
                 last_x = x
                 last_y = y
             }
-
         })
-
-    }
-
-    fun setDeviceInfo(name: String?, address: String?, device: BluetoothDevice?, uniqueId: String) {
-        Log.d(TAG, "setDeviceInfo: name=" + name + ", address=" + address + ", uniqueId=" + uniqueId)
-        m_name = name;
-        m_address = address
-        m_device = device
-        m_uniqueId = uniqueId
     }
 
     private fun calcX(cell: DynamicMatrix.MatrixCell, actual_x: Float): Double {
@@ -170,34 +172,23 @@ class ControlFragment : Fragment() {
     }
 
     private fun buildMessage(operation: String, x: Double, y: Double): String {
+        Log.d(TAG, "buildMessage");
         return "$operation,$x,$y\n"
     }
 
     fun send(message: String) {
-        // Check that we're actually connected before trying anything
-        if (m_BluetoothChatService.getState() !== BluetoothChatService.STATE_CONNECTED) {
-            Toast.makeText(context, "cant send message - not connected", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Check that there's actually something to send
-        if (message.length > 0) {
-            // Get the message bytes and tell the BluetoothChatService to write
-            val send = message.toByteArray()
-            m_BluetoothChatService.write(send)
-
-            // Reset out string buffer to zero and clear the edit text field
-            m_outStringBuffer.setLength(0)
-        }
+        Log.d(TAG, "send: " + message);
+        m_BluetoothChatService.send(message)
     }
 
     private fun disconnect() {
-        if (m_BluetoothChatService != null) {
-            m_BluetoothChatService.stop()
-        }
+        Log.d(TAG, "disconnect");
+        m_BluetoothChatService.stop()
     }
 
     private fun msg(message: String) {
+        Log.d(TAG, "msg: " + message)
         status.text = message
     }
+
 }
