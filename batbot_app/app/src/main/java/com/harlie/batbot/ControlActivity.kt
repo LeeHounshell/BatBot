@@ -57,10 +57,12 @@ class ControlActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             m_ControlFragment = ControlFragment.getInstance() as ControlFragment
-            m_ControlFragment.setDeviceInfo(m_name, m_address, m_device, uniqueId!!)
             supportFragmentManager.beginTransaction()
                 .replace(R.id.container, m_ControlFragment)
                 .commitNow()
+
+            Log.d(TAG, "creating Connection to batbot..")
+            m_ControlFragment.setDeviceInfo(m_name, m_address, m_device, uniqueId!!)
         }
     }
 
@@ -84,7 +86,6 @@ class ControlActivity : AppCompatActivity() {
     override fun onResume() {
         Log.d(TAG, "onResume")
         super.onResume()
-        Log.d(TAG, "creating Connection to batbot..")
     }
 
     fun onClick(v: View) {

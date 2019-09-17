@@ -1,4 +1,4 @@
-// by: Martin O'Hanlon
+// adapted from code by: Martin O'Hanlon
 // from: https://github.com/martinohanlon/BlueDot/blob/master/clients/android/app/src/main/java/com/stuffaboutcode/bluedot/BluetoothChatService.java
 //
 // Thanks Martin!  your BlueDot rocks!!   github.com/martinohanlon/BlueDot
@@ -10,9 +10,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 
 import java.io.IOException;
@@ -69,6 +67,82 @@ public class BluetoothChatService {
         //mHandler = handler;
     }
 
+    private void notifyStateChange(int whatChanged, int theState, Bundle extra) {
+        Log.d(TAG, "notifyStateChange: whatChanged=" + whatChanged + ", theState=" + theState);
+        switch (whatChanged) {
+            case Constants.MESSAGE_STATE_CHANGE:
+                switch (theState) {
+                    case BluetoothChatService.STATE_CONNECTED:
+                        Log.d("status","connected");
+                        //matrix.setVisibility(View.VISIBLE);
+                        // send the protocol version to the server
+                        send("3," + Constants.PROTOCOL_VERSION + "," + Constants.CLIENT_NAME + "\n");
+                        break;
+                    case BluetoothChatService.STATE_CONNECTING:
+                        Log.d("status","connecting");
+                        //matrix.setVisibility(View.INVISIBLE);
+                        break;
+                    case BluetoothChatService.STATE_LISTEN:
+                    case BluetoothChatService.STATE_NONE:
+                        Log.d("status","not connected");
+                        //disconnect();
+                        break;
+                }
+                break;
+            case Constants.MESSAGE_WRITE:
+                byte[] writeBuf = (byte[]) extra.getByteArray(Constants.DATA);
+                int bytesSent = extra.getInt(Constants.SIZE);
+                // construct a string from the buffer
+                String writeMessage = new String(writeBuf);
+                Log.d(TAG, "SENT: " + writeMessage);
+                break;
+            case Constants.MESSAGE_READ:
+                byte[] readBuf = (byte[]) extra.getByteArray(Constants.DATA);
+                int bytesRead = extra.getInt(Constants.SIZE);
+                // construct a string from the valid bytes in the buffer
+                String readData = new String(readBuf, 0, bytesRead);
+                // message received
+                //parseData(readData);
+                Log.d(TAG, "READ: " + readData);
+                break;
+            case Constants.MESSAGE_DEVICE_NAME:
+                // save the connected device's name
+                String connectedDeviceName = extra.getString(Constants.DEVICE_NAME);
+                Log.d(TAG, "===> connectedDeviceName=" + connectedDeviceName);
+                //if (null != this) {
+                //    Toast.makeText(getApplicationContext(),
+                //        "Connected to " + mConnectedDeviceName,
+                //        Toast.LENGTH_SHORT).show();
+                //}
+                break;
+            case Constants.MESSAGE_TOAST:
+                String message = extra.getString(Constants.TOAST);
+                Log.d(TAG, "===> TOAST message=" + message);
+                //if (null != this) {
+                //    Toast.makeText(getApplicationContext(),
+                //        msg.getData().getString(Constants.TOAST),
+                //        Toast.LENGTH_SHORT).show();
+                //}
+                break;
+        }
+    }
+
+    public void send(String message) {
+        Log.d(TAG, "send: message=" + message);
+        // Check that we're actually connected before trying anything
+//        if (getState() != BluetoothChatService.STATE_CONNECTED) {
+//            Log.e(TAG, "cant send message - not connected");
+//        }
+//        else {
+            // Check that there's something to send
+            if (message.length() > 0) {
+                // Get the message bytes and tell the BluetoothChatService to write
+                byte[] bytearray = message.getBytes();
+                write(bytearray);
+            }
+//        }
+    }
+
     /**
      * Update UI title according to the current state of the chat connection
      */
@@ -80,6 +154,7 @@ public class BluetoothChatService {
 
         // Give the new state to the Handler so the UI Activity can update
         //mHandler.obtainMessage(Constants.MESSAGE_STATE_CHANGE, mNewState, -1).sendToTarget();
+        notifyStateChange(Constants.MESSAGE_STATE_CHANGE, mState, null);
     }
 
     /**
@@ -194,6 +269,8 @@ public class BluetoothChatService {
         bundle.putString(Constants.DEVICE_NAME, device.getName());
         //msg.setData(bundle);
         //mHandler.sendMessage(msg);
+        notifyStateChange(Constants.MESSAGE_DEVICE_NAME, mState, bundle);
+
         // Update UI title
         updateUserInterfaceTitle();
     }
@@ -253,13 +330,15 @@ public class BluetoothChatService {
     private void connectionFailed() {
         Log.d(TAG, "connectionFailed");
         // Send a failure message back to the Activity
+        mState = STATE_NONE;
+
         //Message msg = mHandler.obtainMessage(Constants.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
         bundle.putString(Constants.TOAST, "Unable to connect");
         //msg.setData(bundle);
         //mHandler.sendMessage(msg);
+        notifyStateChange(Constants.MESSAGE_TOAST, mState, bundle);
 
-        mState = STATE_NONE;
         // Update UI title
         updateUserInterfaceTitle();
 
@@ -273,13 +352,15 @@ public class BluetoothChatService {
     private void connectionLost() {
         Log.d(TAG, "connectionLost");
         // Send a failure message back to the Activity
+        mState = STATE_NONE;
+
         //Message msg = mHandler.obtainMessage(Constants.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
         bundle.putString(Constants.TOAST, "Connection lost");
         //msg.setData(bundle);
         //mHandler.sendMessage(msg);
+        notifyStateChange(Constants.MESSAGE_TOAST, mState, bundle);
 
-        mState = STATE_NONE;
         // Update UI title
         updateUserInterfaceTitle();
 
@@ -496,9 +577,18 @@ public class BluetoothChatService {
                     int bytes;
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
+                    if (bytes == -1) {
+                        connectionLost();
+                    }
+                    else {
+                        // Send the obtained bytes to the UI Activity
+                        //mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                        Bundle bundle = new Bundle();
+                        bundle.putByteArray(Constants.DATA, buffer);
+                        bundle.putInt(Constants.SIZE, bytes);
+                        notifyStateChange(Constants.MESSAGE_READ, mState, bundle);
+                    }
 
-                    // Send the obtained bytes to the UI Activity
-                    //mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
                 } catch (IOException e) {
                     Log.e(TAG, "Disconnected", e);
                     connectionLost();
@@ -516,9 +606,12 @@ public class BluetoothChatService {
             Log.d(TAG, "write: buffer=" + buffer);
             try {
                 mmOutStream.write(buffer);
-
                 // Share the sent message back to the UI Activity
                 //mHandler.obtainMessage(Constants.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
+                Bundle bundle = new Bundle();
+                bundle.putByteArray(Constants.DATA, buffer);
+                bundle.putInt(Constants.SIZE, buffer.length);
+                notifyStateChange(Constants.MESSAGE_WRITE, mState, bundle);
             } catch (IOException e) {
                 Log.e(TAG, "Exception during write", e);
             }
