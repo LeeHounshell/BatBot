@@ -75,7 +75,7 @@ class ControlFragment : Fragment() {
         getViewModel()
         m_ControlViewModel.m_inputCommand.observe(this, Observer {
             it?.let {
-                Log.d(TAG, "it.m_robotCommand=" + it.robotCommand)
+                Log.d(TAG, "===> it.m_robotCommand=" + it.robotCommand)
                 m_robotCommand.robotCommand = it.robotCommand
                 send(m_robotCommand.robotCommand) // send command to the robot
             }

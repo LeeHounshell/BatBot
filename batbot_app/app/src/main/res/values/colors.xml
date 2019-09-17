@@ -8,5 +8,5 @@
     <color name="red">#FF0000</color>
     <color name="blue">#0000FF</color>
     <color name="darkgrey">#6d6d6e</color>
-    <color name="defaultCellColor">#0000FF</color>
+    <color name="defaultCellColor">#00000000</color>
 </resources>

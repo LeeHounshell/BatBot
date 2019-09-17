@@ -58,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:text="@{btDeviceModel.bt_name}"
-                android:textColor="@android:color/black"
+                android:textColor="@color/colorBackground"
                 android:textSize="20sp"
                 tools:text="Device Name"/>
 
@@ -68,7 +68,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:text="@{btDeviceModel.device.address}"
-                android:textColor="@android:color/black"
+                android:textColor="@color/colorBackground"
                 android:textSize="17sp"
                 tools:text="Device Address"/>
 
