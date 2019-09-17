@@ -77,6 +77,7 @@ class ControlFragment : Fragment() {
             it?.let {
                 Log.d(TAG, "===> it.m_robotCommand=" + it.robotCommand)
                 m_robotCommand.robotCommand = it.robotCommand
+                m_robotCommand.commandPriority = it.commandPriority
                 send(m_robotCommand.robotCommand) // send command to the robot
             }
         })
