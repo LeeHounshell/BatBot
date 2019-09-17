@@ -91,7 +91,12 @@ def data_received(data):
 #bd.when_moved = move
 #bd.when_released = stop
 
-s = BluetoothServer(data_received)
+while True:
+    try:
+        s = BluetoothServer(data_received)
+        pause()
+    except Exception as e:
+        print("ERROR: e=" + str(e))
+    time.sleep(2)
 
-pause()
 
