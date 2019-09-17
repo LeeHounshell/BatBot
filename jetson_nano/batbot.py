@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
+from bluedot.btcomm import BluetoothServer
+from bluedot import BlueDot
+from signal import pause
+
 import serial
 import time
 
@@ -29,28 +33,65 @@ game_s_str     = 'S'
 game_d         = 68
 game_d_str     = 'D'
 
-command_array = [uparrow_str, downarrow_str, rightarrow_str, leftarrow_str, allstop_str, game_w_str, game_a_str, game_s_str, game_d_str, allstop_str, allstop_str]
+def executeCommands(command_array):
+    i = 0
+    while (i < len(command_array)):
+        # Serial read section
+        ard.flush()
+        msg = ard.read(ard.inWaiting()) # read all characters in buffer
+        print("from arduino: ")
+        print(msg)
 
-i = 0
-while (i < len(command_array)):
-    # Serial read section
-    ard.flush()
-    msg = ard.read(ard.inWaiting()) # read all characters in buffer
-    print("Message from arduino: ")
-    print(msg)
+        # Serial write section
+        ard.flush()
+        print("python sent: ")
+        encoded_command = command_array[i].encode();
+        ard.write(encoded_command)
+        print(encoded_command)
+        time.sleep(1) # I shortened this to match the new value in your Arduino code
 
-    # Serial write section
-    ard.flush()
-    print("Python value sent: ")
-    encoded_command = command_array[i].encode();
-    ard.write(encoded_command)
-    print(encoded_command)
-    time.sleep(1) # I shortened this to match the new value in your Arduino code
+        i = i + 1
+    else:
+        print("done.")
 
-    i = i + 1
-    time.sleep(2)
-else:
-    print("Exiting")
 
-exit()
+#bd = BlueDot()
+
+def move(pos):
+    command_array = []
+    if pos.top:
+        command_array = [uparrow_str]
+        print("forward.")
+    elif pos.bottom:
+        command_array = [downarrow_str]
+        print("backward.")
+    elif pos.left:
+        command_array = [leftarrow_str]
+        print("left.")
+    elif pos.right:
+        command_array = [rightarrow_str]
+        print("right.")
+    elif pos.middle:
+        command_array = [allstop_str]
+        print("stop.")
+    if len(command_array) > 0:
+        #executeCommands(command_array)
+        print("fake execute");
+
+def stop():
+    command_array = [allstop_str]
+    print("stop.")
+    executeCommands(command_array)
+
+def data_received(data):
+    print(data)
+    s.send(data)
+
+#bd.when_pressed = move
+#bd.when_moved = move
+#bd.when_released = stop
+
+s = BluetoothServer(data_received)
+
+pause()
 
