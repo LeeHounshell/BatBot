@@ -5,3 +5,4 @@ batbot_app/app/build
 batbot_app/android.iml
 batbot_app/batbot_app.iml
 batbot_app/app/app.iml
+jetson_nano/__pycache__
