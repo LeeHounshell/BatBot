@@ -18,7 +18,12 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.widget.Toast
 import com.harlie.batbot.ControlActivity
+import com.harlie.batbot.util.BluetoothStateChangeEvent
+import com.harlie.batbot.util.BluetoothStatusEvent
 import kotlinx.android.synthetic.main.control_fragment.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 
 class ControlFragment : Fragment() {
@@ -82,6 +87,29 @@ class ControlFragment : Fragment() {
             }
         })
         connect()
+    }
+
+    override fun onStart() {
+        Log.d(TAG, "onStart")
+        super.onStart()
+        EventBus.getDefault().register(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onBluetoothStateChangeEvent(bt_event: BluetoothStateChangeEvent) {
+        Log.d(TAG, "onBluetoothStateChangeEvent: theState=" + bt_event.theState + ", whatChanged=" + bt_event.whatChanged)
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onBluetoothStatusEvent(bt_status_event: BluetoothStatusEvent) {
+        Log.d(TAG, "onBluetoothStatusEvent: message=" + bt_status_event.message)
+        msg(bt_status_event.message)
+    }
+
+    override fun onStop() {
+        Log.d(TAG, "onStop")
+        super.onStop()
+        EventBus.getDefault().unregister(this);
     }
 
     private fun getViewModel(): Control_ViewModel {

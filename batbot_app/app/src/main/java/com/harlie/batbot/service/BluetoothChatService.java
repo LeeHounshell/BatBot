@@ -13,6 +13,9 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.harlie.batbot.util.BluetoothStateChangeEvent;
+import com.harlie.batbot.util.BluetoothStatusEvent;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -125,6 +128,9 @@ public class BluetoothChatService {
                 //}
                 break;
         }
+
+        BluetoothStateChangeEvent bt_event = new BluetoothStateChangeEvent(whatChanged, theState, extra);
+        bt_event.post();
     }
 
     public void send(String message) {
@@ -146,15 +152,19 @@ public class BluetoothChatService {
     /**
      * Update UI title according to the current state of the chat connection
      */
-    private synchronized void updateUserInterfaceTitle() {
-        Log.d(TAG, "updateUserInterfaceTitle");
+    private synchronized void updateUI_BluetoothStatus(String status) {
+        Log.d(TAG, "updateUI_BluetoothStatus");
         mState = getState();
-        Log.d(TAG, "updateUserInterfaceTitle() " + mNewState + " -> " + mState);
+        Log.d(TAG, "updateUI_BluetoothStatus() " + mNewState + " -> " + mState);
         mNewState = mState;
 
+        Bundle bundle = new Bundle();
         // Give the new state to the Handler so the UI Activity can update
         //mHandler.obtainMessage(Constants.MESSAGE_STATE_CHANGE, mNewState, -1).sendToTarget();
-        notifyStateChange(Constants.MESSAGE_STATE_CHANGE, mState, null);
+        notifyStateChange(Constants.MESSAGE_STATE_CHANGE, mState, bundle);
+
+        BluetoothStatusEvent bt_status_event = new BluetoothStatusEvent(status);
+        bt_status_event.post();
     }
 
     /**
@@ -194,7 +204,7 @@ public class BluetoothChatService {
             mInsecureAcceptThread.start();
         }
         // Update UI title
-        updateUserInterfaceTitle();
+        updateUI_BluetoothStatus("initializing..");
     }
 
     /**
@@ -224,7 +234,7 @@ public class BluetoothChatService {
         mConnectThread = new ConnectThread(device, secure);
         mConnectThread.start();
         // Update UI title
-        updateUserInterfaceTitle();
+        updateUI_BluetoothStatus("connecting..");
     }
 
     /**
@@ -272,7 +282,7 @@ public class BluetoothChatService {
         notifyStateChange(Constants.MESSAGE_DEVICE_NAME, mState, bundle);
 
         // Update UI title
-        updateUserInterfaceTitle();
+        updateUI_BluetoothStatus("connected: " + device.getName());
     }
 
     /**
@@ -302,7 +312,7 @@ public class BluetoothChatService {
         }
         mState = STATE_NONE;
         // Update UI title
-        updateUserInterfaceTitle();
+        updateUI_BluetoothStatus("disconnected.");
     }
 
     /**
@@ -340,7 +350,7 @@ public class BluetoothChatService {
         notifyStateChange(Constants.MESSAGE_TOAST, mState, bundle);
 
         // Update UI title
-        updateUserInterfaceTitle();
+        updateUI_BluetoothStatus("connection failed.");
 
         // Start the service over to restart listening mode
         BluetoothChatService.this.start();
@@ -362,7 +372,7 @@ public class BluetoothChatService {
         notifyStateChange(Constants.MESSAGE_TOAST, mState, bundle);
 
         // Update UI title
-        updateUserInterfaceTitle();
+        updateUI_BluetoothStatus("connection lost");
 
         // Start the service over to restart listening mode
         //BluetoothChatService.this.start();
