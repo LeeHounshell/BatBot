@@ -165,7 +165,6 @@ public class DynamicMatrix extends View {
 
     }
 
-
     private RectF sizeCell(int c, int r) {
         return new RectF(
                 (int) mMatrixBounds.left + (c * mCellSize),

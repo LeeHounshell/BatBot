@@ -145,6 +145,9 @@ class ControlFragment : Fragment() {
     fun onBluetoothStatusEvent(bt_status_event: BluetoothStatusEvent) {
         Log.d(TAG, "onBluetoothStatusEvent: message=" + bt_status_event.message)
         msg(bt_status_event.message)
+        if (bt_status_event.message.equals(Constants.DISCONNECT)) {
+            disconnect()
+        }
     }
 
     override fun onStop() {
@@ -259,6 +262,7 @@ class ControlFragment : Fragment() {
     private fun disconnect() {
         Log.d(TAG, "disconnect");
         m_BluetoothChatService.stop()
+        activity?.onBackPressed()
     }
 
 }
