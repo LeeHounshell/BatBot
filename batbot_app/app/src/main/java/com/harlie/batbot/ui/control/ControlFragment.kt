@@ -18,6 +18,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.widget.Toast
 import com.harlie.batbot.ControlActivity
+import com.harlie.batbot.service.Constants
 import com.harlie.batbot.util.BluetoothStateChangeEvent
 import com.harlie.batbot.util.BluetoothStatusEvent
 import kotlinx.android.synthetic.main.control_fragment.*
@@ -98,6 +99,46 @@ class ControlFragment : Fragment() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onBluetoothStateChangeEvent(bt_event: BluetoothStateChangeEvent) {
         Log.d(TAG, "onBluetoothStateChangeEvent: theState=" + bt_event.theState + ", whatChanged=" + bt_event.whatChanged)
+        when(bt_event.whatChanged) {
+            Constants.MESSAGE_STATE_CHANGE -> {
+                when (bt_event.theState) {
+                    BluetoothChatService.STATE_CONNECTING -> {
+                        Log.d("status", "connecting")
+                    }
+                    BluetoothChatService.STATE_CONNECTED -> {
+                        Log.d("status", "connected")
+                    }
+                    BluetoothChatService.STATE_LISTEN, BluetoothChatService.STATE_NONE -> {
+                        Log.d("status", "not connected")
+                    }
+                }
+            }
+            Constants.MESSAGE_WRITE -> {
+                val writeBuf = bt_event.extra.getByteArray(Constants.DATA) as ByteArray
+                val bytesSent = bt_event.extra.getInt(Constants.SIZE)
+                // construct a string from the buffer
+                val writeMessage = String(writeBuf)
+                Log.d(TAG, "--> SENT $bytesSent BYTES: $writeMessage")
+            }
+            Constants.MESSAGE_READ -> {
+                val readBuf = bt_event.extra.getByteArray(Constants.DATA) as ByteArray
+                val bytesRead = bt_event.extra.getInt(Constants.SIZE)
+                // construct a string from the valid bytes in the buffer
+                val readData = String(readBuf, 0, bytesRead)
+                // message received
+                Log.d(TAG, "--> READ $bytesRead BYTES: $readData")
+            }
+            Constants.MESSAGE_DEVICE_NAME -> {
+                // save the connected device's name
+                val connectedDeviceName = bt_event.extra.getString(Constants.DEVICE_NAME)
+                Log.d(TAG, "===> connectedDeviceName=" + connectedDeviceName!!)
+            }
+            Constants.MESSAGE_TOAST -> {
+                val message = bt_event.extra.getString(Constants.TOAST)
+                Log.d(TAG, "===> TOAST message=" + message!!)
+                Toast.makeText(context,  message, Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -210,14 +251,14 @@ class ControlFragment : Fragment() {
         m_BluetoothChatService.send(message)
     }
 
-    private fun disconnect() {
-        Log.d(TAG, "disconnect");
-        m_BluetoothChatService.stop()
-    }
-
     private fun msg(message: String) {
         Log.d(TAG, "msg: " + message)
         status.text = message
+    }
+
+    private fun disconnect() {
+        Log.d(TAG, "disconnect");
+        m_BluetoothChatService.stop()
     }
 
 }
