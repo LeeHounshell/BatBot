@@ -8,6 +8,7 @@ import com.harlie.batbot.BR
 import com.harlie.batbot.databinding.BtItemListViewBinding
 import kotlin.properties.Delegates
 
+
 class BluetoothDeviceModel(_name: String, device: BluetoothDevice) : BaseObservable() {
     val TAG = "LEE: <" + BluetoothDeviceModel::class.java.getName() + ">";
 

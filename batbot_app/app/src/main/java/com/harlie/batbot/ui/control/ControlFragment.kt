@@ -17,14 +17,15 @@ import com.harlie.batbot.util.DynamicMatrix
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.widget.Toast
-import com.harlie.batbot.ControlActivity
 import com.harlie.batbot.service.Constants
 import com.harlie.batbot.util.BluetoothStateChangeEvent
 import com.harlie.batbot.util.BluetoothStatusEvent
+import com.harlie.batbot.util.LoggingTextTail
 import kotlinx.android.synthetic.main.control_fragment.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import androidx.databinding.ObservableBoolean
 
 
 class ControlFragment : Fragment() {
@@ -39,7 +40,9 @@ class ControlFragment : Fragment() {
 
     // Initialize the BluetoothChatService to perform bluetooth connections
     private var m_BluetoothChatService = BluetoothChatService()
+    val m_robotConnection = ObservableBoolean(false)
     private var m_robotCommand = RobotCommandModel("", "")
+    private var m_logging = LoggingTextTail()
     private lateinit var m_ControlFragBinding : ControlFragmentBinding
     private lateinit var m_ControlViewModel: Control_ViewModel
     private lateinit var m_BluetoothAdapter: BluetoothAdapter
@@ -62,6 +65,7 @@ class ControlFragment : Fragment() {
             inflater, com.harlie.batbot.R.layout.control_fragment, container, false
         )
         m_ControlFragBinding.robotCommand = m_robotCommand
+        m_ControlFragBinding.robotConnection = m_robotConnection
         m_ControlFragBinding.lifecycleOwner = viewLifecycleOwner
         val view = m_ControlFragBinding.getRoot()
         return view
@@ -127,11 +131,14 @@ class ControlFragment : Fragment() {
                 val readData = String(readBuf, 0, bytesRead)
                 // message received
                 Log.d(TAG, "--> READ $bytesRead BYTES: $readData")
+                m_logging.append(readData)
+                logging.text = m_logging.content()
             }
             Constants.MESSAGE_DEVICE_NAME -> {
                 // save the connected device's name
                 val connectedDeviceName = bt_event.extra.getString(Constants.DEVICE_NAME)
                 Log.d(TAG, "===> connectedDeviceName=" + connectedDeviceName!!)
+                enableButtons()
             }
             Constants.MESSAGE_TOAST -> {
                 val message = bt_event.extra.getString(Constants.TOAST)
@@ -139,6 +146,11 @@ class ControlFragment : Fragment() {
                 Toast.makeText(context,  message, Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun enableButtons() {
+        Log.d(TAG, "enableButtons")
+        m_robotConnection.set(true)
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

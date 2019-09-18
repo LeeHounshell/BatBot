@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import org.greenrobot.eventbus.EventBus
 
+
 class BluetoothStateChangeEvent(val whatChanged: Int, val theState: Int, val extra: Bundle) {
     private val TAG = "LEE: <" + BluetoothStateChangeEvent::class.java!!.getSimpleName() + ">"
 

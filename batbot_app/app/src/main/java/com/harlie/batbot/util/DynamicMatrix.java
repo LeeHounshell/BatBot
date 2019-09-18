@@ -3,7 +3,6 @@
 
 package com.harlie.batbot.util;
 
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -19,6 +18,7 @@ import com.harlie.batbot.service.Constants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
 
 public class DynamicMatrix extends View {
 

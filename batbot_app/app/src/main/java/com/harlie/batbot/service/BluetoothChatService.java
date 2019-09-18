@@ -6,7 +6,6 @@
 
 package com.harlie.batbot.service;
 
-
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
@@ -21,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
+
 
 /**
  * This class does all the work for setting up and managing Bluetooth

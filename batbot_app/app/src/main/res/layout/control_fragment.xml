@@ -5,6 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View"/>
+        <variable
+            name="robotConnection"
+            type="androidx.databinding.ObservableBoolean" />
         <variable
             name="robotCommand"
             type="com.harlie.batbot.model.RobotCommandModel" />
@@ -60,7 +64,7 @@
             android:layout_margin="10dp"
             android:text="@={robotCommand.robotCommand}"
             android:textColor="@color/white"
-            android:textSize="27sp"
+            android:textSize="25sp"
             app:layout_constraintTop_toBottomOf="@+id/guideline1"
             app:layout_constraintBottom_toTopOf="@+id/guideline2"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -84,9 +88,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:textColor="@color/white"
-            android:textSize="27sp"
-            android:scrollbars="vertical"
+            android:textColor="@color/darkgrey"
+            android:textSize="13sp"
+            android:layout_marginBottom="4sp"
             app:layout_constraintTop_toBottomOf="@+id/guideline2"
             app:layout_constraintBottom_toTopOf="@+id/controlButtons"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -128,6 +132,7 @@
                 android:onClick="onClickButtonStar"
                 android:text="@string/command_star"
                 android:layout_weight="1"
+                android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}"
                 />
 
             <Button
@@ -140,6 +145,7 @@
                 android:onClick="onClickButtonOk"
                 android:text="@string/command_ok"
                 android:layout_weight="1"
+                android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}"
                 />
 
             <Button
@@ -152,6 +158,7 @@
                 android:onClick="onClickButtonSharp"
                 android:text="@string/command_sharp"
                 android:layout_weight="1"
+                android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}"
                 />
 
         </LinearLayout>
@@ -171,6 +178,7 @@
             app:layout_constraintBottom_toTopOf="@+id/guideline4"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
+            android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}"
             />
 
         <androidx.constraintlayout.widget.Guideline

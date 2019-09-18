@@ -5,6 +5,7 @@ import androidx.databinding.Bindable
 import com.harlie.batbot.BR
 import kotlin.properties.Delegates
 
+
 class RobotCommandModel(rc: String, cp: String) : BaseObservable() {
     val TAG = "LEE: <" + RobotCommandModel::class.java.getName() + ">";
 

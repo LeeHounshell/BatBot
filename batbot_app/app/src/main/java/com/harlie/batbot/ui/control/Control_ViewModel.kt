@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.harlie.batbot.model.RobotCommandModel
 
+
 class Control_ViewModel : ViewModel() {
     val TAG = "LEE: <" + Control_ViewModel::class.java.getName() + ">";
 
@@ -21,6 +22,7 @@ class Control_ViewModel : ViewModel() {
     fun processMessage(robotCommand: RobotCommandModel) {
         Log.d(TAG, "processMessage: " + robotCommand.robotCommand + ", priority=" + robotCommand.commandPriority)
         // FIXME: analyze the command
+        robotCommand.robotCommand = robotCommand.robotCommand + "\n"
         m_inputCommand.postValue(robotCommand)
     }
 }
