@@ -33,7 +33,8 @@
         </activity>
 
         <activity
-            android:name=".ControlActivity">
+            android:name=".ControlActivity"
+            android:noHistory="true">
         </activity>
 
     </application>

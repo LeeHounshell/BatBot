@@ -90,14 +90,17 @@ class ControlActivity : AppCompatActivity() {
 
     fun onClickButtonStar(v: View) {
         Log.d(TAG, "onClickButtonStar")
+        m_ControlViewModel.doClickStar()
     }
 
     fun onClickButtonOk(v: View) {
         Log.d(TAG, "onClickButtonOk")
+        m_ControlViewModel.doClickOk()
     }
 
     fun onClickButtonSharp(v: View) {
         Log.d(TAG, "onClickButtonSharp")
+        m_ControlViewModel.doClickSharp()
     }
 
     fun onClickTranslateSpeech(v: View) {
@@ -119,16 +122,16 @@ class ControlActivity : AppCompatActivity() {
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     Log.d(TAG, "result=" + result[0])
                     val robotCommand : RobotCommandModel = RobotCommandModel(result[0], "3")
-                    m_ControlViewModel.processMessage(robotCommand)
+                    m_ControlViewModel.processAndDecodeMessage(robotCommand)
                 }
             }
         }
     }
 
-    private fun gotoMainActivity() {
-        Log.d(TAG, "gotoMainActivity")
-        val mainIntent: Intent = Intent(this, ControlActivity::class.java)
-        startActivity(mainIntent)
+    override fun onBackPressed() {
+        Log.d(TAG, "onBackPressed")
+        super.onBackPressed()
+        finish()
     }
 
     override fun onDestroy() {

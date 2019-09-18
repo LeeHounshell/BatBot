@@ -182,7 +182,7 @@ public class BluetoothChatService {
             mInsecureAcceptThread.start();
         }
 
-        notifyBluetoothStatus("initializing..");
+        notifyBluetoothStatus(Constants.INITIALIZING);
     }
 
     /**
@@ -321,10 +321,7 @@ public class BluetoothChatService {
         bundle.putString(Constants.TOAST, "Unable to connect");
         notifyStateChange(Constants.MESSAGE_TOAST, mState, bundle);
 
-        notifyBluetoothStatus("connection failed.");
-
-        // restart the service and continue listening
-        BluetoothChatService.this.start();
+        notifyBluetoothStatus(Constants.CONNECTION_FAILED);
     }
 
     /**
@@ -339,10 +336,7 @@ public class BluetoothChatService {
         bundle.putString(Constants.TOAST, "Connection lost");
         notifyStateChange(Constants.MESSAGE_TOAST, mState, bundle);
 
-        notifyBluetoothStatus("connection lost");
-
-        // restart the service and continue listening
-        BluetoothChatService.this.start();
+        notifyBluetoothStatus(Constants.CONNECTION_LOST);
     }
 
 

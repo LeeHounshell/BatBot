@@ -91,6 +91,22 @@ class ControlFragment : Fragment() {
                 send(m_robotCommand.robotCommand) // send command to the robot
             }
         })
+        m_ControlViewModel.m_starClicked.observe(this, Observer {
+            it?.let {
+                Log.d(TAG, "===> * clicked=" + it)
+            }
+        })
+        m_ControlViewModel.m_okClicked.observe(this, Observer {
+            it?.let {
+                Log.d(TAG, "===> ok clicked=" + it)
+            }
+        })
+        m_ControlViewModel.m_sharpClicked.observe(this, Observer {
+            it?.let {
+                Log.d(TAG, "===> # clicked=" + it)
+            }
+        })
+        disableButtons()
         connect()
     }
 
@@ -148,6 +164,11 @@ class ControlFragment : Fragment() {
         }
     }
 
+    private fun disableButtons() {
+        Log.d(TAG, "disableButtons")
+        m_robotConnection.set(false)
+    }
+
     private fun enableButtons() {
         Log.d(TAG, "enableButtons")
         m_robotConnection.set(true)
@@ -159,6 +180,22 @@ class ControlFragment : Fragment() {
         msg(bt_status_event.message)
         if (bt_status_event.message.equals(Constants.DISCONNECT)) {
             disconnect()
+            activity?.onBackPressed()
+        }
+        else if (bt_status_event.message.equals(Constants.CONNECTION_FAILED)) {
+            disconnect()
+            m_BluetoothChatService = BluetoothChatService()
+            // restart the service and continue listening
+            m_BluetoothChatService.start()
+        }
+        else if (bt_status_event.message.equals(Constants.CONNECTION_LOST)) {
+            disconnect()
+            m_BluetoothChatService = BluetoothChatService()
+            // restart the service and continue listening
+            m_BluetoothChatService.start()
+        }
+        else if (bt_status_event.message.equals(Constants.INITIALIZING)) {
+            Log.d(TAG, "===> LEE LEE LEE <===")
         }
     }
 
@@ -192,7 +229,7 @@ class ControlFragment : Fragment() {
 
         m_BluetoothChatService.connect(m_device, true)
 
-        msg("connected.")
+        msg("please wait..")
 
         // Once connected setup the listener
         bluedot_matrix.setOnUseListener(object : DynamicMatrix.DynamicMatrixListener {
@@ -274,7 +311,6 @@ class ControlFragment : Fragment() {
     private fun disconnect() {
         Log.d(TAG, "disconnect");
         m_BluetoothChatService.stop()
-        activity?.onBackPressed()
     }
 
 }
