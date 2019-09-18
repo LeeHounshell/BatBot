@@ -31,15 +31,24 @@
             android:id="@+id/bluedot_matrix"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
+            android:layout_margin="8dp"
             android:background="@drawable/bat_blue_dot"
             app:cols="1"
             app:rows="1"
             app:layout_constraintTop_toBottomOf="@+id/status"
+            app:layout_constraintBottom_toTopOf="@+id/guideline1"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/bluedot_matrix"
             app:layout_constraintBottom_toTopOf="@+id/textOutput"
+            app:layout_constraintGuide_percent="0.5"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             />
@@ -49,30 +58,129 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:layout_marginStart="9dp"
-            android:layout_marginTop="256dp"
-            android:layout_marginEnd="9dp"
             android:text="@={robotCommand.robotCommand}"
             android:textColor="@color/white"
             android:textSize="27sp"
-            app:layout_constraintTop_toBottomOf="@+id/bluedot_matrix"
-            app:layout_constraintBottom_toTopOf="@+id/startSpeaking"
+            app:layout_constraintTop_toBottomOf="@+id/guideline1"
+            app:layout_constraintBottom_toTopOf="@+id/guideline2"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             />
 
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/textOutput"
+            app:layout_constraintBottom_toTopOf="@+id/logging"
+            app:layout_constraintGuide_percent="0.7"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            />
+
+        <TextView
+            android:id="@+id/logging"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:textColor="@color/white"
+            android:textSize="27sp"
+            android:scrollbars="vertical"
+            app:layout_constraintTop_toBottomOf="@+id/guideline2"
+            app:layout_constraintBottom_toTopOf="@+id/controlButtons"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/logging"
+            app:layout_constraintBottom_toTopOf="@+id/controlButtons"
+            app:layout_constraintGuide_percent="0.83"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            />
+
+        <LinearLayout
+            android:id="@+id/controlButtons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/guideline3"
+            app:layout_constraintBottom_toTopOf="@+id/startSpeaking"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:weightSum="3"
+            >
+
+            <Button
+                style="@style/ButtonStyle"
+                android:id="@+id/button_star"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_background"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:onClick="onClickButtonStar"
+                android:text="@string/command_star"
+                android:layout_weight="1"
+                />
+
+            <Button
+                style="@style/ButtonStyle"
+                android:id="@+id/button_ok"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_background"
+                android:layout_marginEnd="8dp"
+                android:onClick="onClickButtonOk"
+                android:text="@string/command_ok"
+                android:layout_weight="1"
+                />
+
+            <Button
+                style="@style/ButtonStyle"
+                android:id="@+id/button_sharp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_background"
+                android:layout_marginEnd="8dp"
+                android:onClick="onClickButtonSharp"
+                android:text="@string/command_sharp"
+                android:layout_weight="1"
+                />
+
+        </LinearLayout>
+
         <Button
+            style="@style/ButtonStyle"
             android:id="@+id/startSpeaking"
             android:layout_width="0dp"
-            android:layout_height="58dp"
-            android:layout_marginTop="260dp"
-            android:layout_marginEnd="8dp"
-            android:background="#000000"
-            android:onClick="onClick"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_background"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:onClick="onClickTranslateSpeech"
             android:text="@string/command_batbot"
-            android:textColor="#FDE311"
-            app:layout_constraintTop_toBottomOf="@+id/textOutput"
+            app:layout_constraintTop_toBottomOf="@+id/controlButtons"
+            app:layout_constraintBottom_toTopOf="@+id/guideline4"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@+id/startSpeaking"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintGuide_percent="0.98"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             />

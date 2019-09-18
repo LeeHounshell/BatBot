@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">BatBot</string>
-    <string name="command_batbot">Command BatBot</string>
+    <string name="command_batbot">Speak a Command</string>
+    <string name="command_ok">ok</string>
+    <string name="command_star">*</string>
+    <string name="command_sharp">#</string>
     <string name="refresh">Refresh</string>
     <string name="connect">Connect</string>
     <string name="name">Name:</string>

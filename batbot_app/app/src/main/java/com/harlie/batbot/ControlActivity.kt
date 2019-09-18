@@ -88,8 +88,20 @@ class ControlActivity : AppCompatActivity() {
         super.onResume()
     }
 
-    fun onClick(v: View) {
-        Log.d(TAG, "onClick")
+    fun onClickButtonStar(v: View) {
+        Log.d(TAG, "onClickButtonStar")
+    }
+
+    fun onClickButtonOk(v: View) {
+        Log.d(TAG, "onClickButtonOk")
+    }
+
+    fun onClickButtonSharp(v: View) {
+        Log.d(TAG, "onClickButtonSharp")
+    }
+
+    fun onClickTranslateSpeech(v: View) {
+        Log.d(TAG, "onClickTranslateSpeech")
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         try {
             startActivityForResult(intent, REQUEST_CODE)
