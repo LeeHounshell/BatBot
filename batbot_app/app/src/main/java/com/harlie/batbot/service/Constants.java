@@ -20,7 +20,10 @@ public interface Constants {
     public static final String TOAST = "toast";
     public static final String DATA = "data";
     public static final String SIZE = "size";
+    public static final String INITIALIZING = "initializing..";
     public static final String DISCONNECT = "disconnect";
+    public static final String CONNECTION_FAILED = "connection failed";
+    public static final String CONNECTION_LOST = "connection lost";
 
     public static final float BORDER_THICKNESS = (float)0.025;
 

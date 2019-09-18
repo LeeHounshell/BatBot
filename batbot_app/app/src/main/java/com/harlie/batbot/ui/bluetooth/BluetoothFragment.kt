@@ -111,6 +111,7 @@ class BluetoothFragment : Fragment() {
     fun gotoControlActivity(btModel: BluetoothDeviceModel) {
         Log.d(TAG, "gotoControlActivity: btModel name=" + btModel.device.name + ", address=" + btModel.device.address)
         val controlIntent: Intent = Intent(context, ControlActivity::class.java)
+        controlIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         controlIntent.putExtra(EXTRA_NAME, btModel.device.name)
         controlIntent.putExtra(EXTRA_ADDRESS, btModel.device.address)
         controlIntent.putExtra(EXTRA_DEVICE, btModel.device)
