@@ -37,11 +37,11 @@ class Control_ViewModel : ViewModel() {
 
     fun doClickOk() {
         Log.d(TAG, "doClickOk")
-        m_starClicked.postValue(true)
+        m_okClicked.postValue(true)
     }
 
     fun doClickSharp() {
         Log.d(TAG, "doClickSharp")
-        m_starClicked.postValue(true)
+        m_sharpClicked.postValue(true)
     }
 }
