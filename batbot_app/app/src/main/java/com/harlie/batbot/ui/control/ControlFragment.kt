@@ -26,6 +26,7 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import androidx.databinding.ObservableBoolean
+import kotlin.concurrent.fixedRateTimer
 
 
 class ControlFragment : Fragment() {
@@ -67,6 +68,13 @@ class ControlFragment : Fragment() {
         m_ControlFragBinding.robotCommand = m_robotCommand
         m_ControlFragBinding.robotConnection = m_robotConnection
         m_ControlFragBinding.lifecycleOwner = viewLifecycleOwner
+
+        fixedRateTimer("timer", false, 0L, 1000) {
+            activity?.runOnUiThread {
+                logging.text = m_logging.content()
+            }
+        }
+
         val view = m_ControlFragBinding.getRoot()
         return view
     }
@@ -151,7 +159,6 @@ class ControlFragment : Fragment() {
                 // message received
                 Log.d(TAG, "--> READ $bytesRead BYTES: $readData")
                 m_logging.append(readData)
-                logging.text = m_logging.content()
             }
             Constants.MESSAGE_DEVICE_NAME -> {
                 // save the connected device's name
