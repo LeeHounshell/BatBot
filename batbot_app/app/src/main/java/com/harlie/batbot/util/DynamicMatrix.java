@@ -1,5 +1,7 @@
 // adapted from code by: Martin O'Hanlon
 // from: https://github.com/martinohanlon/BlueDot/blob/master/clients/android/app/src/main/java/com/stuffaboutcode/bluedot/DynamicMatrix.java
+//
+// Thanks Martin!  your BlueDot rocks!!   github.com/martinohanlon/BlueDot
 
 package com.harlie.batbot.util;
 
