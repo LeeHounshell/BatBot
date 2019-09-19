@@ -15,7 +15,9 @@ public class LoggingTextTail {
         Log.d(TAG, "append: " + log_text)
         val lines = log_text.lines()
         lines.forEach {
-            content.add(it + "\n")
+            if (it.length > 0) {
+                content.add(it + "\n")
+            }
         }
     }
 
