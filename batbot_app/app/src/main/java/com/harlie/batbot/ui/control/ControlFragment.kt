@@ -165,6 +165,7 @@ class ControlFragment : Fragment() {
                 val connectedDeviceName = bt_event.extra.getString(Constants.DEVICE_NAME)
                 Log.d(TAG, "===> connectedDeviceName=" + connectedDeviceName!!)
                 enableButtons()
+                m_ControlViewModel.doClickOk()
             }
             Constants.MESSAGE_TOAST -> {
                 val message = bt_event.extra.getString(Constants.TOAST)
