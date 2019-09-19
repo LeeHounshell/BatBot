@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
+import com.harlie.batbot.model.BluetoothDeviceModel
 import com.harlie.batbot.model.RobotCommandModel
 import com.harlie.batbot.ui.control.ControlFragment
 import com.harlie.batbot.ui.control.Control_ViewModel
@@ -131,7 +132,15 @@ class ControlActivity : AppCompatActivity() {
     override fun onBackPressed() {
         Log.d(TAG, "onBackPressed")
         super.onBackPressed()
+        gotoMainActivity()
         finish()
+    }
+
+    fun gotoMainActivity() {
+        Log.d(TAG, "gotoMainActivity")
+        val controlIntent: Intent = Intent(this, MainActivity::class.java)
+        controlIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivity(controlIntent)
     }
 
     override fun onDestroy() {
