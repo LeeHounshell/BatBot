@@ -129,11 +129,13 @@ public class BluetoothChatService {
 
     private void disconnect() {
         Log.d(TAG, "disconnect");
+        mCount = 0;
+        stop();
         notifyBluetoothStatus(Constants.DISCONNECT);
     }
 
     public void send(String message) {
-        Log.d(TAG, "send: message=" + message);
+        Log.d(TAG, "===> send: message=" + message);
         // Check that we're actually connected before trying anything
         if (getState() != BluetoothChatService.STATE_CONNECTED) {
             Log.e(TAG, "===> UNABLE TO SEND message - NOT CONNECTED <===");
@@ -147,6 +149,7 @@ public class BluetoothChatService {
                 // Get the message bytes and tell the BluetoothChatService to write
                 byte[] bytearray = message.getBytes();
                 write(bytearray);
+                mCount = 0;
             }
         }
     }
@@ -191,14 +194,8 @@ public class BluetoothChatService {
         notifyBluetoothStatus(Constants.INITIALIZING);
     }
 
-    /**
-     * Start the ConnectThread to initiate a connection to a remote device.
-     *
-     * @param device The BluetoothDevice to connect
-     * @param secure Socket Security type - Secure (true) , Insecure (false)
-     */
-    public synchronized void connect(BluetoothDevice device, boolean secure) {
-        Log.d(TAG, "connect to: " + device);
+    public synchronized void cancelAll(BluetoothDevice device, boolean secure) {
+        Log.d(TAG, "cancelAll");
 
         // Cancel any thread attempting to make a connection
         if (mState == STATE_CONNECTING) {
@@ -213,6 +210,17 @@ public class BluetoothChatService {
             mConnectedThread.cancel();
             mConnectedThread = null;
         }
+    }
+
+    /**
+     * Start the ConnectThread to initiate a connection to a remote device.
+     *
+     * @param device The BluetoothDevice to connect
+     * @param secure Socket Security type - Secure (true) , Insecure (false)
+     */
+    public synchronized void connect(BluetoothDevice device, boolean secure) {
+        Log.d(TAG, "connect to: " + device);
+        cancelAll(device, secure);
 
         // Start the thread to connect with the given device
         mConnectThread = new ConnectThread(device, secure);
@@ -391,6 +399,7 @@ public class BluetoothChatService {
                     socket = mmServerSocket.accept();
                 } catch (IOException e) {
                     Log.e(TAG, "Socket Type: " + mSocketType + "accept() failed", e);
+                    disconnect();
                     break;
                 }
 
