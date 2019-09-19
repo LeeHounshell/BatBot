@@ -47,6 +47,7 @@ public class BluetoothChatService {
     private ConnectedThread mConnectedThread;
     private int mState;
     private int mNewState;
+    private int mCount = 0;
 
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing
@@ -80,7 +81,9 @@ public class BluetoothChatService {
                     case BluetoothChatService.STATE_LISTEN:
                     case BluetoothChatService.STATE_NONE:
                         Log.d("status","not connected");
-                        disconnect();
+                        if (++mCount > 3) {
+                            disconnect();
+                        }
                         break;
                 }
                 break;
@@ -134,6 +137,9 @@ public class BluetoothChatService {
         // Check that we're actually connected before trying anything
         if (getState() != BluetoothChatService.STATE_CONNECTED) {
             Log.e(TAG, "===> UNABLE TO SEND message - NOT CONNECTED <===");
+            if (++mCount > 3) {
+                disconnect();
+            }
         }
         else {
             // Check that there's something to send
@@ -553,7 +559,7 @@ public class BluetoothChatService {
 
                 } catch (IOException e) {
                     Log.e(TAG, "Disconnected", e);
-                    connectionLost();
+                    disconnect();
                     break;
                 }
             }

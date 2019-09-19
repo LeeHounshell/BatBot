@@ -119,7 +119,7 @@ class ControlFragment : Fragment() {
         EventBus.getDefault().register(this);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.MAIN) // from notify
     fun onBluetoothStateChangeEvent(bt_event: BluetoothStateChangeEvent) {
         Log.d(TAG, "onBluetoothStateChangeEvent: theState=" + bt_event.theState + ", whatChanged=" + bt_event.whatChanged)
         when(bt_event.whatChanged) {
@@ -177,7 +177,7 @@ class ControlFragment : Fragment() {
         m_robotConnection.set(true)
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.MAIN) // from notify
     fun onBluetoothStatusEvent(bt_status_event: BluetoothStatusEvent) {
         Log.d(TAG, "onBluetoothStatusEvent: message=" + bt_status_event.message)
         msg(bt_status_event.message)

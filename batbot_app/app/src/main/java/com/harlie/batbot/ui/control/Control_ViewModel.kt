@@ -26,7 +26,7 @@ class Control_ViewModel : ViewModel() {
     fun processAndDecodeMessage(robotCommand: RobotCommandModel) {
         Log.d(TAG, "processAndDecodeMessage: " + robotCommand.robotCommand + ", priority=" + robotCommand.commandPriority)
         // FIXME: analyze the command
-        robotCommand.robotCommand = robotCommand.robotCommand + "\n"
+        //robotCommand.robotCommand = robotCommand.robotCommand + "\n"
         m_inputCommand.postValue(robotCommand)
     }
 
