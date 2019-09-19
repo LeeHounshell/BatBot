@@ -12,8 +12,8 @@ import com.harlie.batbot.ui.bluetooth.BluetoothFragment
 import com.harlie.batbot.ui.bluetooth.Bluetooth_ViewModel
 
 
-class MainActivity : AppCompatActivity() {
-    val TAG = "LEE: <" + MainActivity::class.java.getName() + ">";
+class BluetoothActivity : AppCompatActivity() {
+    val TAG = "LEE: <" + BluetoothActivity::class.java.getName() + ">";
 
     val REQUEST_ENABLE_BLUETOOTH = 1
 
@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
             if (resultCode == Activity.RESULT_OK) {
                 if (m_BluetoothViewModel.m_BluetoothAdapter!!.isEnabled) {
                     Log.i(TAG, "Bluetooth Enabled")
-                    Toast.makeText(this@MainActivity,  "Bluetooth Enabled", Toast.LENGTH_LONG).show()
 
                     //--------------------------------------------------
                     Log.i(TAG, "load the BluetoothFragment")
@@ -52,11 +51,11 @@ class MainActivity : AppCompatActivity() {
 
                 } else {
                     Log.i(TAG, "Bluetooth Disabled")
-                    Toast.makeText(this@MainActivity,  "Bluetooth Disabled", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@BluetoothActivity,  "Bluetooth Disabled", Toast.LENGTH_LONG).show()
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Log.i(TAG, "Bluetooth Canceled")
-                Toast.makeText(this@MainActivity,  "BlueTooth Canceled", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@BluetoothActivity,  "BlueTooth Canceled", Toast.LENGTH_LONG).show()
             }
         }
     }

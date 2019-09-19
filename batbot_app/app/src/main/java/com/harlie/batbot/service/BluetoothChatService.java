@@ -334,7 +334,6 @@ public class BluetoothChatService {
         Bundle bundle = new Bundle();
         bundle.putString(Constants.TOAST, "Unable to connect");
         notifyStateChange(Constants.MESSAGE_TOAST, mState, bundle);
-
         notifyBluetoothStatus(Constants.CONNECTION_FAILED);
     }
 
@@ -349,7 +348,6 @@ public class BluetoothChatService {
         Bundle bundle = new Bundle();
         bundle.putString(Constants.TOAST, "Connection lost");
         notifyStateChange(Constants.MESSAGE_TOAST, mState, bundle);
-
         notifyBluetoothStatus(Constants.CONNECTION_LOST);
     }
 

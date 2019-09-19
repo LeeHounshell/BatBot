@@ -16,6 +16,7 @@ import com.harlie.batbot.service.BluetoothChatService
 import com.harlie.batbot.util.DynamicMatrix
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.content.Intent
 import android.widget.Toast
 import com.harlie.batbot.service.Constants
 import com.harlie.batbot.util.BluetoothStateChangeEvent
@@ -26,6 +27,8 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import androidx.databinding.ObservableBoolean
+import com.harlie.batbot.BluetoothActivity
+import com.harlie.batbot.R
 import kotlin.concurrent.fixedRateTimer
 
 
@@ -192,19 +195,15 @@ class ControlFragment : Fragment() {
         msg(bt_status_event.message)
         if (bt_status_event.message.equals(Constants.DISCONNECT)) {
             disconnect()
-            activity?.onBackPressed()
+            gotoBluetoothActivity()
         }
         else if (bt_status_event.message.equals(Constants.CONNECTION_FAILED)) {
             disconnect()
-            m_BluetoothChatService = BluetoothChatService()
-            // restart the service and continue listening
-            m_BluetoothChatService.start()
+            gotoBluetoothActivity()
         }
         else if (bt_status_event.message.equals(Constants.CONNECTION_LOST)) {
             disconnect()
-            m_BluetoothChatService = BluetoothChatService()
-            // restart the service and continue listening
-            m_BluetoothChatService.start()
+            gotoBluetoothActivity()
         }
         else if (bt_status_event.message.equals(Constants.INITIALIZING)) {
             Log.d(TAG, "===> INITIALIZING <===")
@@ -318,6 +317,14 @@ class ControlFragment : Fragment() {
     private fun msg(message: String) {
         Log.d(TAG, "msg: " + message)
         status.text = message
+    }
+
+    fun gotoBluetoothActivity() {
+        Log.d(TAG, "gotoBluetoothActivity")
+        val controlIntent: Intent = Intent(activity, BluetoothActivity::class.java)
+        controlIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivity(controlIntent)
+        activity!!.overridePendingTransition(0, R.anim.fade_out);
     }
 
     private fun disconnect() {

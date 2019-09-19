@@ -19,6 +19,7 @@ import com.harlie.batbot.ControlActivity
 import com.harlie.batbot.ControlActivity.Companion.EXTRA_ADDRESS
 import com.harlie.batbot.ControlActivity.Companion.EXTRA_DEVICE
 import com.harlie.batbot.ControlActivity.Companion.EXTRA_NAME
+import com.harlie.batbot.R
 import com.harlie.batbot.databinding.BluetoothFragmentBinding
 import com.harlie.batbot.model.BluetoothDeviceModel
 import com.harlie.batbot.util.BluetoothRecyclerAdapter
@@ -116,5 +117,6 @@ class BluetoothFragment : Fragment() {
         controlIntent.putExtra(EXTRA_ADDRESS, btModel.device.address)
         controlIntent.putExtra(EXTRA_DEVICE, btModel.device)
         startActivity(controlIntent)
+        activity!!.overridePendingTransition(0, R.anim.fade_out);
     }
 }
