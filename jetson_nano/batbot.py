@@ -67,7 +67,6 @@ def executeCommands(command_array):
     data = data + readDataFromArduino()
     return data
 
-
 #bd = BlueDot()
 
 def move(pos):
@@ -114,7 +113,9 @@ def data_received(data):
     if len(result) > 0:
         s.send(data + '\n' + result)
     else:
-        s.send(data)
+        # don't echo back the movement commands
+        if (not data.startswith('2,')):
+            s.send(data)
 
 #bd.when_pressed = move
 #bd.when_moved = move
