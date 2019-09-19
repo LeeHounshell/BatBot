@@ -6,7 +6,9 @@ import android.util.Log
 public class LoggingTextTail {
     val TAG = "LEE: <" + LoggingTextTail::class.java.getName() + ">";
 
-    val MAX_LOG_LINES = 1
+    val MAX_LOG_LINES = 5
+    val MAX_LOG_DISPLAY_CONTENT_CHARS = 200;
+
     var content = mutableListOf<String>()
 
     fun append(log_text: String) {
@@ -23,6 +25,11 @@ public class LoggingTextTail {
             sb.append(content[i])
         }
         Log.d(TAG, "content: " + sb.toString())
-        return sb.toString()
+        val content = sb.toString()
+        var index = content.length-MAX_LOG_DISPLAY_CONTENT_CHARS
+        if (index < 0) {
+            index = 0
+        }
+        return content.substring(index)
     }
 }
