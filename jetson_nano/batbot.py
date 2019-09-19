@@ -23,6 +23,10 @@ leftarrow      = 76  # Left
 leftarrow_str  = 'L' # Left
 allstop        = 72  # Halt
 allstop_str    = 'H' # Halt
+star_str       = '*' # Star
+star           = 42  # Star
+sharp_str      = '#' # Sharp
+sharp          = 35  # Sharp
 
 game_w         = 87
 game_w_str     = 'W'
@@ -33,14 +37,21 @@ game_s_str     = 'S'
 game_d         = 68
 game_d_str     = 'D'
 
+def readDataFromArduino():
+    robot_data = ''
+    # Serial read section
+    ard.flush()
+    if (ard.inWaiting() > 0):
+        robot_data = ard.read(ard.inWaiting()).decode('ascii') # read all characters in buffer
+        print("from arduino: ")
+        print(robot_data)
+    return robot_data
+
 def executeCommands(command_array):
     i = 0
+    data = ''
     while (i < len(command_array)):
-        # Serial read section
-        ard.flush()
-        msg = ard.read(ard.inWaiting()) # read all characters in buffer
-        print("from arduino: ")
-        print(msg)
+        data = data + readDataFromArduino()
 
         # Serial write section
         ard.flush()
@@ -53,6 +64,8 @@ def executeCommands(command_array):
         i = i + 1
     else:
         print("done.")
+    data = data + readDataFromArduino()
+    return data
 
 
 #bd = BlueDot()
@@ -75,17 +88,33 @@ def move(pos):
         command_array = [allstop_str]
         print("stop.")
     if len(command_array) > 0:
-        #executeCommands(command_array)
+        #result = executeCommands(command_array)
         print("fake execute");
 
 def stop():
     command_array = [allstop_str]
     print("stop.")
-    executeCommands(command_array)
+    result = executeCommands(command_array)
 
 def data_received(data):
     print(data)
-    s.send(data)
+    result = ''
+    if data == 'click: *\n':
+        print("---> * <---");
+        command_array = [star_str]
+        result = executeCommands(command_array)
+    elif data == 'click: ok\n':
+        print("---> ok <---");
+        command_array = [allstop_str]
+        result = executeCommands(command_array)
+    elif data == 'click: #\n':
+        print("---> # <---");
+        command_array = [sharp_str]
+        result = executeCommands(command_array)
+    if len(result) > 0:
+        s.send(data + '\n' + result)
+    else:
+        s.send(data)
 
 #bd.when_pressed = move
 #bd.when_moved = move
