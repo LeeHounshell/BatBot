@@ -13,23 +13,30 @@ public class LoggingTextTail {
 
     fun append(log_text: String) {
         Log.d(TAG, "append: " + log_text)
-        content.add(log_text)
-        if (content.size > MAX_LOG_LINES) {
-            content.removeAt(0)
+        val lines = log_text.lines()
+        lines.forEach {
+            content.add(it + "\n")
         }
     }
 
+    // each time this is called, the first line gets deleted, until MAX_LOG_LINES remain
     fun content(): String {
-        val sb = StringBuffer()
-        for (i in 0..content.size-1) {
-            sb.append(content[i])
+        if (content.size > 0) {
+            val sb = StringBuffer()
+            for (i in 0..content.size - 1) {
+                if (i >= MAX_LOG_LINES) {
+                    break;
+                }
+                sb.append(content[i])
+                if (sb.length >= MAX_LOG_DISPLAY_CONTENT_CHARS) {
+                    break
+                }
+            }
+            if (content.size > MAX_LOG_LINES) {
+                content.removeAt(0)
+            }
+            return sb.toString()
         }
-        Log.d(TAG, "content: " + sb.toString())
-        val content = sb.toString()
-        var index = content.length-MAX_LOG_DISPLAY_CONTENT_CHARS
-        if (index < 0) {
-            index = 0
-        }
-        return content.substring(index)
+        return ""
     }
 }
