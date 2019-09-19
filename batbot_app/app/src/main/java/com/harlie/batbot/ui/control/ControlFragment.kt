@@ -118,13 +118,13 @@ class ControlFragment : Fragment() {
             }
         })
         disableButtons()
-        logging.text = ""
         connect()
     }
 
     override fun onStart() {
         Log.d(TAG, "onStart")
         super.onStart()
+        m_logging.clear()
         EventBus.getDefault().register(this);
     }
 
@@ -322,6 +322,7 @@ class ControlFragment : Fragment() {
 
     private fun disconnect() {
         Log.d(TAG, "disconnect");
+        m_logging.clear()
         m_BluetoothChatService.stop()
     }
 

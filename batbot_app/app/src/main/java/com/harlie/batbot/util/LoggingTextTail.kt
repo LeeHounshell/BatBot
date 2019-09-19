@@ -39,4 +39,9 @@ public class LoggingTextTail {
         }
         return ""
     }
+
+    fun clear() {
+        Log.d(TAG, "clear")
+        content = mutableListOf<String>()
+    }
 }
