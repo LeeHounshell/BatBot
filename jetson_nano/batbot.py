@@ -59,11 +59,11 @@ def executeCommands(command_array):
         encoded_command = command_array[i].encode();
         ard.write(encoded_command)
         print(encoded_command)
-        time.sleep(1) # I shortened this to match the new value in your Arduino code
 
         i = i + 1
     else:
         print("done.")
+    time.sleep(1) # I shortened this to match the new value in your Arduino code
     data = data + readDataFromArduino()
     return data
 
@@ -120,12 +120,10 @@ def data_received(data):
 #bd.when_moved = move
 #bd.when_released = stop
 
-while True:
-    try:
-        s = BluetoothServer(data_received)
-        pause()
-    except Exception as e:
-        print("ERROR: e=" + str(e))
-    time.sleep(2)
-
+try:
+    s = BluetoothServer(data_received)
+    print('---> waiting for connection <---')
+    pause()
+except Exception as e:
+    print("ERROR: e=" + str(e))
 
