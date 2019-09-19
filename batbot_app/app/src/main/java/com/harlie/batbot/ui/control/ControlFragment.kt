@@ -94,16 +94,19 @@ class ControlFragment : Fragment() {
         m_ControlViewModel.m_starClicked.observe(this, Observer {
             it?.let {
                 Log.d(TAG, "===> * clicked=" + it)
+                send("click: *")
             }
         })
         m_ControlViewModel.m_okClicked.observe(this, Observer {
             it?.let {
                 Log.d(TAG, "===> ok clicked=" + it)
+                send("click: ok")
             }
         })
         m_ControlViewModel.m_sharpClicked.observe(this, Observer {
             it?.let {
                 Log.d(TAG, "===> # clicked=" + it)
+                send("click: #")
             }
         })
         disableButtons()
@@ -195,7 +198,7 @@ class ControlFragment : Fragment() {
             m_BluetoothChatService.start()
         }
         else if (bt_status_event.message.equals(Constants.INITIALIZING)) {
-            Log.d(TAG, "===> LEE LEE LEE <===")
+            Log.d(TAG, "===> INITIALIZING <===")
         }
     }
 
@@ -295,12 +298,12 @@ class ControlFragment : Fragment() {
 
     private fun buildMessage(operation: String, x: Double, y: Double): String {
         Log.d(TAG, "buildMessage");
-        return "$operation,$x,$y\n"
+        return "$operation,$x,$y"
     }
 
     fun send(message: String) {
         Log.d(TAG, "send: " + message);
-        m_BluetoothChatService.send(message)
+        m_BluetoothChatService.send(message + '\n')
     }
 
     private fun msg(message: String) {
