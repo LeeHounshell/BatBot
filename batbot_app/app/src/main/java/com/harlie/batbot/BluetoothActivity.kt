@@ -23,7 +23,7 @@ class BluetoothActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main_activity)
+        setContentView(R.layout.bluetooth_activity)
 
         m_BluetoothViewModel = ViewModelProviders.of(this).get(Bluetooth_ViewModel::class.java)
         m_BluetoothAdapter = m_BluetoothViewModel.initDefaultAdapter()
