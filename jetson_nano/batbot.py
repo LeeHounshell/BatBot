@@ -110,6 +110,34 @@ def data_received(data):
         print("---> # <---");
         command_array = [sharp_str]
         result = executeCommands(command_array)
+
+    # FIXME: replace this code
+    elif "forward" in data:
+        data = "forward.";
+        print(data);
+        command_array = [uparrow_str]
+        result = executeCommands(command_array)
+    elif "backup" in data:
+        data = "backward.";
+        print(data);
+        command_array = [downarrow_str]
+        result = executeCommands(command_array)
+    elif "right" in data:
+        data = "right.";
+        print(data);
+        command_array = [rightarrow_str]
+        result = executeCommands(command_array)
+    elif "left" in data:
+        data = "left.";
+        print(data);
+        command_array = [leftarrow_str]
+        result = executeCommands(command_array)
+    elif "stop" in data:
+        data = "stop.";
+        print(data);
+        command_array = [allstop_str]
+        result = executeCommands(command_array)
+
     if len(result) > 0:
         s.send(data + '\n' + result)
     else:
