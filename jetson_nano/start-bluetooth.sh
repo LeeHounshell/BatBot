@@ -10,9 +10,16 @@ echo "bluetooth: initializing.."
 hciconfig hci0 up
 
 # needed for backward compatibility
-bluetoothctl add SP
+sdptool add SP
 
+bluetoothctl block 74:DA:38:F2:93:5D
 bluetoothctl select DC:71:96:1C:90:F7
 bluetoothctl power on
 bluetoothctl power on
 
+# # if cannot connect by default with above.  try using coproc..
+# # run commands inside bluetoothctl -- and remain running bluetoothctl
+# coproc bluetoothctl
+# echo -e 'block 74:DA:38:F2:93:5D\nselect DC:71:96:1C:90:F7\nagent on\npower on\n' >&${COPROC[1]}
+# output=$(cat <&${COPROC[0]})
+# echo $output
