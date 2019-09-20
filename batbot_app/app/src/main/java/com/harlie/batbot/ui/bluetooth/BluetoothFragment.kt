@@ -104,6 +104,5 @@ class BluetoothFragment : Fragment() {
         controlIntent.putExtra(EXTRA_DEVICE, btModel.device)
         startActivity(controlIntent)
         activity?.overridePendingTransition(0, R.anim.fade_out);
-        activity?.finish()
     }
 }

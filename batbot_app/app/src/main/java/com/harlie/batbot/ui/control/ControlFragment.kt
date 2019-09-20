@@ -47,6 +47,7 @@ class ControlFragment : Fragment() {
     val m_robotConnection = ObservableBoolean(false)
     private var m_robotCommand = RobotCommandModel("", "")
     private var m_logging = LoggingTextTail()
+    private var m_timer_ok = true
     private lateinit var m_ControlFragBinding : ControlFragmentBinding
     private lateinit var m_ControlViewModel: Control_ViewModel
     private lateinit var m_BluetoothAdapter: BluetoothAdapter
@@ -73,9 +74,11 @@ class ControlFragment : Fragment() {
         m_ControlFragBinding.lifecycleOwner = viewLifecycleOwner
 
         fixedRateTimer("timer", false, 0L, 100) {
-            activity!!.runOnUiThread {
-                if (logging != null) {
-                    logging.text = m_logging.content()
+            if (m_timer_ok) {
+                activity!!.runOnUiThread {
+                    if (logging != null) {
+                        logging.text = m_logging.content()
+                    }
                 }
             }
         }
@@ -323,6 +326,7 @@ class ControlFragment : Fragment() {
 
     fun gotoBluetoothActivity() {
         Log.d(TAG, "gotoBluetoothActivity")
+        m_timer_ok = false
         val controlIntent: Intent = Intent(activity, BluetoothActivity::class.java)
         controlIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(controlIntent)
@@ -331,6 +335,7 @@ class ControlFragment : Fragment() {
 
     private fun disconnect() {
         Log.d(TAG, "disconnect");
+        m_timer_ok = false
         m_logging.clear()
         m_BluetoothChatService.stop()
     }

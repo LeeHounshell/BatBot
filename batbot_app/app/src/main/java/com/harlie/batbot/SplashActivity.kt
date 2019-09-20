@@ -13,7 +13,8 @@ class SplashActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         val blueIntent: Intent = Intent(this, BluetoothActivity::class.java)
+        blueIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(blueIntent)
-        finish();
+        finish()
     }
 }
