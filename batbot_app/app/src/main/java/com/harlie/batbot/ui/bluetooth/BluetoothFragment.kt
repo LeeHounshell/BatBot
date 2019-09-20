@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.annotation.Nullable
-import androidx.databinding.ObservableBoolean
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,15 +26,6 @@ import com.harlie.batbot.util.BluetoothRecyclerAdapter
 
 class BluetoothFragment : Fragment() {
     val TAG = "LEE: <" + BluetoothFragment::class.java.getName() + ">";
-
-    companion object {
-        val instance = BluetoothFragment()
-        fun getInstance(): Fragment {
-            return instance
-        }
-    }
-
-    private val m_selected = ObservableBoolean(false)
 
     private lateinit var m_selectedDevice: BluetoothDeviceModel
     private lateinit var m_View: View
@@ -81,10 +71,6 @@ class BluetoothFragment : Fragment() {
 
         m_BluetoothViewModel.m_bluetoothDevicesList.observe(this, Observer {
             Log.d(TAG, "observe: new m_bluetoothDevicesList content: it=" + it)
-//            var count = 0
-//            for (btDevice in it) {
-//                Log.d(TAG, "observe: device" + count + "=" + btDevice.bt_name)
-//            }
             m_BluetoothRecyclerAdapter.m_deviceCache = it
             m_BluetoothRecyclerAdapter.notifyDataSetChanged()
         })
@@ -117,6 +103,7 @@ class BluetoothFragment : Fragment() {
         controlIntent.putExtra(EXTRA_ADDRESS, btModel.device.address)
         controlIntent.putExtra(EXTRA_DEVICE, btModel.device)
         startActivity(controlIntent)
-        activity!!.overridePendingTransition(0, R.anim.fade_out);
+        activity?.overridePendingTransition(0, R.anim.fade_out);
+        activity?.finish()
     }
 }

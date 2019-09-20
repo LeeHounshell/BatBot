@@ -73,8 +73,10 @@ class ControlFragment : Fragment() {
         m_ControlFragBinding.lifecycleOwner = viewLifecycleOwner
 
         fixedRateTimer("timer", false, 0L, 100) {
-            activity?.runOnUiThread {
-                logging.text = m_logging.content()
+            activity!!.runOnUiThread {
+                if (logging != null) {
+                    logging.text = m_logging.content()
+                }
             }
         }
 

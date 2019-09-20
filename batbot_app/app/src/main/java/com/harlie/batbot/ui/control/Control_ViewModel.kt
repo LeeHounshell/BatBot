@@ -2,7 +2,6 @@ package com.harlie.batbot.ui.control
 
 import android.bluetooth.BluetoothAdapter
 import android.util.Log
-import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.harlie.batbot.model.RobotCommandModel

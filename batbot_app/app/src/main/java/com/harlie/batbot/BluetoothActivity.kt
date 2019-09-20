@@ -40,22 +40,28 @@ class BluetoothActivity : AppCompatActivity() {
         if (requestCode == REQUEST_ENABLE_BLUETOOTH) {
             if (resultCode == Activity.RESULT_OK) {
                 if (m_BluetoothViewModel.m_BluetoothAdapter!!.isEnabled) {
-                    Log.i(TAG, "Bluetooth Enabled")
+                    Log.i(TAG, "onActivityResult: Bluetooth Enabled")
 
                     //--------------------------------------------------
-                    Log.i(TAG, "load the BluetoothFragment")
+                    Log.i(TAG, "--> load the BluetoothFragment <--")
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.container, BluetoothFragment.getInstance())
+                        .replace(R.id.container, BluetoothFragment())
                         .commitNow()
                     //--------------------------------------------------
 
                 } else {
-                    Log.i(TAG, "Bluetooth Disabled")
-                    Toast.makeText(this@BluetoothActivity,  "Bluetooth Disabled", Toast.LENGTH_LONG).show()
+                    Log.i(TAG, "onActivityResult: Bluetooth is Disabled")
+                    Toast.makeText(this@BluetoothActivity, "Bluetooth is Disabled", Toast.LENGTH_LONG)
+                        .show()
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
-                Log.i(TAG, "Bluetooth Canceled")
-                Toast.makeText(this@BluetoothActivity,  "BlueTooth Canceled", Toast.LENGTH_LONG).show()
+                Log.i(TAG, "onActivityResult: Bluetooth Canceled")
+                Toast.makeText(this@BluetoothActivity, "BlueTooth Canceled", Toast.LENGTH_LONG)
+                    .show()
+            } else {
+                Log.w(TAG, "onActivityResult: Bluetooth resultCode=" + resultCode)
+                Toast.makeText(this@BluetoothActivity, "BlueTooth Problem", Toast.LENGTH_LONG)
+                    .show()
             }
         }
     }
