@@ -3,9 +3,11 @@
 cd /home/lee
 sleep 30
 
-echo "bluetooth: initializing.."
-
+echo "wifi: set power_save off.."
 iw dev wlan0 set power_save off
+
+echo "bluetooth: initializing.."
+hciconfig hci0 up
 
 # needed for backward compatibility
 bluetoothctl add SP
