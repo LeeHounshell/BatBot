@@ -556,23 +556,17 @@ public class BluetoothChatService {
             while (mState == STATE_CONNECTED) {
                 try {
                     byte[] buffer = new byte[1024];
-                    int bytes;
                     // Read from the InputStream
-                    bytes = mmInStream.read(buffer);
-                    if (bytes == -1) {
-                        connectionLost();
-                    }
-                    else {
-                        // Send the obtained bytes to the UI Activity
-                        Bundle bundle = new Bundle();
-                        bundle.putByteArray(Constants.DATA, buffer);
-                        bundle.putInt(Constants.SIZE, bytes);
-                        notifyStateChange(Constants.MESSAGE_READ, mState, bundle);
-                    }
+                    int bytes = mmInStream.read(buffer);
+                    // Send the obtained bytes to the UI Activity
+                    Bundle bundle = new Bundle();
+                    bundle.putByteArray(Constants.DATA, buffer);
+                    bundle.putInt(Constants.SIZE, bytes);
+                    notifyStateChange(Constants.MESSAGE_READ, mState, bundle);
 
                 } catch (IOException e) {
-                    Log.e(TAG, "Disconnected", e);
-                    disconnect();
+                    Log.e(TAG, "server connection lost", e);
+                    connectionLost();
                     break;
                 }
             }

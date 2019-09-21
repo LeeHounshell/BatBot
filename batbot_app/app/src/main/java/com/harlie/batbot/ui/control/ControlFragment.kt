@@ -263,12 +263,22 @@ class ControlFragment : Fragment() {
         }
         else if (bt_status_event.message.equals(Constants.CONNECTION_LOST)) {
             Toast.makeText(context, "BLUETOOTH FAILED.", Toast.LENGTH_LONG).show()
-            disconnect()
-            activity!!.onBackPressed()
+            utterFailureRestartEverything()
         }
         else if (bt_status_event.message.equals(Constants.INITIALIZING)) {
             Log.d(TAG, "===> INITIALIZING <===")
         }
+    }
+
+    private fun utterFailureRestartEverything() {
+        Log.d(TAG, "utterFailureRestartEverything")
+        disconnect()
+        Log.e(TAG, "===> STOPPING BATBOT APP TO RESET BLUETOOTH <===")
+        val homeIntent: Intent = Intent (Intent.ACTION_MAIN);
+        homeIntent.addCategory(Intent.CATEGORY_HOME);
+        homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(homeIntent);
+        activity!!.finishAndRemoveTask();
     }
 
     override fun onStop() {
