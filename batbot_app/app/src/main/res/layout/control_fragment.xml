@@ -69,6 +69,7 @@
             app:layout_constraintBottom_toTopOf="@+id/guideline2"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
+            android:visibility="invisible"
             />
 
         <androidx.constraintlayout.widget.Guideline
@@ -95,6 +96,7 @@
             app:layout_constraintBottom_toTopOf="@+id/guideline3"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
+            android:visibility="invisible"
             />
 
         <androidx.constraintlayout.widget.Guideline

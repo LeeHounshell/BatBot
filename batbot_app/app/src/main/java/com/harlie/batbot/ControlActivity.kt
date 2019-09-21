@@ -108,6 +108,7 @@ class ControlActivity : AppCompatActivity() {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         try {
             startActivityForResult(intent, REQUEST_CODE)
+            m_ControlFragment.ping()
         } catch (e: ActivityNotFoundException) {
             Log.e(TAG, "problem requesting translation: " + e);
         }
@@ -119,6 +120,7 @@ class ControlActivity : AppCompatActivity() {
         when (requestCode) {
             REQUEST_CODE -> {
                 if (resultCode == Activity.RESULT_OK && null != data) {
+                    m_ControlFragment.invalidateAll()
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     Log.d(TAG, "result=" + result[0])
                     val robotCommand : RobotCommandModel = RobotCommandModel(result[0], "3")

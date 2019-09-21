@@ -48,6 +48,9 @@ class ControlFragment : Fragment() {
     private var m_robotCommand = RobotCommandModel("", "")
     private var m_logging = LoggingTextTail()
     private var m_timer_ok = true
+    private var m_havePing = false
+    private var m_pingStartTime = System.currentTimeMillis();
+
     private lateinit var m_ControlFragBinding : ControlFragmentBinding
     private lateinit var m_ControlViewModel: Control_ViewModel
     private lateinit var m_BluetoothAdapter: BluetoothAdapter
@@ -69,9 +72,10 @@ class ControlFragment : Fragment() {
         m_ControlFragBinding = DataBindingUtil.inflate(
             inflater, com.harlie.batbot.R.layout.control_fragment, container, false
         )
+
         m_ControlFragBinding.robotCommand = m_robotCommand
         m_ControlFragBinding.robotConnection = m_robotConnection
-        m_ControlFragBinding.lifecycleOwner = viewLifecycleOwner
+        m_ControlFragBinding.lifecycleOwner = activity
 
         fixedRateTimer("timer", false, 0L, 100) {
             if (m_timer_ok) {
@@ -117,6 +121,7 @@ class ControlFragment : Fragment() {
             it?.let {
                 Log.d(TAG, "===> ok clicked=" + it)
                 send("click: ok")
+                ping()
             }
         })
         m_ControlViewModel.m_sharpClicked.observe(this, Observer {
@@ -129,11 +134,41 @@ class ControlFragment : Fragment() {
         connect()
     }
 
+    fun ping() {
+        Log.d(TAG, "--> fun ping() <--")
+        val now = System.currentTimeMillis();
+        if ((m_pingStartTime - now) > 10000) {
+            m_havePing = false
+            m_pingStartTime = System.currentTimeMillis();
+        }
+        send("ping")
+    }
+
     override fun onStart() {
         Log.d(TAG, "onStart")
         super.onStart()
         m_logging.clear()
+        m_ControlFragBinding.invalidateAll()
         EventBus.getDefault().register(this);
+    }
+
+    fun invalidateAll() {
+        Log.d(TAG, "invalidateAll")
+        m_ControlFragBinding.invalidateAll()
+    }
+
+    fun initializeTextViews() {
+        Log.d(TAG, "initializeTextViews")
+        if (textOutput != null) {
+            textOutput.text = ""
+            textOutput.visibility = View.VISIBLE
+            Log.d(TAG, "textOutput is empty")
+        }
+        if (logging != null) {
+            logging.text = ""
+            logging.visibility = View.VISIBLE
+            Log.d(TAG, "logging is empty")
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN) // from notify
@@ -168,6 +203,25 @@ class ControlFragment : Fragment() {
                 // message received
                 Log.d(TAG, "--> READ $bytesRead BYTES: $readData")
                 m_logging.append(readData)
+                if (readData.length > 0) {
+                    logging.text = m_logging.content()
+
+                    if (m_havePing == false) {
+                        initializeTextViews()
+                        if (readData.contains("ping")) {
+                            m_havePing = true
+                            Log.d(TAG, "--> got ping reply <--")
+                        } else {
+                            Log.d(TAG, "no ping reply yet")
+                            val now = System.currentTimeMillis();
+                            if ((m_pingStartTime - now) > 10000) {
+                                Toast.makeText(context, "ping failed", Toast.LENGTH_LONG).show()
+                                disconnect()
+                                gotoBluetoothActivity()
+                            }
+                        }
+                    }
+                }
             }
             Constants.MESSAGE_DEVICE_NAME -> {
                 // save the connected device's name

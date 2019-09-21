@@ -120,6 +120,7 @@ public class BluetoothChatService {
     private void sendProtocolVersion() {
         Log.d(TAG, "send the protocol version to the server");
         send("3," + Constants.PROTOCOL_VERSION + "," + Constants.CLIENT_NAME + "\n");
+        send("ping\n");
     }
 
     private synchronized void notifyBluetoothStatus(String status) {

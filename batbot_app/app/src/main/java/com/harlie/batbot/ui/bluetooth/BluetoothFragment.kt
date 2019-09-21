@@ -45,7 +45,7 @@ class BluetoothFragment : Fragment() {
             inflater, com.harlie.batbot.R.layout.bluetooth_fragment, container, false
         )
         m_RecyclerView = m_BluetoothFragmentBinding.recyclerView
-        m_BluetoothFragmentBinding.lifecycleOwner = viewLifecycleOwner
+        m_BluetoothFragmentBinding.lifecycleOwner = activity
         m_View = m_BluetoothFragmentBinding.getRoot()
         return m_View
     }
