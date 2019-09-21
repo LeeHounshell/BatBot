@@ -110,6 +110,9 @@ def data_received(data):
         print("---> # <---");
         command_array = [sharp_str]
         result = executeCommands(command_array)
+    elif data == "ping\n":
+        data = "ping.";
+        print(data);
 
     # FIXME: replace this code
     elif "forward" in data:
