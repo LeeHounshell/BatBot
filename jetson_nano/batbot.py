@@ -134,7 +134,6 @@ def do_sharp():
 
 def set_arduino_time():
     arduino.flush()
-    timedata = readDataFromArduino()
     command = settime
     encoded_command = command.encode()
     arduino.write(encoded_command)
@@ -149,7 +148,7 @@ def set_arduino_time():
     time.sleep(1)
     print("SET_TIME offset sent: ")
     print(str(timestamp))
-    timedata = timedata + readDataFromArduino()
+    timedata = readDataFromArduino()
     return timedata
 
 def data_received(commandsFromPhone):
@@ -157,9 +156,9 @@ def data_received(commandsFromPhone):
     commandList = commandsFromPhone.splitlines()
     for data in commandList:
         print('$ ' + data)
-        result = ''
+        result = readDataFromArduino()
         if 'ping' in data:
-            result = set_arduino_time()
+            result = result + set_arduino_time()
             result = result + batbot_help()
             print('ping ok.')
         elif 'IP address' in data:
@@ -167,116 +166,116 @@ def data_received(commandsFromPhone):
             print(result)
         elif 'click: *' in data:
             print('---> button * <---')
-            result = do_star()
+            result = result + do_star()
         elif 'click: ok' in data:
             print('---> button ok <---')
-            result = do_stop()
+            result = result + do_stop()
         elif 'click: #' in data:
             print('---> button # <---')
-            result = do_sharp()
+            result = result + do_sharp()
         elif 'forward' in data:
             data = 'forward.'
             print(data)
             command_array = [uparrow]
-            result = executeCommands(command_array)
+            result = result + executeCommands(command_array)
         elif 'back' in data:
             data = 'backward.'
             print(data)
             command_array = [downarrow]
-            result = executeCommands(command_array)
+            result = result + executeCommands(command_array)
         elif 'look ahead' in data:
             data = 'look ahead.'
             print(data)
             command_array = [lookahead]
-            result = executeCommands(command_array)
+            result = result + executeCommands(command_array)
             camera_angle = 90
         elif 'look right' in data:
             data = 'look right.'
             print(data)
             if camera_angle == 45:
                 command_array = [lookfullright]
-                result = executeCommands(command_array)
+                result = result + executeCommands(command_array)
                 camera_angle = 0
             else:
                 command_array = [lookright]
-                result = executeCommands(command_array)
+                result = result + executeCommands(command_array)
                 camera_angle = 45
         elif 'right' in data:
             data = 'right.'
             print(data)
             command_array = [rightarrow]
-            result = executeCommands(command_array)
+            result = result + executeCommands(command_array)
         elif 'look left' in data:
             data = 'look left.'
             print(data)
             if camera_angle == 90 + 45:
                 command_array = [lookfullleft]
-                result = executeCommands(command_array)
+                result = result + executeCommands(command_array)
                 camera_angle = 180 
             else:
                 command_array = [lookleft]
-                result = executeCommands(command_array)
+                result = result + executeCommands(command_array)
                 camera_angle = 90 + 45
         elif 'left' in data:
             data = 'left.'
             print(data)
             command_array = [leftarrow]
-            result = executeCommands(command_array)
+            result = result + executeCommands(command_array)
         elif 'stop' in data:
             data = 'stop.'
             print(data)
-            result = do_stop()
+            result = result + do_stop()
         elif 'faster' in data:
             data = 'faster.'
             print(data)
             command_array = [faster]
-            result = executeCommands(command_array)
+            result = result + executeCommands(command_array)
         elif 'slower' in data:
             data = 'slower.'
             print(data)
             command_array = [slower]
-            result = executeCommands(command_array)
+            result = result + executeCommands(command_array)
         elif 'follow' in data:
             data = 'follow.' # FIXME: run Elegoo line following
             print(data)
-            result = do_sharp()
+            result = result + do_sharp()
         elif 'avoid' in data:
             data = 'avoid.' # FIXME: run Elegoo collision avoidance
             print(data)
-            result = do_star()
+            result = result + do_star()
         elif 'sensors' in data:
             data = 'sensors.'
             print(data)
             command_array = [sensors]
-            result = executeCommands(command_array)
+            result = result + executeCommands(command_array)
         elif 'identify' in data:
             data = 'identify.' # FIXME: identify what robot is looking at now
             print(data)
-            result = 'FIXME: learn to identify'
+            result = result + 'FIXME: learn to identify'
         elif 'learn' in data:
             data = 'learn.' # FIXME: next word teaches last item's real name
             print(data)
-            result = 'FIXME: learn about object'
+            result = result + 'FIXME: learn about object'
         elif 'map' in data:
             data = 'map.' # FIXME: map the world
             print(data)
             command_array = [map_world]
-            result = executeCommands(command_array)
+            result = result + executeCommands(command_array)
         elif 'monitor' in data:
             data = 'monitor.' # FIXME: run the security monitor
             print(data)
             command_array = [monitor]
-            result = executeCommands(command_array)
+            result = result + executeCommands(command_array)
         elif 'photo' in data:
             data = 'photo.' # FIXME: optional next word is item to photograph
             print(data)
-            result = 'FIXME: take a picture'
+            result = result + 'FIXME: take a picture'
         elif 'find' in data:
             data = 'find.' # FIXME: next word is thing to find/search for
             print(data)
-            result = 'FIXME: find some object'
+            result = result + 'FIXME: find some object'
         elif 'name' in data:
-            result = 'i am ' + hostname + '. i live at ' + IPAddr
+            result = result + 'i am ' + hostname + '. i live at ' + IPAddr
             print(result)
         elif 'help' in data:
             data = batbot_help()
