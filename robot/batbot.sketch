@@ -160,7 +160,8 @@ time_t srvMillis              = 0L;
 //----------------------------------------
 //--------------- COMMAND ----------------
 
-int cmd;
+char *raw_cmd = 0;
+int cmd = 0;
 long servo_movement_time; // time servo last moved
 
 boolean have_cmd = 0;
@@ -276,81 +277,100 @@ void loop() {
     ircMillis = millis();
     irrecv.resume();
     if (ir_value != -1) {
+      raw_cmd = 0;
       cmd = 0;
       if (ir_value == IR_FORWARD) {
+        raw_cmd = "--> IR_FORWARD";
         cmd = UPARROW;
         have_cmd = 1;
       }
-      if (ir_value == IR_BACK) {
+      else if (ir_value == IR_BACK) {
+        raw_cmd = "--> IR_BACK";
         cmd = DOWNARROW;
         have_cmd = 1;
       }
-      if (ir_value == IR_RIGHT) {
+      else if (ir_value == IR_RIGHT) {
+        raw_cmd = "--> IR_RIGHT";
         cmd = RIGHTARROW;
         have_cmd = 1;
       }
-      if (ir_value == IR_LEFT) {
+      else if (ir_value == IR_LEFT) {
+        raw_cmd = "--> IR_LEFT";
         cmd = LEFTARROW;
         have_cmd = 1;
       }
-      if (ir_value == IR_STOP) {
+      else if (ir_value == IR_STOP) {
+        raw_cmd = "--> IR_STOP";
         cmd = ALLSTOP;
         have_cmd = 1;
       }
-      if (ir_value == IR_ONE) {
+      else if (ir_value == IR_ONE) {
+        raw_cmd = "--> IR_ONE";
         cmd = DO_FUNCTION_ONE;
         have_cmd = 1;
       }
-      if (ir_value == IR_TWO) {
+      else if (ir_value == IR_TWO) {
+        raw_cmd = "--> IR_TWO";
         cmd = DO_FUNCTION_TWO;
         have_cmd = 1;
       }
-      if (ir_value == IR_THREE) {
+      else if (ir_value == IR_THREE) {
+        raw_cmd = "--> IR_THREE";
         cmd = DO_FUNCTION_THREE;
         have_cmd = 1;
       }
-      if (ir_value == IR_FOUR) {
+      else if (ir_value == IR_FOUR) {
+        raw_cmd = "--> IR_FOUR";
         cmd = DO_FUNCTION_FOUR;
         have_cmd = 1;
       }
-      if (ir_value == IR_FIVE) {
+      else if (ir_value == IR_FIVE) {
+        raw_cmd = "--> IR_FIVE";
         cmd = DO_FUNCTION_FIVE;
         have_cmd = 1;
       }
-      if (ir_value == IR_SIX) {
+      else if (ir_value == IR_SIX) {
+        raw_cmd = "--> IR_SIX";
         cmd = DO_FUNCTION_SIX;
         have_cmd = 1;
       }
-      if (ir_value == IR_SEVEN) {
+      else if (ir_value == IR_SEVEN) {
+        raw_cmd = "--> IR_SEVEN";
         cmd = DO_FUNCTION_SEVEN;
         have_cmd = 1;
       }
-      if (ir_value == IR_EIGHT) {
+      else if (ir_value == IR_EIGHT) {
+        raw_cmd = "--> IR_EIGHT";
         cmd = DO_FUNCTION_EIGHT;
         have_cmd = 1;
       }
-      if (ir_value == IR_NINE) {
+      else if (ir_value == IR_NINE) {
+        raw_cmd = "--> IR_NINE";
         cmd = DO_FUNCTION_NINE;
         have_cmd = 1;
       }
-      if (ir_value == IR_ZERO) {
+      else if (ir_value == IR_ZERO) {
+        raw_cmd = "--> IR_ZERO";
         cmd = DO_FUNCTION_ZERO;
         have_cmd = 1;
       }
-      if (ir_value == IR_STAR) {
+      else if (ir_value == IR_STAR) {
+        raw_cmd = "--> IR_STAR";
         cmd = DO_FUNCTION_STAR;
         have_cmd = 1;
       }
-      if (ir_value == IR_SHARP) {
+      else if (ir_value == IR_SHARP) {
+        raw_cmd = "--> IR_SHARP";
         cmd = DO_FUNCTION_SHARP;
         have_cmd = 1;
       }
+
+      if (raw_cmd != 0) {
+        println(raw_cmd, 1);
+      }
+
       if (have_cmd) {
         good = execute_command(cmd);
-        if (good) {
-          print("IR=", 1);
-          println(toString(ir_value), 0);
-        }
       }
     }
   }
