@@ -72,8 +72,7 @@ public class BluetoothChatService {
                 switch (theState) {
                     case BluetoothChatService.STATE_CONNECTED:
                         Log.d("status","connected");
-                        // send the protocol version to the server
-                        send("3," + Constants.PROTOCOL_VERSION + "," + Constants.CLIENT_NAME + "\n");
+                        sendProtocolVersion();
                         break;
                     case BluetoothChatService.STATE_CONNECTING:
                         Log.d("status","connecting");
@@ -106,6 +105,7 @@ public class BluetoothChatService {
                 // save the connected device's name
                 String connectedDeviceName = extra.getString(Constants.DEVICE_NAME);
                 Log.d(TAG, "===> connectedDeviceName=" + connectedDeviceName);
+                sendProtocolVersion();
                 break;
             case Constants.MESSAGE_TOAST:
                 String message = extra.getString(Constants.TOAST);
@@ -115,6 +115,11 @@ public class BluetoothChatService {
 
         BluetoothStateChangeEvent bt_event = new BluetoothStateChangeEvent(whatChanged, theState, extra);
         bt_event.post();
+    }
+
+    private void sendProtocolVersion() {
+        Log.d(TAG, "send the protocol version to the server");
+        send("3," + Constants.PROTOCOL_VERSION + "," + Constants.CLIENT_NAME + "\n");
     }
 
     private synchronized void notifyBluetoothStatus(String status) {

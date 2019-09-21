@@ -2,7 +2,7 @@
 
 <alpha
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:duration="750"
+    android:duration="900"
     android:fromAlpha="1.0"
     android:interpolator="@android:interpolator/accelerate_cubic"
     android:startOffset="250"
