@@ -4,6 +4,7 @@ from bluedot.btcomm import BluetoothServer
 from bluedot import BlueDot
 from signal import pause
 
+import socket
 import serial
 import time
 
@@ -37,14 +38,21 @@ game_s_str     = 'S'
 game_d         = 68
 game_d_str     = 'D'
 
+hostname = socket.gethostname()
+IPAddr = socket.gethostbyname(hostname)
+
 def readDataFromArduino():
     robot_data = ''
     # Serial read section
     ard.flush()
     if (ard.inWaiting() > 0):
-        robot_data = ard.read(ard.inWaiting()).decode('ascii') # read all characters in buffer
-        print("from arduino: ")
-        print(robot_data)
+        robot_data = ''
+        try:
+            robot_data = ard.read(ard.inWaiting()).decode('ascii') # read all characters in buffer
+            print("from arduino: ")
+            print(robot_data)
+        except Exception as e:
+            print("ERROR: e=" + str(e))
     return robot_data
 
 def executeCommands(command_array):
@@ -95,58 +103,64 @@ def stop():
     print("stop.")
     result = executeCommands(command_array)
 
-def data_received(data):
-    print(data)
-    result = ''
-    if "ping\n" in data:
-        print("ping ok.");
+def data_received(commandsFromPhone):
+    commandList = commandsFromPhone.splitlines()
+    for data in commandList:
+        print('$ ' + data)
+        result = ''
+        if "ping\n" in data:
+            print("ping ok.");
 
-    if 'click: *\n' in data:
-        print("---> * <---");
-        command_array = [star_str]
-        result = executeCommands(command_array)
-    elif 'click: ok\n' in data:
-        print("---> ok <---");
-        command_array = [allstop_str]
-        result = executeCommands(command_array)
-    elif 'click: #\n' in data:
-        print("---> # <---");
-        command_array = [sharp_str]
-        result = executeCommands(command_array)
+        if 'IP address' in data:
+            result = "host=" + hostname + ", IP Address=" + IPAddr;
+            print(result)
+        elif 'click: *\n' in data:
+            print("---> * <---");
+            command_array = [star_str]
+            result = executeCommands(command_array)
+        elif 'click: ok\n' in data:
+            print("---> ok <---");
+            command_array = [allstop_str]
+            result = executeCommands(command_array)
+        elif 'click: #\n' in data:
+            print("---> # <---");
+            command_array = [sharp_str]
+            result = executeCommands(command_array)
 
-    # FIXME: replace this code
-    elif "forward" in data:
-        data = "forward.";
-        print(data);
-        command_array = [uparrow_str]
-        result = executeCommands(command_array)
-    elif "backup" in data:
-        data = "backward.";
-        print(data);
-        command_array = [downarrow_str]
-        result = executeCommands(command_array)
-    elif "right" in data:
-        data = "right.";
-        print(data);
-        command_array = [rightarrow_str]
-        result = executeCommands(command_array)
-    elif "left" in data:
-        data = "left.";
-        print(data);
-        command_array = [leftarrow_str]
-        result = executeCommands(command_array)
-    elif "stop" in data:
-        data = "stop.";
-        print(data);
-        command_array = [allstop_str]
-        result = executeCommands(command_array)
+        # FIXME: replace this code
+        elif "forward" in data:
+            data = "forward.";
+            print(data);
+            command_array = [uparrow_str]
+            result = executeCommands(command_array)
+        elif "backup" in data:
+            data = "backward.";
+            print(data);
+            command_array = [downarrow_str]
+            result = executeCommands(command_array)
+        elif "right" in data:
+            data = "right.";
+            print(data);
+            command_array = [rightarrow_str]
+            result = executeCommands(command_array)
+        elif "left" in data:
+            data = "left.";
+            print(data);
+            command_array = [leftarrow_str]
+            result = executeCommands(command_array)
+        elif "stop" in data:
+            data = "stop.";
+            print(data);
+            command_array = [allstop_str]
+            result = executeCommands(command_array)
 
-    if len(result) > 0:
-        s.send(data + '\n' + result)
-    else:
-        # don't echo back the movement commands
-        if (not data.startswith('2,')):
-            s.send(data)
+        if len(result) > 0:
+            s.send(data + '\n' + result)
+        else:
+            # don't echo back the movement commands
+            if (not data.startswith('2,')):
+                s.send(data)
+
 
 #bd.when_pressed = move
 #bd.when_moved = move
