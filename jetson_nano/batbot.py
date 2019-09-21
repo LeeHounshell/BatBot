@@ -2,16 +2,19 @@
 
 from bluedot.btcomm import BluetoothServer
 from bluedot import BlueDot
+from datetime import datetime
 from signal import pause
 
-import socket
 import serial
+import socket
+import struct
 import time
+
 
 #The following line is for serial over GPIO
 port = '/dev/ttyACM0' # note I'm using Jetson Nano
 
-ard = serial.Serial(port,9600,timeout=5)
+arduino = serial.Serial(port,9600,timeout=5)
 time.sleep(2) # wait for Arduino
 
 uparrow        = 70  # Foward
@@ -44,11 +47,11 @@ IPAddr = socket.gethostbyname(hostname)
 def readDataFromArduino():
     robot_data = ''
     # Serial read section
-    ard.flush()
-    if (ard.inWaiting() > 0):
+    arduino.flush()
+    if (arduino.inWaiting() > 0):
         robot_data = ''
         try:
-            robot_data = ard.read(ard.inWaiting()).decode('ascii') # read all characters in buffer
+            robot_data = arduino.read(arduino.inWaiting()).decode('ascii') # read all characters in buffer
             print("from arduino: ")
             print(robot_data)
         except Exception as e:
@@ -62,10 +65,10 @@ def executeCommands(command_array):
         data = data + readDataFromArduino()
 
         # Serial write section
-        ard.flush()
+        arduino.flush()
         print("python sent: ")
         encoded_command = command_array[i].encode();
-        ard.write(encoded_command)
+        arduino.write(encoded_command)
         print(encoded_command)
 
         i = i + 1
@@ -103,26 +106,47 @@ def stop():
     print("stop.")
     result = executeCommands(command_array)
 
+def set_arduino_time(data):
+    time.sleep(2) # wait for Arduino
+    arduino.flush()
+    command = 'X' # SET TIME
+    encoded_command = command.encode();
+    arduino.write(encoded_command)
+    arduino.flush()
+    time.sleep(1)
+    # send 4 bytes of integer in network byte order
+    now = datetime.now()
+    timestamp = int(datetime.timestamp(now))
+    commdata = arduino.write(struct.pack('>L', timestamp))
+    arduino.flush()
+    # wait a bit
+    time.sleep(1)
+    print("SET_TIME offset sent: ")
+    print(str(timestamp))
+    data = data + readDataFromArduino()
+    return data
+
 def data_received(commandsFromPhone):
     commandList = commandsFromPhone.splitlines()
     for data in commandList:
         print('$ ' + data)
         result = ''
-        if "ping\n" in data:
+        if "ping" in data:
+            result = readDataFromArduino()
+            result = set_arduino_time(result)
             print("ping ok.");
-
-        if 'IP address' in data:
+        elif 'IP address' in data:
             result = "host=" + hostname + ", IP Address=" + IPAddr;
             print(result)
-        elif 'click: *\n' in data:
+        elif 'click: *' in data:
             print("---> * <---");
             command_array = [star_str]
             result = executeCommands(command_array)
-        elif 'click: ok\n' in data:
+        elif 'click: ok' in data:
             print("---> ok <---");
             command_array = [allstop_str]
             result = executeCommands(command_array)
-        elif 'click: #\n' in data:
+        elif 'click: #' in data:
             print("---> # <---");
             command_array = [sharp_str]
             result = executeCommands(command_array)
@@ -154,12 +178,14 @@ def data_received(commandsFromPhone):
             command_array = [allstop_str]
             result = executeCommands(command_array)
 
+        #--------------------------------------------
         if len(result) > 0:
             s.send(data + '\n' + result)
         else:
             # don't echo back the movement commands
             if (not data.startswith('2,')):
                 s.send(data)
+        #--------------------------------------------
 
 
 #bd.when_pressed = move
