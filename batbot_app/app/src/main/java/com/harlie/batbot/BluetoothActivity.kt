@@ -51,17 +51,14 @@ class BluetoothActivity : AppCompatActivity() {
 
                 } else {
                     Log.i(TAG, "onActivityResult: Bluetooth is Disabled")
-                    Toast.makeText(this@BluetoothActivity, "Bluetooth is Disabled", Toast.LENGTH_LONG)
-                        .show()
+                    Toast.makeText(this@BluetoothActivity, "Bluetooth is Disabled", Toast.LENGTH_LONG).show()
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Log.i(TAG, "onActivityResult: Bluetooth Canceled")
-                Toast.makeText(this@BluetoothActivity, "BlueTooth Canceled", Toast.LENGTH_LONG)
-                    .show()
+                Toast.makeText(this@BluetoothActivity, "BlueTooth Canceled", Toast.LENGTH_LONG).show()
             } else {
                 Log.w(TAG, "onActivityResult: Bluetooth resultCode=" + resultCode)
-                Toast.makeText(this@BluetoothActivity, "BlueTooth Problem", Toast.LENGTH_LONG)
-                    .show()
+                Toast.makeText(this@BluetoothActivity, "BlueTooth Problem", Toast.LENGTH_LONG).show()
             }
         }
     }

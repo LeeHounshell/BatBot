@@ -140,6 +140,7 @@ class ControlFragment : Fragment() {
         if ((m_pingStartTime - now) > 10000) {
             m_havePing = false
             m_pingStartTime = System.currentTimeMillis();
+            Log.d(TAG, "set m_pingStartTime=" + m_pingStartTime)
         }
         send("ping")
     }
@@ -261,8 +262,9 @@ class ControlFragment : Fragment() {
             gotoBluetoothActivity()
         }
         else if (bt_status_event.message.equals(Constants.CONNECTION_LOST)) {
+            Toast.makeText(context, "BLUETOOTH FAILED.", Toast.LENGTH_LONG).show()
             disconnect()
-            gotoBluetoothActivity()
+            activity!!.onBackPressed()
         }
         else if (bt_status_event.message.equals(Constants.INITIALIZING)) {
             Log.d(TAG, "===> INITIALIZING <===")

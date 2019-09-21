@@ -108,7 +108,6 @@ class ControlActivity : AppCompatActivity() {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         try {
             startActivityForResult(intent, REQUEST_CODE)
-            m_ControlFragment.ping()
         } catch (e: ActivityNotFoundException) {
             Log.e(TAG, "problem requesting translation: " + e);
         }
