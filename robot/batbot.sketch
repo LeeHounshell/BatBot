@@ -652,7 +652,7 @@ boolean function_ok() {
 
 boolean function_one() {
   setAngle(45, 0);
-  println(" function_three: look toward left", 1);
+  println(" function_one: look toward left", 1);
   return 1;
 }
 
@@ -664,13 +664,13 @@ boolean function_two() {
 
 boolean function_three() {
   setAngle(90 + 45, 0);
-  println(" function_one: look toward right", 1);
+  println(" function_three: look toward right", 1);
   return 1;
 }
 
 boolean function_four() {
   setAngle(0, 0);
-  println(" function_six: look left", 1);
+  println(" function_four: look full left", 1);
   return 1;
 }
 
@@ -682,7 +682,7 @@ boolean function_five() {
 
 boolean function_six() {
   setAngle(180, 0);
-  println(" function_four: look right", 1);
+  println(" function_six: look full right", 1);
   return 1;
 }
 
@@ -730,3 +730,4 @@ boolean function_sharp() {
   println(" function_sharp: 'follow' TODO/FIXME", 1);
   return 1;
 }
+
