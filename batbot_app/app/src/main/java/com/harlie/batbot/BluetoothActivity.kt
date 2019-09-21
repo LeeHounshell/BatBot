@@ -29,6 +29,7 @@ class BluetoothActivity : AppCompatActivity() {
         m_BluetoothAdapter = m_BluetoothViewModel.initDefaultAdapter()
 
         if (0 <= m_BluetoothViewModel.initializeDeviceList(this)) {
+            Log.d(TAG, "*** ENABLING BLUETOOTH ***")
             val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableBluetoothIntent, REQUEST_ENABLE_BLUETOOTH)
         }
@@ -62,4 +63,5 @@ class BluetoothActivity : AppCompatActivity() {
             }
         }
     }
+
 }

@@ -240,10 +240,12 @@ class ControlFragment : Fragment() {
         Log.d(TAG, "onBluetoothStatusEvent: message=" + bt_status_event.message)
         msg(bt_status_event.message)
         if (bt_status_event.message.equals(Constants.DISCONNECT)) {
+            Toast.makeText(context, "DISCONNECTED.", Toast.LENGTH_LONG).show()
             disconnect()
             gotoBluetoothActivity()
         }
         else if (bt_status_event.message.equals(Constants.CONNECTION_FAILED)) {
+            Toast.makeText(context, "CONNECTION FAILED.", Toast.LENGTH_LONG).show()
             disconnect()
             gotoBluetoothActivity()
         }
@@ -251,6 +253,12 @@ class ControlFragment : Fragment() {
             Toast.makeText(context, "BLUETOOTH FAILED.", Toast.LENGTH_LONG).show()
             disconnect()
             gotoBluetoothActivity()
+            //
+            // NOTE: this is a problem with the Android bluetooth functionality and databinding
+            // (it happens when the python bluez batbot server stops during an active session)
+            // the only way i have found to fix it is to manually kill the Android BatBot app
+            // and then restart it.   --- the root cause seems to be a databinding problem/confusion
+            //
         }
         else if (bt_status_event.message.equals(Constants.INITIALIZING)) {
             Log.d(TAG, "===> INITIALIZING <===")
