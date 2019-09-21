@@ -98,21 +98,21 @@ def stop():
 def data_received(data):
     print(data)
     result = ''
-    if data == 'click: *\n':
+    if "ping\n" in data:
+        print("ping ok.");
+
+    if 'click: *\n' in data:
         print("---> * <---");
         command_array = [star_str]
         result = executeCommands(command_array)
-    elif data == 'click: ok\n':
+    elif 'click: ok\n' in data:
         print("---> ok <---");
         command_array = [allstop_str]
         result = executeCommands(command_array)
-    elif data == 'click: #\n':
+    elif 'click: #\n' in data:
         print("---> # <---");
         command_array = [sharp_str]
         result = executeCommands(command_array)
-    elif data == "ping\n":
-        data = "ping.";
-        print(data);
 
     # FIXME: replace this code
     elif "forward" in data:
