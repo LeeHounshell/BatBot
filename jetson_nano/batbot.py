@@ -39,8 +39,8 @@ monitor        = '0' # Function 0
 
 settime        = 'X' # Time
 allstop        = 'H' # Halt
-star           = '*' # Star
-sharp          = '#' # Sharp
+run_star       = '*' # Star
+run_sharp      = '#' # Sharp
 
 game_w         = 'W'
 game_a         = 'A'
@@ -102,7 +102,8 @@ def executeCommands(command_array):
         # Serial write section
         arduino.flush()
         print("python sent: ")
-        encoded_command = command_array[i].encode()
+        command = str(command_array[i])
+        encoded_command = command.encode()
         arduino.write(encoded_command)
         print(encoded_command)
 
@@ -113,20 +114,20 @@ def executeCommands(command_array):
     data = data + readDataFromArduino()
     return data
 
-def star():
-    command_array = [star]
+def do_star():
+    command_array = [run_star]
     print("-> star.")
     result = executeCommands(command_array)
     return result
 
-def stop():
+def do_stop():
     command_array = [allstop]
     print("-> stop.")
     result = executeCommands(command_array)
     return result
 
-def sharp():
-    command_array = [sharp]
+def do_sharp():
+    command_array = [run_sharp]
     print("-> sharp.")
     result = executeCommands(command_array)
     return result
@@ -166,13 +167,13 @@ def data_received(commandsFromPhone):
             print(result)
         elif 'click: *' in data:
             print('---> button * <---')
-            result = star()
+            result = do_star()
         elif 'click: ok' in data:
             print('---> button ok <---')
-            result = stop()
+            result = do_stop()
         elif 'click: #' in data:
             print('---> button # <---')
-            result = sharp()
+            result = do_sharp()
         elif 'forward' in data:
             data = 'forward.'
             print(data)
@@ -224,8 +225,7 @@ def data_received(commandsFromPhone):
         elif 'stop' in data:
             data = 'stop.'
             print(data)
-            command_array = [allstop]
-            result = executeCommands(command_array)
+            result = do_stop()
         elif 'faster' in data:
             data = 'faster.'
             print(data)
@@ -239,13 +239,11 @@ def data_received(commandsFromPhone):
         elif 'follow' in data:
             data = 'follow.' # FIXME: run Elegoo line following
             print(data)
-            command_array = [sharp]
-            result = executeCommands(command_array)
+            result = do_sharp()
         elif 'avoid' in data:
             data = 'avoid.' # FIXME: run Elegoo collision avoidance
             print(data)
-            command_array = [star]
-            result = executeCommands(command_array)
+            result = do_star()
         elif 'sensors' in data:
             data = 'sensors.'
             print(data)

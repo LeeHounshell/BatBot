@@ -759,7 +759,7 @@ boolean function_nine() {
 boolean function_zero() {
   state = "security monitor";
   // FIXME
-  println(" function_zero: 'monitor' TODO/FIXME", 1);
+  println(" function_zero: 'security monitor' TODO/FIXME", 1);
   return 1;
 }
 
@@ -767,7 +767,7 @@ boolean function_zero() {
 boolean function_star() {
   state = "avoid collision";
   // FIXME
-  println(" function_star: 'search' TODO/FIXME", 1);
+  println(" function_star: 'collision avoidance' TODO/FIXME", 1);
   return 1;
 }
 
@@ -775,7 +775,7 @@ boolean function_star() {
 boolean function_sharp() {
   // FIXME
   state = "line following";
-  println(" function_sharp: 'follow' TODO/FIXME", 1);
+  println(" function_sharp: 'line following' TODO/FIXME", 1);
   return 1;
 }
 
