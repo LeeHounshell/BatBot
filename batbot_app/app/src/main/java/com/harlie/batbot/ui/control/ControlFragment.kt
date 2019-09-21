@@ -29,6 +29,7 @@ import org.greenrobot.eventbus.ThreadMode
 import androidx.databinding.ObservableBoolean
 import com.harlie.batbot.BluetoothActivity
 import com.harlie.batbot.R
+import java.util.*
 import kotlin.concurrent.fixedRateTimer
 
 
@@ -54,8 +55,9 @@ class ControlFragment : Fragment() {
     private lateinit var m_ControlFragBinding : ControlFragmentBinding
     private lateinit var m_ControlViewModel: Control_ViewModel
     private lateinit var m_BluetoothAdapter: BluetoothAdapter
+    private lateinit var m_fixedTimer: Timer
 
-    private var m_name: String? = null
+        private var m_name: String? = null
     private var m_address: String? = null
     private var m_device: BluetoothDevice? = null
     private var m_uniqueId: String? = null
@@ -72,20 +74,10 @@ class ControlFragment : Fragment() {
         m_ControlFragBinding = DataBindingUtil.inflate(
             inflater, com.harlie.batbot.R.layout.control_fragment, container, false
         )
-
         m_ControlFragBinding.robotCommand = m_robotCommand
         m_ControlFragBinding.robotConnection = m_robotConnection
         m_ControlFragBinding.lifecycleOwner = activity
-
-        fixedRateTimer("timer", false, 0L, 100) {
-            if (m_timer_ok) {
-                activity!!.runOnUiThread {
-                    if (logging != null) {
-                        logging.text = m_logging.content()
-                    }
-                }
-            }
-        }
+        m_ControlFragBinding.invalidateAll()
 
         val view = m_ControlFragBinding.getRoot()
         return view
@@ -121,7 +113,6 @@ class ControlFragment : Fragment() {
             it?.let {
                 Log.d(TAG, "===> ok clicked=" + it)
                 send("click: ok")
-                ping()
             }
         })
         m_ControlViewModel.m_sharpClicked.observe(this, Observer {
@@ -134,42 +125,25 @@ class ControlFragment : Fragment() {
         connect()
     }
 
-    fun ping() {
-        Log.d(TAG, "--> fun ping() <--")
-        val now = System.currentTimeMillis();
-        if ((m_pingStartTime - now) > 10000) {
-            m_havePing = false
-            m_pingStartTime = System.currentTimeMillis();
-            Log.d(TAG, "set m_pingStartTime=" + m_pingStartTime)
+    fun runFixedRateTimer() {
+        Log.d(TAG, "runFixedRateTimer")
+        m_fixedTimer = fixedRateTimer("timer", false, 0L, 100) {
+            if (m_timer_ok) {
+                activity!!.runOnUiThread {
+                    if (logging != null) {
+                        logging.text = m_logging.content()
+                    }
+                }
+            }
         }
-        send("ping")
     }
 
     override fun onStart() {
         Log.d(TAG, "onStart")
         super.onStart()
         m_logging.clear()
-        m_ControlFragBinding.invalidateAll()
         EventBus.getDefault().register(this);
-    }
-
-    fun invalidateAll() {
-        Log.d(TAG, "invalidateAll")
-        m_ControlFragBinding.invalidateAll()
-    }
-
-    fun initializeTextViews() {
-        Log.d(TAG, "initializeTextViews")
-        if (textOutput != null) {
-            textOutput.text = ""
-            textOutput.visibility = View.VISIBLE
-            Log.d(TAG, "textOutput is empty")
-        }
-        if (logging != null) {
-            logging.text = ""
-            logging.visibility = View.VISIBLE
-            Log.d(TAG, "logging is empty")
-        }
+        runFixedRateTimer()
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN) // from notify
@@ -208,7 +182,6 @@ class ControlFragment : Fragment() {
                     logging.text = m_logging.content()
 
                     if (m_havePing == false) {
-                        initializeTextViews()
                         if (readData.contains("ping")) {
                             m_havePing = true
                             Log.d(TAG, "--> got ping reply <--")
@@ -246,7 +219,20 @@ class ControlFragment : Fragment() {
 
     private fun enableButtons() {
         Log.d(TAG, "enableButtons")
+        clearTextViews()
         m_robotConnection.set(true)
+    }
+
+    fun clearTextViews() {
+        Log.d(TAG, "initializeTextViews")
+        if (textOutput != null) {
+            textOutput.text = ""
+            Log.d(TAG, "textOutput is empty")
+        }
+        if (logging != null) {
+            logging.text = ""
+            Log.d(TAG, "logging is empty")
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN) // from notify
@@ -263,22 +249,12 @@ class ControlFragment : Fragment() {
         }
         else if (bt_status_event.message.equals(Constants.CONNECTION_LOST)) {
             Toast.makeText(context, "BLUETOOTH FAILED.", Toast.LENGTH_LONG).show()
-            utterFailureRestartEverything()
+            disconnect()
+            gotoBluetoothActivity()
         }
         else if (bt_status_event.message.equals(Constants.INITIALIZING)) {
             Log.d(TAG, "===> INITIALIZING <===")
         }
-    }
-
-    private fun utterFailureRestartEverything() {
-        Log.d(TAG, "utterFailureRestartEverything")
-        disconnect()
-        Log.e(TAG, "===> STOPPING BATBOT APP TO RESET BLUETOOTH <===")
-        val homeIntent: Intent = Intent (Intent.ACTION_MAIN);
-        homeIntent.addCategory(Intent.CATEGORY_HOME);
-        homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(homeIntent);
-        activity!!.finishAndRemoveTask();
     }
 
     override fun onStop() {
@@ -401,8 +377,6 @@ class ControlFragment : Fragment() {
 
     private fun disconnect() {
         Log.d(TAG, "disconnect");
-        m_timer_ok = false
-        m_logging.clear()
         m_BluetoothChatService.stop()
     }
 

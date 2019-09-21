@@ -10,14 +10,24 @@ import com.harlie.batbot.model.RobotCommandModel
 class Control_ViewModel : ViewModel() {
     val TAG = "LEE: <" + Control_ViewModel::class.java.getName() + ">";
 
-    val m_inputCommand = MutableLiveData<RobotCommandModel>()
-    val m_starClicked = MutableLiveData<Boolean>()
-    val m_okClicked = MutableLiveData<Boolean>()
-    val m_sharpClicked = MutableLiveData<Boolean>()
-
+    lateinit var m_inputCommand: MutableLiveData<RobotCommandModel>
+    lateinit var m_starClicked: MutableLiveData<Boolean>
+    lateinit var m_okClicked: MutableLiveData<Boolean>
+    lateinit var m_sharpClicked: MutableLiveData<Boolean>
     lateinit var m_bluetoothAdapter: BluetoothAdapter
 
+
+    fun initLiveData() {
+        Log.d(TAG, "initLiveData")
+        // if bluetooth fails these need to be reset for the next activity
+        m_inputCommand = MutableLiveData<RobotCommandModel>()
+        m_starClicked = MutableLiveData<Boolean>()
+        m_okClicked = MutableLiveData<Boolean>()
+        m_sharpClicked = MutableLiveData<Boolean>()
+    }
+
     fun initDefaultAdapter(): BluetoothAdapter {
+        Log.d(TAG, "initDefaultAdapter")
         m_bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         return m_bluetoothAdapter
     }
@@ -25,7 +35,6 @@ class Control_ViewModel : ViewModel() {
     fun processAndDecodeMessage(robotCommand: RobotCommandModel) {
         Log.d(TAG, "processAndDecodeMessage: " + robotCommand.robotCommand + ", priority=" + robotCommand.commandPriority)
         // FIXME: analyze the command
-        //robotCommand.robotCommand = robotCommand.robotCommand + "\n"
         m_inputCommand.postValue(robotCommand)
     }
 

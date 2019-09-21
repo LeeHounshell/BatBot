@@ -33,7 +33,8 @@ class ControlActivity : AppCompatActivity() {
     private val REQUEST_CODE = 100
     private val PREF_UNIQUE_ID = "PREF_UNIQUE_ID"
 
-    private var uniqueId: String? = null
+    private var m_uniqueId: String? = null
+    private var m_robotCommand : RobotCommandModel? = null
     private lateinit var m_ControlViewModel : Control_ViewModel
     private lateinit var m_ControlFragment: ControlFragment
 
@@ -46,14 +47,15 @@ class ControlActivity : AppCompatActivity() {
         this.let {
             m_ControlViewModel = ViewModelProviders.of(it).get(Control_ViewModel::class.java)
         }
+        m_ControlViewModel.initLiveData()
 
         m_name = intent.getStringExtra(ControlActivity.EXTRA_NAME)
         m_address = intent.getStringExtra(ControlActivity.EXTRA_ADDRESS)
         m_device = intent.getParcelableExtra(ControlActivity.EXTRA_DEVICE)
         Log.d(TAG, "selected name=" + m_name + ", address=" + m_address)
 
-        uniqueId = id(this)
-        Log.d(TAG, "phone has uniqueId=" + uniqueId)
+        m_uniqueId = id(this)
+        Log.d(TAG, "phone has m_uniqueId=" + m_uniqueId)
 
         if (savedInstanceState == null) {
             m_ControlFragment = ControlFragment.getInstance() as ControlFragment
@@ -62,25 +64,25 @@ class ControlActivity : AppCompatActivity() {
                 .commitNow()
 
             Log.d(TAG, "creating Connection to batbot..")
-            m_ControlFragment.setDeviceInfo(m_name, m_address, m_device, uniqueId!!)
+            m_ControlFragment.setDeviceInfo(m_name, m_address, m_device, m_uniqueId!!)
         }
     }
 
     @Synchronized
     fun id(context: Context): String {
-        if (uniqueId == null) {
+        if (m_uniqueId == null) {
             val sharedPrefs = context.getSharedPreferences(
                 PREF_UNIQUE_ID, Context.MODE_PRIVATE
             )
-            uniqueId = sharedPrefs.getString(PREF_UNIQUE_ID, null)
-            if (uniqueId == null) {
-                uniqueId = UUID.randomUUID().toString()
+            m_uniqueId = sharedPrefs.getString(PREF_UNIQUE_ID, null)
+            if (m_uniqueId == null) {
+                m_uniqueId = UUID.randomUUID().toString()
                 val editor = sharedPrefs.edit()
-                editor.putString(PREF_UNIQUE_ID, uniqueId)
+                editor.putString(PREF_UNIQUE_ID, m_uniqueId)
                 editor.commit()
             }
         }
-        return uniqueId as String
+        return m_uniqueId as String
     }
 
     override fun onResume() {
@@ -93,7 +95,7 @@ class ControlActivity : AppCompatActivity() {
         m_ControlViewModel.doClickStar()
     }
 
-    fun onClickButtonOk(v: View) {
+    fun onClickButtonOk(v: View?) {
         Log.d(TAG, "onClickButtonOk")
         m_ControlViewModel.doClickOk()
     }
@@ -119,11 +121,11 @@ class ControlActivity : AppCompatActivity() {
         when (requestCode) {
             REQUEST_CODE -> {
                 if (resultCode == Activity.RESULT_OK && null != data) {
-                    m_ControlFragment.invalidateAll()
+                    onClickButtonOk(null)
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                    Log.d(TAG, "result=" + result[0])
-                    val robotCommand : RobotCommandModel = RobotCommandModel(result[0], "3")
-                    m_ControlViewModel.processAndDecodeMessage(robotCommand)
+                    Log.d(TAG, "===> got speech translation result=" + result[0])
+                    m_robotCommand = RobotCommandModel(result[0], "3")
+                    m_ControlViewModel.processAndDecodeMessage(m_robotCommand!!)
                 }
             }
         }
