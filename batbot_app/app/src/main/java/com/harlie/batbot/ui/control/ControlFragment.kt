@@ -142,6 +142,7 @@ class ControlFragment : Fragment() {
         Log.d(TAG, "onStart")
         super.onStart()
         m_logging.clear()
+        clearTextViews()
         EventBus.getDefault().register(this);
         runFixedRateTimer()
     }
