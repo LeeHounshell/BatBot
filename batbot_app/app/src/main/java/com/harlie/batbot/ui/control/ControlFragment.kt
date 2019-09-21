@@ -141,8 +141,6 @@ class ControlFragment : Fragment() {
     override fun onStart() {
         Log.d(TAG, "onStart")
         super.onStart()
-        m_logging.clear()
-        clearTextViews()
         EventBus.getDefault().register(this);
         runFixedRateTimer()
     }
