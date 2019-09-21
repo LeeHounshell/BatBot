@@ -10,7 +10,7 @@
 //----------------------------------------
 //--------------- CAR SPEED --------------
 
-#define carSpeed 190  // initial speed of car >=0 to <=255
+#define carSpeed 200  // initial speed of car >=0 to <=255
 int speedDelta = 0;
 
 //----------------------------------------
@@ -164,7 +164,6 @@ long servo_movement_time; // time servo last moved
 boolean have_cmd = 0;
 boolean move_servo = 0;
 boolean send_sensor_data = 0;
-boolean stop_serialio = 0;
 boolean read_time = 0;
 boolean good = 0;
 
@@ -354,30 +353,28 @@ void loop() {
     }
   }
 
-  if (! stop_serialio) {
-    // handle input from Jetson Nano
-    if (Serial.available()) {
+  // handle input from Jetson Nano
+  if (Serial.available()) {
 
-      // get the SET_TIME offset
-      if (read_time) {
-        read_time = 0;
-        time_offset = (time_t) readPythonIntValue();
-        time_now = time_offset;
-        setTime(time_now);
-      }
-
-      // read next command from jetson nano
-      else {
-        se_value = Serial.read();
-        good = execute_command(se_value);
-      }
+    // get the SET_TIME offset
+    if (read_time) {
+      read_time = 0;
+      time_offset = (time_t) readPythonIntValue();
+      time_now = time_offset;
+      setTime(time_now);
     }
 
-    send_sensor_data = (millis() - senMillis > sensorSpeed) ? 1 : 0;
-    if (send_sensor_data) {
-      transmit_sensor_data(servoSpeed);
-      senMillis = millis();
+    // read next command from jetson nano
+    else {
+      se_value = Serial.read();
+      good = execute_command(se_value);
     }
+  }
+
+  send_sensor_data = (millis() - senMillis > sensorSpeed) ? 1 : 0;
+  if (send_sensor_data) {
+    transmit_sensor_data(servoSpeed);
+    senMillis = millis();
   }
 }
 
@@ -461,17 +458,17 @@ void transmit_sensor_data(int servoSpeed) {
 
     if (servoAngle == 0) {
       leftDistance = distance;
-      print(" Left-Distance=", 1);
+      print(" Distance Left=", 1);
       println(toString(leftDistance), 0);
     }
     else if (servoAngle == 90) {
       aheadDistance = distance;
-      print(" Ahead-Distance=", 1);
+      print(" Distance Ahead=", 1);
       println(toString(aheadDistance), 0);
     }
     else if (servoAngle == 180) {
       rightDistance = distance;
-      print(" Right-Distance=", 1);
+      print(" Distance Right=", 1);
       println(toString(rightDistance), 0);
     }
     else if (isOutsideDelta(distance, previousDistance, distanceDelta)) {
@@ -648,13 +645,14 @@ boolean function_ok() {
   stop();
   speedDelta = 0;
   delta = 0;
+  setAngle(90, 0);
   println(" function_ok: STOP", 1);
   return 1;
 }
 
 boolean function_one() {
   setAngle(45, 0);
-  println(" function_one: look toward right", 1);
+  println(" function_three: look toward left", 1);
   return 1;
 }
 
@@ -666,13 +664,13 @@ boolean function_two() {
 
 boolean function_three() {
   setAngle(90 + 45, 0);
-  println(" function_three: look toward left", 1);
+  println(" function_one: look toward right", 1);
   return 1;
 }
 
 boolean function_four() {
   setAngle(0, 0);
-  println(" function_four: look right", 1);
+  println(" function_six: look left", 1);
   return 1;
 }
 
@@ -684,11 +682,28 @@ boolean function_five() {
 
 boolean function_six() {
   setAngle(180, 0);
-  println(" function_six: look left", 1);
+  println(" function_four: look right", 1);
   return 1;
 }
 
 boolean function_seven() {
+  if ((carSpeed + speedDelta) >= 170) {
+     speedDelta -= 3;
+  }
+  else {
+    println(" -limit", 1);
+  }
+  print(" function_seven: (slower) speed=", 1);
+  print(toString(carSpeed + speedDelta), 0);
+  return 1;
+}
+
+boolean function_eight() {
+  println(" function_eight: 'identify' TODO/FIXME", 1);
+  return 1;
+}
+
+boolean function_nine() {
   if ((carSpeed + speedDelta) <= 250) {
     speedDelta += 3;
   }
@@ -700,24 +715,6 @@ boolean function_seven() {
   return 1;
 }
 
-boolean function_eight() {
-  delta = randomServoDelta();
-  println(" function_eight: random delta", 1);
-  return 1;
-}
-
-boolean function_nine() {
-  if ((carSpeed + speedDelta) >= 170) {
-     speedDelta -= 3;
-  }
-  else {
-    println(" -limit", 1);
-  }
-  print(" function_nine: (slower) speed=", 1);
-  print(toString(carSpeed + speedDelta), 0);
-  return 1;
-}
-
 boolean function_zero() {
   delta = 0;
   println(" function_zero: delta zero", 1);
@@ -725,13 +722,11 @@ boolean function_zero() {
 }
 
 boolean function_star() {
-  stop_serialio = 0;
-  println(" function_star: go serialio", 1);
+  println(" function_star: 'search' TODO/FIXME", 1);
   return 1;
 }
 
 boolean function_sharp() {
-  stop_serialio = 1;
-  println(" function_sharp: stop serialio", 1);
+  println(" function_sharp: 'follow' TODO/FIXME", 1);
   return 1;
 }
