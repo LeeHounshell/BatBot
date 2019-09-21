@@ -647,8 +647,10 @@ boolean function_down() {
   return 1;
 }
 
+// reset to defaults
 boolean function_ok() {
   stop();
+  state = "default";
   motion = "none";
   speedDelta = 0;
   delta = 0;
@@ -727,13 +729,11 @@ boolean function_eight() {
   println(toString(lt_m), 0);
   print(" LT_L=", 1);
   println(toString(lt_l), 0);
-  print(" Speed Delta=", 1);
-  println(toString(speedDelta), 0);
-  print(" Speed Setting=", 1);
-  println(toString(carSpeed), 0);
+  print(" Throttle Setting=", 1);
+  println(toString(carSpeed + speedDelta), 0);
   print(" Camera Angle=", 1);
   println(toString(servoAngle), 0);
-  print(" Distance=", 1);
+  print(" Last Distance=", 1);
   println(toString(distance), 0);
   print(" Motion=", 1);
   println(motion, 0);
