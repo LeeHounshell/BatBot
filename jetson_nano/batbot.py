@@ -121,7 +121,8 @@ def data_received(commandsFromPhone):
             result = set_arduino_time(result)
             print('ping ok.')
         elif 'IP address' in data:
-            result = 'host=' + hostname + ', IP Address=' + IPAddr
+            result = readDataFromArduino()
+            result = result + 'host=' + hostname + ', IP Address=' + IPAddr
             print(result)
         elif 'click: *' in data:
             print('---> button * <---')
@@ -228,6 +229,10 @@ def data_received(commandsFromPhone):
             print(data)
             command_array = [locate]
             result = executeCommands(command_array)
+        elif 'name' in data:
+            result = readDataFromArduino()
+            result = result + 'i am ' + hostname + '.'
+            print(result)
         elif 'help' in data:
             data = 'commands i know:\n'
             data = data + 'look ahead, '
@@ -246,6 +251,7 @@ def data_received(commandsFromPhone):
             data = data + 'learn, '
             data = data + 'photo, '
             data = data + 'find, '
+            data = data + 'name, '
             data = data + 'IP address, '
             data = data + 'ping, '
             data = data + 'and help.\n\n'
