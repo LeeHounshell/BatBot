@@ -15,7 +15,7 @@ class SplashActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
 
-        Timer().schedule(1500) {
+        Timer().schedule(1000) {
             Log.d(TAG, "-Splash-")
             val blueIntent: Intent = Intent(this@SplashActivity, BluetoothActivity::class.java)
             startActivity(blueIntent)
