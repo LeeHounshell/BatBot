@@ -13,6 +13,9 @@
 #define carSpeed 200  // initial speed of car >=0 to <=255
 int speedDelta = 0;
 
+char *state  = "default";
+char *motion = "none";
+
 //----------------------------------------
 //----------- IR REMOTE CODES ------------
 
@@ -38,7 +41,6 @@ int speedDelta = 0;
 //-------------- COMMANDS ----------------
 
 #define SET_TIME          88 // 'X'
-
 #define UPARROW           70 // 'F'
 #define DOWNARROW         66 // 'B'
 #define RIGHTARROW        82 // 'R'
@@ -619,30 +621,35 @@ boolean function_set_time() {
 
 boolean function_up() {
   forward();
+  motion = "forward";
   println(" function_up: go forward", 1);
   return 1;
 }
 
 boolean function_left() {
   left();
+  motion = "left";
   println(" function_left: go left", 1);
   return 1;
 }
 
 boolean function_right() {
   right();
+  motion = "right";
   println(" function_right: go right", 1);
   return 1;
 }
 
 boolean function_down() {
   back();
+  motion = "down";
   println(" function_down: go back", 1);
   return 1;
 }
 
 boolean function_ok() {
   stop();
+  motion = "none";
   speedDelta = 0;
   delta = 0;
   setAngle(90, 0);
@@ -650,42 +657,49 @@ boolean function_ok() {
   return 1;
 }
 
+// look right
 boolean function_one() {
   setAngle(45, 0);
   println(" function_one: look toward left", 1);
   return 1;
 }
 
+// look ahead
 boolean function_two() {
   setAngle(90, 0);
   println(" function_two: look ahead", 1);
   return 1;
 }
 
+// look left
 boolean function_three() {
   setAngle(90 + 45, 0);
   println(" function_three: look toward right", 1);
   return 1;
 }
 
+// look full right
 boolean function_four() {
   setAngle(0, 0);
   println(" function_four: look full left", 1);
   return 1;
 }
 
+// map your world
 boolean function_five() {
-  delta = 10;
-  println(" function_five: delta 10", 1);
+  // FIXME
+  println(" function_five: 'map the world' TODO/FIXME", 1);
   return 1;
 }
 
+// look full left
 boolean function_six() {
   setAngle(180, 0);
   println(" function_six: look full right", 1);
   return 1;
 }
 
+// go slower
 boolean function_seven() {
   if ((carSpeed + speedDelta) >= 170) {
      speedDelta -= 3;
@@ -698,11 +712,37 @@ boolean function_seven() {
   return 1;
 }
 
+// sensors: return all sensor and status data
 boolean function_eight() {
-  println(" function_eight: 'identify' TODO/FIXME", 1);
+  println(" function_eight: 'sensors'", 1);
+  print(" Ahead Distance=", 1);
+  println(toString(aheadDistance), 0);
+  print(" Left Distance=", 1);
+  println(toString(leftDistance), 0);
+  print(" Right Distance=", 1);
+  println(toString(rightDistance), 0);
+  print(" LT_R=", 1);
+  println(toString(lt_r), 0);
+  print(" LT_M=", 1);
+  println(toString(lt_m), 0);
+  print(" LT_L=", 1);
+  println(toString(lt_l), 0);
+  print(" Speed Delta=", 1);
+  println(toString(speedDelta), 0);
+  print(" Speed Setting=", 1);
+  println(toString(carSpeed), 0);
+  print(" Camera Angle=", 1);
+  println(toString(servoAngle), 0);
+  print(" Distance=", 1);
+  println(toString(distance), 0);
+  print(" Motion=", 1);
+  println(motion, 0);
+  print(" State=", 1);
+  println(state, 0);
   return 1;
 }
 
+// go faster
 boolean function_nine() {
   if ((carSpeed + speedDelta) <= 250) {
     speedDelta += 3;
@@ -715,18 +755,26 @@ boolean function_nine() {
   return 1;
 }
 
+// run security monitor protocol
 boolean function_zero() {
-  delta = 0;
-  println(" function_zero: delta zero", 1);
+  state = "security monitor";
+  // FIXME
+  println(" function_zero: 'monitor' TODO/FIXME", 1);
   return 1;
 }
 
+// run Elegoo collision avoidance
 boolean function_star() {
+  state = "avoid collision";
+  // FIXME
   println(" function_star: 'search' TODO/FIXME", 1);
   return 1;
 }
 
+// run Elegoo line following
 boolean function_sharp() {
+  // FIXME
+  state = "line following";
   println(" function_sharp: 'follow' TODO/FIXME", 1);
   return 1;
 }

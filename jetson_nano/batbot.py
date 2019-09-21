@@ -17,26 +17,27 @@ arduino = serial.Serial(port,9600,timeout=5)
 time.sleep(2) # wait for Arduino
 
 camera_angle   = 90
-settime        = 'X'
 
 uparrow        = 'F' # Foward
 downarrow      = 'B' # Back
 rightarrow     = 'R' # Right
 leftarrow      = 'L' # Left
 
-lookahead      = '2' # Function 2
 lookright      = '1' # Function 1
+lookahead      = '2' # Function 2
 lookleft       = '3' # Function 3
+
 lookfullright  = '4' # Function 4
+map_world      = '5' # Function 5
 lookfullleft   = '6' # Function 6
+
 slower         = '7' # Function 7
+sensors        = '8' # Function 8
 faster         = '9' # Function 9
-identify       = '8' # Function 8
 
-learn          = ''  # FIXME
-photo          = ''  # FIXME
-locate         = ''  # FIXME
+monitor        = '0' # Function 0
 
+settime        = 'X' # Time
 allstop        = 'H' # Halt
 star           = '*' # Star
 sharp          = '#' # Sharp
@@ -49,6 +50,33 @@ game_d         = 'D'
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
 
+
+def batbot_help():
+    data = 'commands i know:\n'
+    data = data + 'look ahead, '
+    data = data + 'look right, '
+    data = data + 'look left, '
+    data = data + 'forward, '
+    data = data + 'back, '
+    data = data + 'right, '
+    data = data + 'left, '
+    data = data + 'stop, '
+    data = data + 'faster, '
+    data = data + 'slower, '
+    data = data + 'follow, '
+    data = data + 'avoid, '
+    data = data + 'sensors, '
+    data = data + 'identify, '
+    data = data + 'learn, '
+    data = data + 'map, '
+    data = data + 'monitor, '
+    data = data + 'photo, '
+    data = data + 'find, '
+    data = data + 'name, '
+    data = data + 'IP address, '
+    data = data + 'ping, '
+    data = data + 'and help.\n\n'
+    return data
 
 def readDataFromArduino():
     robot_data = ''
@@ -85,14 +113,27 @@ def executeCommands(command_array):
     data = data + readDataFromArduino()
     return data
 
+def star():
+    command_array = [star]
+    print("-> star.")
+    result = executeCommands(command_array)
+    return result
+
 def stop():
     command_array = [allstop]
-    print("stop.")
+    print("-> stop.")
     result = executeCommands(command_array)
+    return result
 
-def set_arduino_time(data):
+def sharp():
+    command_array = [sharp]
+    print("-> sharp.")
+    result = executeCommands(command_array)
+    return result
+
+def set_arduino_time():
     arduino.flush()
-    time.sleep(2) # wait for Arduino
+    timedata = readDataFromArduino()
     command = settime
     encoded_command = command.encode()
     arduino.write(encoded_command)
@@ -107,8 +148,8 @@ def set_arduino_time(data):
     time.sleep(1)
     print("SET_TIME offset sent: ")
     print(str(timestamp))
-    data = data + readDataFromArduino()
-    return data
+    timedata = timedata + readDataFromArduino()
+    return timedata
 
 def data_received(commandsFromPhone):
     global camera_angle
@@ -117,25 +158,21 @@ def data_received(commandsFromPhone):
         print('$ ' + data)
         result = ''
         if 'ping' in data:
-            result = readDataFromArduino()
-            result = set_arduino_time(result)
+            result = set_arduino_time()
+            result = result + batbot_help()
             print('ping ok.')
         elif 'IP address' in data:
-            result = readDataFromArduino()
             result = result + 'host=' + hostname + ', IP Address=' + IPAddr
             print(result)
         elif 'click: *' in data:
             print('---> button * <---')
-            command_array = [star]
-            result = executeCommands(command_array)
+            result = star()
         elif 'click: ok' in data:
             print('---> button ok <---')
-            command_array = [allstop]
-            result = executeCommands(command_array)
+            result = stop()
         elif 'click: #' in data:
             print('---> button # <---')
-            command_array = [sharp]
-            result = executeCommands(command_array)
+            result = sharp()
         elif 'forward' in data:
             data = 'forward.'
             print(data)
@@ -200,61 +237,51 @@ def data_received(commandsFromPhone):
             command_array = [slower]
             result = executeCommands(command_array)
         elif 'follow' in data:
-            data = 'follow.' # FIXME: plus optional what to follow. e.g. 'lines'
+            data = 'follow.' # FIXME: run Elegoo line following
             print(data)
             command_array = [sharp]
             result = executeCommands(command_array)
-        elif 'search' in data:
-            data = 'search.' # FIXME: next word is item to search for
+        elif 'avoid' in data:
+            data = 'avoid.' # FIXME: run Elegoo collision avoidance
             print(data)
             command_array = [star]
+            result = executeCommands(command_array)
+        elif 'sensors' in data:
+            data = 'sensors.'
+            print(data)
+            command_array = [sensors]
             result = executeCommands(command_array)
         elif 'identify' in data:
             data = 'identify.' # FIXME: identify what robot is looking at now
             print(data)
-            command_array = [identify]
-            result = executeCommands(command_array)
+            result = 'FIXME: learn to identify'
         elif 'learn' in data:
             data = 'learn.' # FIXME: next word teaches last item's real name
             print(data)
-            command_array = [learn]
+            result = 'FIXME: learn about object'
+        elif 'map' in data:
+            data = 'map.' # FIXME: map the world
+            print(data)
+            command_array = [map_world]
+            result = executeCommands(command_array)
+        elif 'monitor' in data:
+            data = 'monitor.' # FIXME: run the security monitor
+            print(data)
+            command_array = [monitor]
             result = executeCommands(command_array)
         elif 'photo' in data:
             data = 'photo.' # FIXME: optional next word is item to photograph
             print(data)
-            command_array = [photograph]
-            result = executeCommands(command_array)
+            result = 'FIXME: take a picture'
         elif 'find' in data:
-            data = 'find.' # FIXME: next word is thing to search for
+            data = 'find.' # FIXME: next word is thing to find/search for
             print(data)
-            command_array = [locate]
-            result = executeCommands(command_array)
+            result = 'FIXME: find some object'
         elif 'name' in data:
-            result = readDataFromArduino()
-            result = result + 'i am ' + hostname + '.'
+            result = 'i am ' + hostname + '. i live at ' + IPAddr
             print(result)
         elif 'help' in data:
-            data = 'commands i know:\n'
-            data = data + 'look ahead, '
-            data = data + 'look right, '
-            data = data + 'look left, '
-            data = data + 'forward, '
-            data = data + 'back, '
-            data = data + 'right, '
-            data = data + 'left, '
-            data = data + 'stop, '
-            data = data + 'faster, '
-            data = data + 'slower, '
-            data = data + 'follow, '
-            data = data + 'search, '
-            data = data + 'identify, '
-            data = data + 'learn, '
-            data = data + 'photo, '
-            data = data + 'find, '
-            data = data + 'name, '
-            data = data + 'IP address, '
-            data = data + 'ping, '
-            data = data + 'and help.\n\n'
+            data = batbot_help()
             print(data)
 
         #--------------------------------------------
