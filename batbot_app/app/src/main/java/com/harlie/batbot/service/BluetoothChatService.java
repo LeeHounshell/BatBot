@@ -140,7 +140,7 @@ public class BluetoothChatService {
         notifyBluetoothStatus(Constants.DISCONNECT);
     }
 
-    public void send(String message) {
+    public synchronized void send(String message) {
         Log.d(TAG, "===> send: message=" + message);
         // Check that we're actually connected before trying anything
         if (getState() != BluetoothChatService.STATE_CONNECTED) {

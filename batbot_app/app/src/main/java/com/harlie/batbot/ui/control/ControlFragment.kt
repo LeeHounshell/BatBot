@@ -421,7 +421,13 @@ class ControlFragment : Fragment() {
 
     fun send(message: String) {
         Log.d(TAG, "send: " + message);
-        m_BluetoothChatService.send(message + '\n')
+        var msg_tail = ""
+        if (message.length == 0) {
+            // so we send at least one character to kick-start reading the log data.
+            // it will display on the nano log, so.. using space is least intrusive.
+            msg_tail = " "
+        }
+        m_BluetoothChatService.send(message + msg_tail)
     }
 
     private fun msg(message: String) {
@@ -429,6 +435,9 @@ class ControlFragment : Fragment() {
         status.text = message
     }
 
+    // FIXME: put this functionality back when a fix is found
+    // NOTE: method currently unused due to databinding issue when bluetooth disconnects
+    //       the problem forces the app to be closed manually to clear the condition.  foobar.
     fun onClickTextOutput() {
         Log.d(TAG, "onClickTextOutput")
         m_robotCommand = RobotCommandModel(textOutput.text.toString(), "3")
