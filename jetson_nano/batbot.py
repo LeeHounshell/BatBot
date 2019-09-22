@@ -164,7 +164,6 @@ def data_received(commandsFromPhone):
     global camera_angle
     commandList = commandsFromPhone.splitlines()
     for data in commandList:
-        print('$ ' + data)
         result = readDataFromArduino()
         printResult = False
         valid = False
@@ -289,27 +288,24 @@ def data_received(commandsFromPhone):
             valid = True
 
         #--------------------------------------------
-        if valid:
-            data = '--> ' + data.upper()
-            print(data)
-            if len(result) > 0:
-                result = result + readDataFromArduino()
-                if printResult:
-                    print(result)
-                if len(data) > 0:
-                    s.send(data + '\n' + result)
-                else:
-                    s.send(result)
+        if len(data) > 0:
+            if valid:
+                data = '--> ' + data.upper()
             else:
-                # don't echo back the movement commands
-                if (not data.startswith('2,')):
-                    s.send(data)
-        else:
-            data = '??? ' + data.upper()
-            if len(result) > 0:
-                if printResult:
-                    print(result)
+                data = '??? ' + data.upper()
+            print(data)
+        if len(result) > 0:
+            result = result + readDataFromArduino()
+            if printResult:
+                print(result)
+            if len(data) > 0:
+                s.send(data + '\n' + result)
+            else:
                 s.send(result)
+        else:
+            # don't echo back the movement commands
+            if (not data.startswith('2,')):
+                s.send(data)
         #--------------------------------------------
 
 
