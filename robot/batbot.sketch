@@ -266,7 +266,7 @@ void setup() {
 
 void loop() {
   curMillis = millis();
-  if ((curMillis - 2000) > prvMillis) {
+  if ((curMillis - 5000) > prvMillis) {
     prvMillis = curMillis;
     showState();
   }
