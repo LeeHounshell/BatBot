@@ -159,56 +159,54 @@ def set_arduino_time():
     timedata = readDataFromArduino()
     return timedata
 
+# a primitive language parser
 def data_received(commandsFromPhone):
     global camera_angle
     commandList = commandsFromPhone.splitlines()
     for data in commandList:
         print('$ ' + data)
         result = readDataFromArduino()
+        printResult = False
         valid = False
         if 'ping' in data:
             result = result + set_arduino_time()
             result = result + batbot_help()
-            print('ping ok.')
+            data = 'ping ok.'
             valid = True
         elif 'IP address' in data:
             result = result + 'host=' + hostname + ', IP Address=' + IPAddr
-            print(result)
+            printResult = True
             valid = True
         elif 'click: *' in data:
-            data = '---> button * <---'
+            data = 'press *'
             result = result + do_star()
             valid = True
         elif 'click: ok' in data:
-            data = '---> button ok <---'
+            data = 'press ok'
             result = result + do_stop()
             valid = True
         elif 'click: #' in data:
-            data = '---> button # <---'
+            data = 'press #'
             result = result + do_sharp()
             valid = True
         elif 'forward' in data:
             data = 'go forward.'
-            print(data)
             command_array = [uparrow]
             result = result + executeCommands(command_array)
             valid = True
         elif 'back' in data:
             data = 'go backward.'
-            print(data)
             command_array = [downarrow]
             result = result + executeCommands(command_array)
             valid = True
         elif 'look ahead' in data:
             data = 'look ahead.'
-            print(data)
             command_array = [lookahead]
             result = result + executeCommands(command_array)
             camera_angle = 90
             valid = True
         elif 'look right' in data:
             data = 'look right.'
-            print(data)
             if camera_angle == 45:
                 command_array = [lookfullright]
                 result = result + executeCommands(command_array)
@@ -220,13 +218,11 @@ def data_received(commandsFromPhone):
             valid = True
         elif 'right' in data:
             data = 'go right.'
-            print(data)
             command_array = [rightarrow]
             result = result + executeCommands(command_array)
             valid = True
         elif 'look left' in data:
             data = 'look left.'
-            print(data)
             if camera_angle == 90 + 45:
                 command_array = [lookfullleft]
                 result = result + executeCommands(command_array)
@@ -238,57 +234,47 @@ def data_received(commandsFromPhone):
             valid = True
         elif 'left' in data:
             data = 'go left.'
-            print(data)
             command_array = [leftarrow]
             result = result + executeCommands(command_array)
             valid = True
         elif 'stop' in data:
             data = 'stop!'
-            print(data)
             result = result + do_stop()
             valid = True
         elif 'faster' in data or 'speed up' in data:
             data = 'go faster.'
-            print(data)
             command_array = [faster]
             result = result + executeCommands(command_array)
             valid = True
         elif 'slower' in data or 'slow down' in data:
             data = 'go slower.'
-            print(data)
             command_array = [slower]
             result = result + executeCommands(command_array)
             valid = True
         elif 'follow' in data:
             data = 'follow.' # FIXME: run Elegoo line following
-            print(data)
             result = result + do_sharp()
             valid = True
         elif 'avoid' in data:
             data = 'avoid.' # FIXME: run Elegoo collision avoidance
-            print(data)
             result = result + do_star()
             valid = True
         elif 'sensor' in data or 'value' in data:
             data = 'show sensor values.'
-            print(data)
             command_array = [values]
             result = result + executeCommands(command_array)
             valid = True
         elif 'monitor' in data or 'security' in data:
             data = 'run monitor.' # FIXME: run the security monitor
-            print(data)
             command_array = [monitor]
             result = result + executeCommands(command_array)
             valid = True
         elif 'photo' in data or 'picture' in data:
             data = 'take a photo.' # FIXME: optional next word is item to photograph
-            print(data)
             result = result + 'FIXME: take a picture'
             valid = True
         elif 'find' in data or 'search' in data:
             data = 'find object.' # FIXME: next word is thing to find/search for
-            print(data)
             result = result + 'FIXME: find some object'
             valid = True
         elif 'fortune' in data or 'joke' in data:
@@ -296,38 +282,41 @@ def data_received(commandsFromPhone):
             # sudo apt-get install fortunes
             for line in run_command('/usr/games/fortune'):
                 try:
-                    result = result + line.decode('ascii')
+                    text = line.decode('ascii')
+                    result = result + text
                 except Exception as e:
                     print("WARNING: e=" + str(e))
+            printResult = True
+            valid = True
         elif 'identify' in data:
             data = 'identify object.' # FIXME: identify what robot is looking at now
-            print(data)
             result = result + 'FIXME: learn to identify'
             valid = True
         elif 'learn' in data:
             data = 'learn new object name.' # FIXME: next word teaches last item's real name
-            print(data)
             result = result + 'FIXME: learn about object'
             valid = True
         elif 'map' in data:
             data = 'map the world.' # FIXME: map the world
-            print(data)
             command_array = [map_world]
             result = result + executeCommands(command_array)
             valid = True
         elif 'name' in data:
             result = result + 'i am ' + hostname + '. i live at ' + IPAddr
-            print(result)
+            printResult = True
             valid = True
         elif 'help' in data or 'commands' in data:
             data = batbot_help()
-            print(data)
             valid = True
 
         #--------------------------------------------
         if valid:
+            data = '--> ' + data
+            print(data)
             if len(result) > 0:
                 result = result + readDataFromArduino()
+                if printResult:
+                    print(result)
                 if len(data) > 0:
                     s.send(data + '\n' + result)
                 else:
@@ -338,6 +327,8 @@ def data_received(commandsFromPhone):
                     s.send(data)
         else:
             if len(result) > 0:
+                if printResult:
+                    print(result)
                 s.send(result)
         #--------------------------------------------
 
