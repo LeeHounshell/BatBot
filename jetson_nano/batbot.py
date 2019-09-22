@@ -52,7 +52,7 @@ IPAddr = socket.gethostbyname(hostname)
 
 
 def batbot_help():
-    data = 'commands i know:\n'
+    data = 'HELP: i recognize these key words:\n'
     data = data + 'look ahead, '
     data = data + 'look right, '
     data = data + 'look left, '
@@ -159,7 +159,6 @@ def data_received(commandsFromPhone):
     global camera_angle
     commandList = commandsFromPhone.splitlines()
     for data in commandList:
-        data = data.strip()
         result = readDataFromArduino()
         printResult = False
         valid = False
@@ -284,6 +283,7 @@ def data_received(commandsFromPhone):
             valid = True
 
         #--------------------------------------------
+        data = data.strip()
         if len(data) > 0:
             # don't echo back the movement commands
             if (not data.startswith('2,')):
