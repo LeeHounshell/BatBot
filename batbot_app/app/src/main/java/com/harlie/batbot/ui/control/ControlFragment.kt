@@ -52,7 +52,7 @@ class ControlFragment : Fragment() {
     private var m_logging = LoggingTextTail()
     private var m_timer_ok = true
     private var m_havePing = false
-    private var m_expectRobotCommand = 0
+    private var m_expectRobotCommand = 0 // workaround databinding issue when bluetooth server disconnects
     private var m_fixedTimerLoopCount = 0
     private var m_haveRobotCommand = false
     private var m_pingStartTime = System.currentTimeMillis();
@@ -108,6 +108,7 @@ class ControlFragment : Fragment() {
                 m_robotCommand.robotCommand = it.robotCommand
                 m_robotCommand.commandPriority = it.commandPriority
                 send(m_robotCommand.robotCommand) // send command to the robot
+                m_ControlFragBinding.robotCommand?.notifyChange()
             }
         })
         m_ControlViewModel.getStarClicked().observe(this, Observer {
