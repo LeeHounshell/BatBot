@@ -177,15 +177,15 @@ def data_received(commandsFromPhone):
             printResult = True
             valid = True
         elif 'click: *' in data:
-            data = 'press *'
+            data = '*'
             result = result + do_star()
             valid = True
         elif 'click: ok' in data:
-            data = 'press ok'
+            data = 'ok'
             result = result + do_stop()
             valid = True
         elif 'click: #' in data:
-            data = 'press #'
+            data = '#'
             result = result + do_sharp()
             valid = True
         elif 'forward' in data:
