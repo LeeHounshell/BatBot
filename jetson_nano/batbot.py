@@ -75,7 +75,7 @@ def batbot_help():
     data = data + 'name, '
     data = data + 'IP address, '
     data = data + 'ping, '
-    data = data + 'show log, '
+    data = data + 'logs, '
     data = data + 'and help.\n\n'
     return data
 
@@ -164,9 +164,6 @@ def data_received(commandsFromPhone):
             result = result + set_arduino_time()
             result = result + batbot_help()
             print('ping ok.')
-            valid = True
-        elif 'show log' in data:
-            result = result + readDataFromArduino()
             valid = True
         elif 'IP address' in data:
             result = result + 'host=' + hostname + ', IP Address=' + IPAddr
@@ -304,6 +301,9 @@ def data_received(commandsFromPhone):
             print(data)
             result = result + 'FIXME: find some object'
             valid = True
+        elif 'logs' in data:
+            result = result + readDataFromArduino()
+            valid = True
         elif 'name' in data:
             result = result + 'i am ' + hostname + '. i live at ' + IPAddr
             print(result)
@@ -325,6 +325,9 @@ def data_received(commandsFromPhone):
                 # don't echo back the movement commands
                 if (not data.startswith('2,')):
                     s.send(data)
+        else
+            if len(result) > 0:
+                s.send(result)
         #--------------------------------------------
 
 
