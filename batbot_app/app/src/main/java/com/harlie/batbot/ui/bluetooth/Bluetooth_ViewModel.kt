@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.harlie.batbot.model.BluetoothDeviceModel
@@ -13,8 +14,12 @@ import com.harlie.batbot.model.BluetoothDeviceModel
 class Bluetooth_ViewModel : ViewModel() {
     val TAG = "LEE: <" + Bluetooth_ViewModel::class.java.getName() + ">";
 
-    val m_bluetoothDevicesList = MutableLiveData<MutableList<BluetoothDeviceModel>>()
-    val m_selectedDevice = MutableLiveData<BluetoothDeviceModel>()
+    private val m_bluetoothDevicesList = MutableLiveData<MutableList<BluetoothDeviceModel>>()
+    private val m_selectedDevice = MutableLiveData<BluetoothDeviceModel>()
+
+    // encapsulate access to mutable LiveData through getter
+    fun getBluetoothDevicesList(): LiveData<MutableList<BluetoothDeviceModel>> = m_bluetoothDevicesList
+    fun getSelectedDevice(): LiveData<BluetoothDeviceModel> = m_selectedDevice
 
     lateinit var m_BluetoothAdapter: BluetoothAdapter
     private lateinit var m_pairedDevices: Set<BluetoothDevice>

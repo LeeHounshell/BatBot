@@ -2,6 +2,7 @@ package com.harlie.batbot.ui.control
 
 import android.bluetooth.BluetoothAdapter
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.harlie.batbot.model.RobotCommandModel
@@ -10,11 +11,11 @@ import com.harlie.batbot.model.RobotCommandModel
 class Control_ViewModel : ViewModel() {
     val TAG = "LEE: <" + Control_ViewModel::class.java.getName() + ">";
 
-    lateinit var m_inputCommand: MutableLiveData<RobotCommandModel>
-    lateinit var m_starClicked: MutableLiveData<Boolean>
-    lateinit var m_okClicked: MutableLiveData<Boolean>
-    lateinit var m_sharpClicked: MutableLiveData<Boolean>
-    lateinit var m_bluetoothAdapter: BluetoothAdapter
+    private lateinit var m_inputCommand: MutableLiveData<RobotCommandModel>
+    private lateinit var m_starClicked: MutableLiveData<Boolean>
+    private lateinit var m_okClicked: MutableLiveData<Boolean>
+    private lateinit var m_sharpClicked: MutableLiveData<Boolean>
+    private lateinit var m_bluetoothAdapter: BluetoothAdapter
 
 
     fun initLiveData() {
@@ -25,6 +26,11 @@ class Control_ViewModel : ViewModel() {
         m_okClicked = MutableLiveData<Boolean>()
         m_sharpClicked = MutableLiveData<Boolean>()
     }
+
+    fun getInputCommand(): LiveData<RobotCommandModel> = m_inputCommand
+    fun getStarClicked(): LiveData<Boolean> = m_starClicked
+    fun getOkClicked(): LiveData<Boolean> = m_okClicked
+    fun getSharpClicked(): LiveData<Boolean> = m_sharpClicked
 
     fun initDefaultAdapter(): BluetoothAdapter {
         Log.d(TAG, "initDefaultAdapter")

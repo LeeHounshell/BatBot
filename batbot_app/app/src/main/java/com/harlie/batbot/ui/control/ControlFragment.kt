@@ -57,7 +57,7 @@ class ControlFragment : Fragment() {
     private lateinit var m_BluetoothAdapter: BluetoothAdapter
     private lateinit var m_fixedTimer: Timer
 
-        private var m_name: String? = null
+    private var m_name: String? = null
     private var m_address: String? = null
     private var m_device: BluetoothDevice? = null
     private var m_uniqueId: String? = null
@@ -76,7 +76,8 @@ class ControlFragment : Fragment() {
         )
         m_ControlFragBinding.robotCommand = m_robotCommand
         m_ControlFragBinding.robotConnection = m_robotConnection
-        m_ControlFragBinding.lifecycleOwner = activity
+        m_ControlFragBinding.ctFragment = this
+        m_ControlFragBinding.lifecycleOwner = viewLifecycleOwner
         m_ControlFragBinding.invalidateAll()
 
         val view = m_ControlFragBinding.getRoot()
@@ -95,7 +96,7 @@ class ControlFragment : Fragment() {
         Log.d(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState)
         getViewModel()
-        m_ControlViewModel.m_inputCommand.observe(this, Observer {
+        m_ControlViewModel.getInputCommand().observe(this, Observer {
             it?.let {
                 Log.d(TAG, "===> it.m_robotCommand=" + it.robotCommand)
                 m_robotCommand.robotCommand = it.robotCommand
@@ -103,19 +104,19 @@ class ControlFragment : Fragment() {
                 send(m_robotCommand.robotCommand) // send command to the robot
             }
         })
-        m_ControlViewModel.m_starClicked.observe(this, Observer {
+        m_ControlViewModel.getStarClicked().observe(this, Observer {
             it?.let {
                 Log.d(TAG, "===> * clicked=" + it)
                 send("click: *")
             }
         })
-        m_ControlViewModel.m_okClicked.observe(this, Observer {
+        m_ControlViewModel.getOkClicked().observe(this, Observer {
             it?.let {
                 Log.d(TAG, "===> ok clicked=" + it)
                 send("click: ok")
             }
         })
-        m_ControlViewModel.m_sharpClicked.observe(this, Observer {
+        m_ControlViewModel.getSharpClicked().observe(this, Observer {
             it?.let {
                 Log.d(TAG, "===> # clicked=" + it)
                 send("click: #")
@@ -371,6 +372,12 @@ class ControlFragment : Fragment() {
     private fun msg(message: String) {
         Log.d(TAG, "msg: " + message)
         status.text = message
+    }
+
+    fun onClickTextOutput() {
+        Log.d(TAG, "onClickTextOutput")
+        m_robotCommand = RobotCommandModel(textOutput.text.toString(), "3")
+        m_ControlViewModel.processAndDecodeMessage(m_robotCommand!!)
     }
 
     fun gotoBluetoothActivity() {

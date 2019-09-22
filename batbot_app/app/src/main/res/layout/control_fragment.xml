@@ -12,6 +12,9 @@
         <variable
             name="robotCommand"
             type="com.harlie.batbot.model.RobotCommandModel" />
+        <variable
+            name="ctFragment"
+            type="com.harlie.batbot.ui.control.ControlFragment" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -58,13 +61,12 @@
             />
 
         <TextView
+            style="@style/ButtonStyle"
             android:id="@+id/textOutput"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
             android:text="@={robotCommand.robotCommand}"
             android:textColor="@color/white"
             android:textSize="20sp"
+            android:onClick="@{() -> ctFragment.onClickTextOutput()}"
             app:layout_constraintTop_toBottomOf="@+id/guideline1"
             app:layout_constraintBottom_toTopOf="@+id/guideline2"
             app:layout_constraintLeft_toLeftOf="parent"

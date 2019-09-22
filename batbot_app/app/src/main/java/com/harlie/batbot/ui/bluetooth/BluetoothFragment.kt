@@ -45,7 +45,7 @@ class BluetoothFragment : Fragment() {
             inflater, com.harlie.batbot.R.layout.bluetooth_fragment, container, false
         )
         m_RecyclerView = m_BluetoothFragmentBinding.recyclerView
-        m_BluetoothFragmentBinding.lifecycleOwner = activity
+        m_BluetoothFragmentBinding.lifecycleOwner = viewLifecycleOwner
         m_View = m_BluetoothFragmentBinding.getRoot()
         return m_View
     }
@@ -69,13 +69,13 @@ class BluetoothFragment : Fragment() {
             addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
 
-        m_BluetoothViewModel.m_bluetoothDevicesList.observe(this, Observer {
+        m_BluetoothViewModel.getBluetoothDevicesList().observe(this, Observer {
             Log.d(TAG, "observe: new m_bluetoothDevicesList content: it=" + it)
             m_BluetoothRecyclerAdapter.m_deviceCache = it
             m_BluetoothRecyclerAdapter.notifyDataSetChanged()
         })
 
-        m_BluetoothViewModel.m_selectedDevice.observe(this, Observer {
+        m_BluetoothViewModel.getSelectedDevice().observe(this, Observer {
             Log.d(TAG, "observe: the selected device=" + it)
             m_selectedDevice = it
             m_BluetoothFragmentBinding.selected = true

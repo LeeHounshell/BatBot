@@ -126,7 +126,7 @@ class ControlActivity : AppCompatActivity() {
                     Log.d(TAG, "===> got speech translation result=" + result[0])
                     m_robotCommand = RobotCommandModel(result[0], "3")
                     m_ControlViewModel.processAndDecodeMessage(m_robotCommand!!)
-                    Timer().schedule(3000) {
+                    Timer().schedule(9000) {
                         Log.d(TAG, "One-Shot-Timer: -Check-The-Log-")
                         m_ControlFragment?.send("")
                     }

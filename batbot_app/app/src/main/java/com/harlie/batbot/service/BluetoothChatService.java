@@ -152,6 +152,7 @@ public class BluetoothChatService {
         else {
             // Check that there's something to send
             if (message.length() > 0) {
+                Log.d(TAG, "write(message.getBytes())");
                 // Get the message bytes and tell the BluetoothChatService to write
                 byte[] bytearray = message.getBytes();
                 write(bytearray);
