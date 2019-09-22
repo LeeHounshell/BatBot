@@ -53,6 +53,7 @@ class ControlFragment : Fragment() {
     private var m_timer_ok = true
     private var m_havePing = false
     private var m_expectRobotCommand = 0
+    private var m_fixedTimerLoopCount = 0
     private var m_haveRobotCommand = false
     private var m_pingStartTime = System.currentTimeMillis();
 
@@ -149,8 +150,6 @@ class ControlFragment : Fragment() {
             activity?.runOnUiThread(java.lang.Runnable {
                 Toast.makeText(context, "*** EXITING: FATAL ERROR ***", Toast.LENGTH_LONG).show()
             })
-            Log.d(TAG, "FLUSH LOG")
-            send("")
             Timer().schedule(3000) {
                 Log.e(TAG, "*** SHUT DOWN APP ***")
                 disconnect()
@@ -162,10 +161,6 @@ class ControlFragment : Fragment() {
             Log.d(TAG, "validateRobotCommand: OK")
             m_expectRobotCommand -= 1;
             m_haveRobotCommand = false;
-            Timer().schedule(5000) {
-                Log.d(TAG, "One-Shot-Timer: FLUSH LOG")
-                send("")
-            }
         }
     }
 
@@ -173,6 +168,11 @@ class ControlFragment : Fragment() {
         Log.d(TAG, "runFixedRateTimer")
         m_fixedTimer = fixedRateTimer("timer", false, 0L, 100) {
             if (m_timer_ok) {
+                m_fixedTimerLoopCount += 1
+                if ((m_fixedTimerLoopCount % 30) == 0) { // flush every 3 seconds
+                    Log.d(TAG, "runFixedRateTimer: FLUSH LOG")
+                    send("")
+                }
                 activity!!.runOnUiThread {
                     if (logging != null) {
                         logging.text = m_logging.content()
