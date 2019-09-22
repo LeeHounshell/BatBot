@@ -744,30 +744,30 @@ boolean function_seven() {
 // sensors: return all sensor and status data
 boolean function_eight() {
   println(" fn_eight: 'sensors'", 1);
-  print(" Last Distance=", 1);
+  print(" Last Distance: ", 1);
   println(toString(distance), 0);
-  print(" Ahead Distance=", 1);
+  print(" Ahead Distance: ", 1);
   println(toString(aheadDistance), 0);
-  print(" Left Distance=", 1);
+  print(" Left Distance: ", 1);
   println(toString(leftDistance), 0);
-  print(" Right Distance=", 1);
+  print(" Right Distance: ", 1);
   println(toString(rightDistance), 0);
-  print(" LT_R=", 1);
+  print(" LT_R: ", 1);
   println(toString(lt_r), 0);
-  print(" LT_M=", 1);
+  print(" LT_M: ", 1);
   println(toString(lt_m), 0);
-  print(" LT_L=", 1);
+  print(" LT_L: ", 1);
   println(toString(lt_l), 0);
-  print(" Throttle Setting=", 1);
+  print(" Throttle: ", 1);
   println(toString(carSpeed + speedDelta), 0);
-  snprintf(camera, sizeof(camera), " Camera Angle=%d, Motion=%d ", servoAngle, servoDelta);
+  snprintf(camera, sizeof(camera), " Camera Angle: %d, Motion: %d ", servoAngle, servoDelta);
   println(camera, 1);
   showState();
   return 1;
 }
 
 void showState() {
-  snprintf(status, sizeof(status), " State= %s, Motion=%s ", state, motion);
+  snprintf(status, sizeof(status), " State: %s, Motion: %s ", state, motion);
   println(status, 1);
 }
 
