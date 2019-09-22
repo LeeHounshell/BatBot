@@ -325,7 +325,7 @@ def data_received(commandsFromPhone):
                 # don't echo back the movement commands
                 if (not data.startswith('2,')):
                     s.send(data)
-        else
+        else:
             if len(result) > 0:
                 s.send(result)
         #--------------------------------------------
