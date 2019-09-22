@@ -406,6 +406,19 @@ void loop() {
     transmit_sensor_data(servoSpeed);
     senMillis = millis();
   }
+
+  // check for special run states
+  if (*state != 'd') { // 'default'
+    if (*state == 'm') { // 'monitor'
+      function_zero();
+    }
+    else if (*state == 'f') { // 'following'
+      function_sharp();
+    }
+    else if (*state == 'a') { // 'avoid'
+      function_star();
+    }
+  }
 }
 
 uint32_t readPythonIntValue() {
@@ -630,35 +643,35 @@ boolean execute_command(int cmd) {
 
 boolean function_set_time() {
   read_time = 1;
-  println(" function_set_time: set", 1);
+  println(" fn_set_time: set", 1);
   return 1;
 }
 
 boolean function_up() {
   forward();
   motion = "forward";
-  println(" function_up: go forward", 1);
+  println(" fn_up: go forward", 1);
   return 1;
 }
 
 boolean function_left() {
   left();
   motion = "left";
-  println(" function_left: go left", 1);
+  println(" fn_left: go left", 1);
   return 1;
 }
 
 boolean function_right() {
   right();
   motion = "right";
-  println(" function_right: go right", 1);
+  println(" fn_right: go right", 1);
   return 1;
 }
 
 boolean function_down() {
   back();
   motion = "down";
-  println(" function_down: go back", 1);
+  println(" fn_down: go back", 1);
   return 1;
 }
 
@@ -669,49 +682,49 @@ boolean function_ok() {
   motion = "none";
   speedDelta = 0;
   servoDelta = 0;
-  println(" function_ok: STOP", 1);
+  println(" fn_ok: STOP", 1);
   return 1;
 }
 
 // look right
 boolean function_one() {
   setAngle(45, 0);
-  println(" function_one: look toward left", 1);
+  println(" fn_one: look toward left", 1);
   return 1;
 }
 
 // look ahead
 boolean function_two() {
   setAngle(90, 0);
-  println(" function_two: look ahead", 1);
+  println(" fn_two: look ahead", 1);
   return 1;
 }
 
 // look left
 boolean function_three() {
   setAngle(90 + 45, 0);
-  println(" function_three: look toward right", 1);
+  println(" fn_three: look toward right", 1);
   return 1;
 }
 
 // look full right
 boolean function_four() {
   setAngle(0, 0);
-  println(" function_four: look full left", 1);
+  println(" fn_four: look full left", 1);
   return 1;
 }
 
 // map your world
 boolean function_five() {
   // FIXME
-  println(" function_five: 'map the world' TODO/FIXME", 1);
+  println(" fn_five: 'map'", 1);
   return 1;
 }
 
 // look full left
 boolean function_six() {
   setAngle(180, 0);
-  println(" function_six: look full right", 1);
+  println(" fn_six: look full right", 1);
   return 1;
 }
 
@@ -723,14 +736,14 @@ boolean function_seven() {
   else {
     println(" -limit", 1);
   }
-  print(" function_seven: (slower) speed=", 1);
+  print(" fn_seven: (slower) speed=", 1);
   print(toString(carSpeed + speedDelta), 0);
   return 1;
 }
 
 // sensors: return all sensor and status data
 boolean function_eight() {
-  println(" function_eight: 'sensors'", 1);
+  println(" fn_eight: 'sensors'", 1);
   print(" Last Distance=", 1);
   println(toString(distance), 0);
   print(" Ahead Distance=", 1);
@@ -766,32 +779,38 @@ boolean function_nine() {
   else {
     println(" +limit", 1);
   }
-  print(" function_nine: (faster) speed=", 1);
+  print(" fn_nine: (faster) speed=", 1);
   print(toString(carSpeed + speedDelta), 0);
   return 1;
 }
 
 // run security monitor protocol
 boolean function_zero() {
-  state = "monitor";
+  if (state != 'm') {
+    state = "monitor";
+    println(" fn_zero: 'monitor'", 1);
+  }
   // FIXME
-  println(" function_zero: 'security monitor' TODO/FIXME", 1);
   return 1;
 }
 
 // run Elegoo collision avoidance
 boolean function_star() {
-  state = "avoid";
+  if (*state != 'a') {
+    state = "avoid";
+    println(" fn_star: 'avoid'", 1);
+  }
   // FIXME
-  println(" function_star: 'collision avoidance' TODO/FIXME", 1);
   return 1;
 }
 
 // run Elegoo line following
 boolean function_sharp() {
+  if (*state != 'f') {
+    state = "following";
+    println(" fn_sharp: 'following'", 1);
+  }
   // FIXME
-  state = "following";
-  println(" function_sharp: 'line following' TODO/FIXME", 1);
   return 1;
 }
 

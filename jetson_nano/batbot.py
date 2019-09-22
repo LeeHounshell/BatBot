@@ -88,7 +88,6 @@ def readDataFromArduino():
         try:
             # read all characters in buffer
             robot_data = arduino.read(arduino.inWaiting()).decode('ascii')
-            print("from arduino: ")
             print(robot_data)
             arduino.flush()
         except Exception as e:
@@ -103,34 +102,30 @@ def executeCommands(command_array):
 
         # Serial write section
         arduino.flush()
-        print("--> python sent: ")
+        print("--> wrote: ")
         command = str(command_array[i])
         encoded_command = command.encode()
         arduino.write(encoded_command)
         print(encoded_command)
 
         i = i + 1
-    else:
-        print("done.")
+
     time.sleep(1) # I shortened this to match the new value in your Arduino code
     data = data + readDataFromArduino()
     return data
 
 def do_star():
     command_array = [run_star]
-    print("-> star.")
     result = executeCommands(command_array)
     return result
 
 def do_stop():
     command_array = [allstop]
-    print("-> stop.")
     result = executeCommands(command_array)
     return result
 
 def do_sharp():
     command_array = [run_sharp]
-    print("-> sharp.")
     result = executeCommands(command_array)
     return result
 
@@ -201,7 +196,7 @@ def data_received(commandsFromPhone):
             result = result + executeCommands(command_array)
             camera_angle = 90
             valid = True
-        elif 'look right' in data:
+        elif 'look right' in data or 'turn right' in data:
             if camera_angle == 45:
                 command_array = [lookfullright]
                 result = result + executeCommands(command_array)
@@ -215,7 +210,7 @@ def data_received(commandsFromPhone):
             command_array = [rightarrow]
             result = result + executeCommands(command_array)
             valid = True
-        elif 'look left' in data:
+        elif 'look left' in data or 'turn left' in data:
             if camera_angle == 90 + 45:
                 command_array = [lookfullleft]
                 result = result + executeCommands(command_array)
@@ -240,25 +235,9 @@ def data_received(commandsFromPhone):
             command_array = [slower]
             result = result + executeCommands(command_array)
             valid = True
-        elif 'follow' in data: # FIXME: run Elegoo line following
-            result = result + do_sharp()
-            valid = True
-        elif 'avoid' in data: # FIXME: run Elegoo collision avoidance
-            result = result + do_star()
-            valid = True
         elif 'sensor' in data or 'value' in data:
             command_array = [values]
             result = result + executeCommands(command_array)
-            valid = True
-        elif 'monitor' in data or 'security' in data: # FIXME: run the security monitor
-            command_array = [monitor]
-            result = result + executeCommands(command_array)
-            valid = True
-        elif 'photo' in data or 'picture' in data: # FIXME: optional next word is item to photograph
-            result = result + 'FIXME: take a picture'
-            valid = True
-        elif 'find' in data or 'search' in data: # FIXME: next word is thing to find/search for
-            result = result + 'FIXME: find some object'
             valid = True
         elif 'fortune' in data or 'joke' in data:
             # sudo apt-get install fortunes
@@ -270,10 +249,26 @@ def data_received(commandsFromPhone):
                     print("WARNING: e=" + str(e))
             printResult = True
             valid = True
-        elif 'identify' in data: # FIXME: identify what robot is looking at now
+        elif 'follow' in data: # FIXME: run Elegoo line following
+            result = result + do_sharp()
+            valid = True
+        elif 'avoid' in data: # FIXME: run Elegoo collision avoidance
+            result = result + do_star()
+            valid = True
+        elif 'monitor' in data or 'security' in data: # FIXME: security monitor
+            command_array = [monitor]
+            result = result + executeCommands(command_array)
+            valid = True
+        elif 'photo' in data or 'picture' in data: # FIXME: optional item
+            result = result + 'FIXME: take a picture'
+            valid = True
+        elif 'find' in data or 'search' in data: # FIXME: next word is object
+            result = result + 'FIXME: find some object'
+            valid = True
+        elif 'identify' in data: # FIXME: identify what robot is looking at
             result = result + 'FIXME: learn to identify'
             valid = True
-        elif 'learn' in data: # FIXME: next word teaches last item's real name
+        elif 'learn' in data: # FIXME: teach item name
             result = result + 'FIXME: learn about object'
             valid = True
         elif 'map' in data: # FIXME: map the world
