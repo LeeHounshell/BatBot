@@ -124,7 +124,7 @@ int distanceDelta             = 3;
 
 int servoAngle                = servoAngleStart;
 int previousServoAngle        = 0;
-int delta                     = 0; // for servoAngle movement
+int servoDelta                = 0; // for servoAngle movement
 
 //----------------------------------------
 //-------------- INFRA RED ---------------
@@ -419,35 +419,22 @@ uint32_t readPythonIntValue() {
   return value;
 }
 
-int randomServoDelta() {
-  do {
-    delta = random(servoDeltaLeft, servoDeltaRight);
-  } while (delta == 0);
-  if (delta > 0) {
-    delta += distanceDelta;
-  }
-  else {
-    delta -= distanceDelta;
-  }
-  print(" random delta=", 1);
-  println(toString(delta), 0);
-  return delta;
-}
-
 void setAngle(int newAngle, int newDelta) {
   servoAngle = newAngle;
-  delta = newDelta;
+  servoDelta = newDelta;
 }
 
 void incrementAngle() {
-  servoAngle += delta;
-  if (servoAngle > 180) {
-    delta = -delta;
-    servoAngle = 180;
-  }
-  if (servoAngle < 0) {
-    delta = -delta;
-    servoAngle = 0;
+  if (servoDelta != 0) {
+    servoAngle += servoDelta;
+    if (servoAngle > 180) {
+      servoDelta = -servoDelta;
+      servoAngle = 180;
+    }
+    if (servoAngle < 0) {
+      servoDelta = -servoDelta;
+      servoAngle = 0;
+    }
   }
 }
 
@@ -674,8 +661,7 @@ boolean function_ok() {
   state = "default";
   motion = "none";
   speedDelta = 0;
-  delta = 0;
-  setAngle(90, 0);
+  servoDelta = 0;
   println(" function_ok: STOP", 1);
   return 1;
 }
