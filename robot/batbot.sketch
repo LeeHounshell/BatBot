@@ -154,6 +154,7 @@ int adjustTimeZone            = 7; // FIXME: adjust for daylight savings time
 time_t time_offset            = 0L;
 time_t time_now               = 0L;
 time_t curMillis              = 0L;
+time_t prvMillis              = 0L;
 time_t senMillis              = 0L;
 time_t ircMillis              = 0L;
 time_t srvMillis              = 0L;
@@ -263,6 +264,10 @@ void setup() {
 
 void loop() {
   curMillis = millis();
+  if ((curMillis - 2000) > prvMillis) {
+    prvMillis = curMillis;
+    showState();
+  }
   // the IR button effects only last 1 second
   if (ircMillis != 0) {
     if (have_cmd && (curMillis - ircMillis) > 1000) {
@@ -724,6 +729,8 @@ boolean function_seven() {
 // sensors: return all sensor and status data
 boolean function_eight() {
   println(" function_eight: 'sensors'", 1);
+  print(" Last Distance=", 1);
+  println(toString(distance), 0);
   print(" Ahead Distance=", 1);
   println(toString(aheadDistance), 0);
   print(" Left Distance=", 1);
@@ -738,15 +745,15 @@ boolean function_eight() {
   println(toString(lt_l), 0);
   print(" Throttle Setting=", 1);
   println(toString(carSpeed + speedDelta), 0);
-  print(" Camera Angle=", 1);
-  println(toString(servoAngle), 0);
-  print(" Last Distance=", 1);
-  println(toString(distance), 0);
-  print(" Motion=", 1);
-  println(motion, 0);
-  print(" State=", 1);
-  println(state, 0);
+  showState();
   return 1;
+}
+
+void showState() {
+  snprintf(buffer, sizeof(buffer), " Camera Angle=%d, Camera Motion=%d ", servoAngle, servoDelta);
+  println(buffer, 1);
+  snprintf(buffer, sizeof(buffer), " State= %s, Motion=%s ", state, motion);
+  println(buffer, 1);
 }
 
 // go faster
