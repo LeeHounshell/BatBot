@@ -90,6 +90,7 @@ def readDataFromArduino():
             robot_data = arduino.read(arduino.inWaiting()).decode('ascii')
             print("from arduino: ")
             print(robot_data)
+            arduino.flush()
         except Exception as e:
             print("ERROR: e=" + str(e))
     return robot_data
@@ -162,7 +163,7 @@ def data_received(commandsFromPhone):
             result = result + set_arduino_time()
             result = result + batbot_help()
             print('ping ok.')
-        if 'show log' in data:
+        elif 'show log' in data:
             result = result + readDataFromArduino()
         elif 'IP address' in data:
             result = result + 'host=' + hostname + ', IP Address=' + IPAddr
@@ -246,7 +247,7 @@ def data_received(commandsFromPhone):
             data = 'avoid.' # FIXME: run Elegoo collision avoidance
             print(data)
             result = result + do_star()
-        elif 'sensors' in data:
+        elif 'sensor' in data:
             data = 'sensors.'
             print(data)
             command_array = [sensors]
