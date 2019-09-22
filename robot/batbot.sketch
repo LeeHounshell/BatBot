@@ -747,13 +747,13 @@ boolean function_eight() {
   println(toString(lt_l), 0);
   print(" Throttle Setting=", 1);
   println(toString(carSpeed + speedDelta), 0);
+  snprintf(camera, sizeof(camera), " Camera Angle=%d, Motion=%d ", servoAngle, servoDelta);
+  println(camera, 1);
   showState();
   return 1;
 }
 
 void showState() {
-  snprintf(camera, sizeof(camera), " Camera Angle=%d, Motion=%d ", servoAngle, servoDelta);
-  println(camera, 1);
   snprintf(status, sizeof(status), " State= %s, Motion=%s ", state, motion);
   println(status, 1);
 }
