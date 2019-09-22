@@ -70,13 +70,13 @@ class BluetoothFragment : Fragment() {
         }
 
         m_BluetoothViewModel.getBluetoothDevicesList().observe(this, Observer {
-            Log.d(TAG, "observe: new m_bluetoothDevicesList content: it=" + it)
+            Log.d(TAG, "observe: getBluetoothDevicesList() content: it=" + it)
             m_BluetoothRecyclerAdapter.m_deviceCache = it
             m_BluetoothRecyclerAdapter.notifyDataSetChanged()
         })
 
         m_BluetoothViewModel.getSelectedDevice().observe(this, Observer {
-            Log.d(TAG, "observe: the selected device=" + it)
+            Log.d(TAG, "observe: getSelectedDevice()=" + it)
             m_selectedDevice = it
             m_BluetoothFragmentBinding.selected = true
         })

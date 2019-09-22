@@ -125,10 +125,11 @@ class ControlActivity : AppCompatActivity() {
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     Log.d(TAG, "===> got speech translation result=" + result[0])
                     m_robotCommand = RobotCommandModel(result[0], "3")
+                    m_ControlFragment.expectRobotCommand(true)
                     m_ControlViewModel.processAndDecodeMessage(m_robotCommand!!)
-                    Timer().schedule(9000) {
-                        Log.d(TAG, "One-Shot-Timer: -Check-The-Log-")
-                        m_ControlFragment?.send("")
+                    Timer().schedule(5000) {
+                        Log.d(TAG, "One-Shot-Timer: DATABINDING VALIDATION")
+                        m_ControlFragment?.validateRobotCommand()
                     }
                 }
             }
