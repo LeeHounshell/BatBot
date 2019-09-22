@@ -290,23 +290,25 @@ def data_received(commandsFromPhone):
 
         #--------------------------------------------
         if len(data) > 0:
-            if valid:
-                data = '--> ' + data.upper()
+            # don't echo back the movement commands
+            if (not data.startswith('2,')):
+                if valid:
+                    data = '--> ' + data.upper()
+                else:
+                    data = '??? ' + data.upper()
+                print(data)
             else:
-                data = '??? ' + data.upper()
-            print(data)
+                data = ''
+        else:
+            arduino.flush()
         if len(result) > 0:
             result = result + readDataFromArduino()
             if printResult:
                 print(result)
-            if len(data) > 0:
-                s.send(data + '\n' + result)
-            else:
-                s.send(result)
+        if len(data) > 0:
+            s.send(data + '\n' + result)
         else:
-            # don't echo back the movement commands
-            if (not data.startswith('2,')):
-                s.send(data)
+            s.send(result)
         #--------------------------------------------
 
 
