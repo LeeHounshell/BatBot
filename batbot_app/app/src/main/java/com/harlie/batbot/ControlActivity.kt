@@ -121,7 +121,6 @@ class ControlActivity : AppCompatActivity() {
         when (requestCode) {
             REQUEST_CODE -> {
                 if (resultCode == Activity.RESULT_OK && null != data) {
-                    onClickButtonOk(null)
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     Log.d(TAG, "===> got speech translation result=" + result[0])
                     m_robotCommand = RobotCommandModel(result[0], "3")
