@@ -8,6 +8,7 @@ from signal import pause
 import serial
 import socket
 import struct
+import subprocess
 import time
 
 #The following line is for serial over GPIO
@@ -32,7 +33,7 @@ map_world      = '5' # Function 5
 lookfullleft   = '6' # Function 6
 
 slower         = '7' # Function 7
-sensors        = '8' # Function 8
+values         = '8' # Function 8
 faster         = '9' # Function 9
 
 monitor        = '0' # Function 0
@@ -66,12 +67,13 @@ def batbot_help():
     data = data + 'follow, '
     data = data + 'find, '
     data = data + 'avoid, '
-    data = data + 'sensors, '
+    data = data + 'values, '
     data = data + 'identify, '
     data = data + 'learn, '
     data = data + 'map, '
     data = data + 'monitor, '
     data = data + 'photo, '
+    data = data + 'fortune, '
     data = data + 'name, '
     data = data + 'IP address, '
     data = data + 'ping, '
@@ -132,6 +134,12 @@ def do_sharp():
     print("-> sharp.")
     result = executeCommands(command_array)
     return result
+
+def run_command(command):
+    p = subprocess.Popen(command,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT)
+    return iter(p.stdout.readline, b'')
 
 def set_arduino_time():
     arduino.flush()
@@ -262,11 +270,34 @@ def data_received(commandsFromPhone):
             print(data)
             result = result + do_star()
             valid = True
-        elif 'sensor' in data:
-            data = 'sensors.'
+        elif 'sensor' in data or 'values' in data:
+            data = 'values.'
             print(data)
-            command_array = [sensors]
+            command_array = [values]
             result = result + executeCommands(command_array)
+            valid = True
+        elif 'monitor' in data or 'security' in data:
+            data = 'monitor.' # FIXME: run the security monitor
+            print(data)
+            command_array = [monitor]
+            result = result + executeCommands(command_array)
+            valid = True
+        elif 'photo' in data or 'picture' in data:
+            data = 'photo.' # FIXME: optional next word is item to photograph
+            print(data)
+            result = result + 'FIXME: take a picture'
+            valid = True
+        elif 'find' in data or 'search' in data:
+            data = 'find.' # FIXME: next word is thing to find/search for
+            print(data)
+            result = result + 'FIXME: find some object'
+            valid = True
+        elif 'fortune' in data or 'joke' in data:
+            data = 'fortune.'
+            # sudo apt-get install fortunes
+            for line in run_command('/usr/games/fortune'):
+                result = result + line.decode('ascii')
+            print(result)
             valid = True
         elif 'identify' in data:
             data = 'identify.' # FIXME: identify what robot is looking at now
@@ -283,22 +314,6 @@ def data_received(commandsFromPhone):
             print(data)
             command_array = [map_world]
             result = result + executeCommands(command_array)
-            valid = True
-        elif 'monitor' in data:
-            data = 'monitor.' # FIXME: run the security monitor
-            print(data)
-            command_array = [monitor]
-            result = result + executeCommands(command_array)
-            valid = True
-        elif 'photo' in data:
-            data = 'photo.' # FIXME: optional next word is item to photograph
-            print(data)
-            result = result + 'FIXME: take a picture'
-            valid = True
-        elif 'find' in data:
-            data = 'find.' # FIXME: next word is thing to find/search for
-            print(data)
-            result = result + 'FIXME: find some object'
             valid = True
         elif 'name' in data:
             result = result + 'i am ' + hostname + '. i live at ' + IPAddr
