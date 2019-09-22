@@ -64,6 +64,7 @@ def batbot_help():
     data = data + 'faster, '
     data = data + 'slower, '
     data = data + 'follow, '
+    data = data + 'find, '
     data = data + 'avoid, '
     data = data + 'sensors, '
     data = data + 'identify, '
@@ -71,10 +72,10 @@ def batbot_help():
     data = data + 'map, '
     data = data + 'monitor, '
     data = data + 'photo, '
-    data = data + 'find, '
     data = data + 'name, '
     data = data + 'IP address, '
     data = data + 'ping, '
+    data = data + 'show log, '
     data = data + 'and help.\n\n'
     return data
 
@@ -161,6 +162,8 @@ def data_received(commandsFromPhone):
             result = result + set_arduino_time()
             result = result + batbot_help()
             print('ping ok.')
+        if 'show log' in data:
+            result = result + readDataFromArduino()
         elif 'IP address' in data:
             result = result + 'host=' + hostname + ', IP Address=' + IPAddr
             print(result)
@@ -283,7 +286,11 @@ def data_received(commandsFromPhone):
 
         #--------------------------------------------
         if len(result) > 0:
-            s.send(data + '\n' + result)
+            result = result + readDataFromArduino()
+            if len(data) > 0:
+                s.send(data + '\n' + result)
+            else:
+                s.send(result)
         else:
             # don't echo back the movement commands
             if (not data.startswith('2,')):
