@@ -10,6 +10,7 @@
 //----------------------------------------
 //--------------- CAR SPEED --------------
 
+#define null 0
 #define carSpeed 200  // initial speed of car >=0 to <=255
 int speedDelta = 0;
 
@@ -160,7 +161,7 @@ time_t srvMillis              = 0L;
 //----------------------------------------
 //--------------- COMMAND ----------------
 
-char *raw_cmd = 0;
+char *raw_cmd = null;
 int cmd = 0;
 long servo_movement_time; // time servo last moved
 
@@ -277,7 +278,7 @@ void loop() {
     ircMillis = millis();
     irrecv.resume();
     if (ir_value != -1) {
-      raw_cmd = 0;
+      raw_cmd = null;
       cmd = 0;
       if (ir_value == IR_FORWARD) {
         raw_cmd = "--> IR_FORWARD";
@@ -365,7 +366,7 @@ void loop() {
         have_cmd = 1;
       }
 
-      if (raw_cmd != 0) {
+      if (raw_cmd != null) {
         println(raw_cmd, 1);
       }
 
