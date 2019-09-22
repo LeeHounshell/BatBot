@@ -75,7 +75,6 @@ def batbot_help():
     data = data + 'name, '
     data = data + 'IP address, '
     data = data + 'ping, '
-    data = data + 'logs, '
     data = data + 'and help.\n\n'
     return data
 
@@ -300,9 +299,6 @@ def data_received(commandsFromPhone):
             data = 'find.' # FIXME: next word is thing to find/search for
             print(data)
             result = result + 'FIXME: find some object'
-            valid = True
-        elif 'logs' in data:
-            result = result + readDataFromArduino()
             valid = True
         elif 'name' in data:
             result = result + 'i am ' + hostname + '. i live at ' + IPAddr
