@@ -176,25 +176,25 @@ def data_received(commandsFromPhone):
             print(result)
             valid = True
         elif 'click: *' in data:
-            print('---> button * <---')
+            data = '---> button * <---'
             result = result + do_star()
             valid = True
         elif 'click: ok' in data:
-            print('---> button ok <---')
+            data = '---> button ok <---'
             result = result + do_stop()
             valid = True
         elif 'click: #' in data:
-            print('---> button # <---')
+            data = '---> button # <---'
             result = result + do_sharp()
             valid = True
         elif 'forward' in data:
-            data = 'forward.'
+            data = 'go forward.'
             print(data)
             command_array = [uparrow]
             result = result + executeCommands(command_array)
             valid = True
         elif 'back' in data:
-            data = 'backward.'
+            data = 'go backward.'
             print(data)
             command_array = [downarrow]
             result = result + executeCommands(command_array)
@@ -219,7 +219,7 @@ def data_received(commandsFromPhone):
                 camera_angle = 45
             valid = True
         elif 'right' in data:
-            data = 'right.'
+            data = 'go right.'
             print(data)
             command_array = [rightarrow]
             result = result + executeCommands(command_array)
@@ -237,24 +237,24 @@ def data_received(commandsFromPhone):
                 camera_angle = 90 + 45
             valid = True
         elif 'left' in data:
-            data = 'left.'
+            data = 'go left.'
             print(data)
             command_array = [leftarrow]
             result = result + executeCommands(command_array)
             valid = True
         elif 'stop' in data:
-            data = 'stop.'
+            data = 'stop!'
             print(data)
             result = result + do_stop()
             valid = True
-        elif 'faster' in data:
-            data = 'faster.'
+        elif 'faster' in data or 'speed up' in data:
+            data = 'go faster.'
             print(data)
             command_array = [faster]
             result = result + executeCommands(command_array)
             valid = True
-        elif 'slower' in data:
-            data = 'slower.'
+        elif 'slower' in data or 'slow down' in data:
+            data = 'go slower.'
             print(data)
             command_array = [slower]
             result = result + executeCommands(command_array)
@@ -269,47 +269,47 @@ def data_received(commandsFromPhone):
             print(data)
             result = result + do_star()
             valid = True
-        elif 'sensor' in data or 'values' in data:
-            data = 'values.'
+        elif 'sensor' in data or 'value' in data:
+            data = 'show sensor values.'
             print(data)
             command_array = [values]
             result = result + executeCommands(command_array)
             valid = True
         elif 'monitor' in data or 'security' in data:
-            data = 'monitor.' # FIXME: run the security monitor
+            data = 'run monitor.' # FIXME: run the security monitor
             print(data)
             command_array = [monitor]
             result = result + executeCommands(command_array)
             valid = True
         elif 'photo' in data or 'picture' in data:
-            data = 'photo.' # FIXME: optional next word is item to photograph
+            data = 'take a photo.' # FIXME: optional next word is item to photograph
             print(data)
             result = result + 'FIXME: take a picture'
             valid = True
         elif 'find' in data or 'search' in data:
-            data = 'find.' # FIXME: next word is thing to find/search for
+            data = 'find object.' # FIXME: next word is thing to find/search for
             print(data)
             result = result + 'FIXME: find some object'
             valid = True
         elif 'fortune' in data or 'joke' in data:
-            data = 'fortune.'
+            data = 'tell your fortune.'
             # sudo apt-get install fortunes
             for line in run_command('/usr/games/fortune'):
                 result = result + line.decode('ascii')
             print(result)
             valid = True
         elif 'identify' in data:
-            data = 'identify.' # FIXME: identify what robot is looking at now
+            data = 'identify object.' # FIXME: identify what robot is looking at now
             print(data)
             result = result + 'FIXME: learn to identify'
             valid = True
         elif 'learn' in data:
-            data = 'learn.' # FIXME: next word teaches last item's real name
+            data = 'learn new object name.' # FIXME: next word teaches last item's real name
             print(data)
             result = result + 'FIXME: learn about object'
             valid = True
         elif 'map' in data:
-            data = 'map.' # FIXME: map the world
+            data = 'map the world.' # FIXME: map the world
             print(data)
             command_array = [map_world]
             result = result + executeCommands(command_array)
@@ -318,7 +318,7 @@ def data_received(commandsFromPhone):
             result = result + 'i am ' + hostname + '. i live at ' + IPAddr
             print(result)
             valid = True
-        elif 'help' in data:
+        elif 'help' in data or 'commands' in data:
             data = batbot_help()
             print(data)
             valid = True
