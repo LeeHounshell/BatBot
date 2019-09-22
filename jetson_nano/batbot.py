@@ -171,7 +171,6 @@ def data_received(commandsFromPhone):
         if 'ping' in data:
             result = result + set_arduino_time()
             result = result + batbot_help()
-            data = 'ping ok.'
             valid = True
         elif 'IP address' in data:
             result = result + 'host=' + hostname + ', IP Address=' + IPAddr
@@ -190,23 +189,19 @@ def data_received(commandsFromPhone):
             result = result + do_sharp()
             valid = True
         elif 'forward' in data:
-            data = 'go forward.'
             command_array = [uparrow]
             result = result + executeCommands(command_array)
             valid = True
         elif 'back' in data:
-            data = 'go backward.'
             command_array = [downarrow]
             result = result + executeCommands(command_array)
             valid = True
         elif 'look ahead' in data:
-            data = 'look ahead.'
             command_array = [lookahead]
             result = result + executeCommands(command_array)
             camera_angle = 90
             valid = True
         elif 'look right' in data:
-            data = 'look right.'
             if camera_angle == 45:
                 command_array = [lookfullright]
                 result = result + executeCommands(command_array)
@@ -217,12 +212,10 @@ def data_received(commandsFromPhone):
                 camera_angle = 45
             valid = True
         elif 'right' in data:
-            data = 'go right.'
             command_array = [rightarrow]
             result = result + executeCommands(command_array)
             valid = True
         elif 'look left' in data:
-            data = 'look left.'
             if camera_angle == 90 + 45:
                 command_array = [lookfullleft]
                 result = result + executeCommands(command_array)
@@ -233,52 +226,41 @@ def data_received(commandsFromPhone):
                 camera_angle = 90 + 45
             valid = True
         elif 'left' in data:
-            data = 'go left.'
             command_array = [leftarrow]
             result = result + executeCommands(command_array)
             valid = True
         elif 'stop' in data:
-            data = 'stop!'
             result = result + do_stop()
             valid = True
         elif 'faster' in data or 'speed up' in data:
-            data = 'go faster.'
             command_array = [faster]
             result = result + executeCommands(command_array)
             valid = True
         elif 'slower' in data or 'slow down' in data:
-            data = 'go slower.'
             command_array = [slower]
             result = result + executeCommands(command_array)
             valid = True
-        elif 'follow' in data:
-            data = 'follow.' # FIXME: run Elegoo line following
+        elif 'follow' in data: # FIXME: run Elegoo line following
             result = result + do_sharp()
             valid = True
-        elif 'avoid' in data:
-            data = 'avoid.' # FIXME: run Elegoo collision avoidance
+        elif 'avoid' in data: # FIXME: run Elegoo collision avoidance
             result = result + do_star()
             valid = True
         elif 'sensor' in data or 'value' in data:
-            data = 'show sensor values.'
             command_array = [values]
             result = result + executeCommands(command_array)
             valid = True
-        elif 'monitor' in data or 'security' in data:
-            data = 'run monitor.' # FIXME: run the security monitor
+        elif 'monitor' in data or 'security' in data: # FIXME: run the security monitor
             command_array = [monitor]
             result = result + executeCommands(command_array)
             valid = True
-        elif 'photo' in data or 'picture' in data:
-            data = 'take a photo.' # FIXME: optional next word is item to photograph
+        elif 'photo' in data or 'picture' in data: # FIXME: optional next word is item to photograph
             result = result + 'FIXME: take a picture'
             valid = True
-        elif 'find' in data or 'search' in data:
-            data = 'find object.' # FIXME: next word is thing to find/search for
+        elif 'find' in data or 'search' in data: # FIXME: next word is thing to find/search for
             result = result + 'FIXME: find some object'
             valid = True
         elif 'fortune' in data or 'joke' in data:
-            data = 'tell your fortune.'
             # sudo apt-get install fortunes
             for line in run_command('/usr/games/fortune'):
                 try:
@@ -288,16 +270,13 @@ def data_received(commandsFromPhone):
                     print("WARNING: e=" + str(e))
             printResult = True
             valid = True
-        elif 'identify' in data:
-            data = 'identify object.' # FIXME: identify what robot is looking at now
+        elif 'identify' in data: # FIXME: identify what robot is looking at now
             result = result + 'FIXME: learn to identify'
             valid = True
-        elif 'learn' in data:
-            data = 'learn new object name.' # FIXME: next word teaches last item's real name
+        elif 'learn' in data: # FIXME: next word teaches last item's real name
             result = result + 'FIXME: learn about object'
             valid = True
-        elif 'map' in data:
-            data = 'map the world.' # FIXME: map the world
+        elif 'map' in data: # FIXME: map the world
             command_array = [map_world]
             result = result + executeCommands(command_array)
             valid = True
@@ -311,7 +290,7 @@ def data_received(commandsFromPhone):
 
         #--------------------------------------------
         if valid:
-            data = '--> ' + data
+            data = '--> ' + data.upper()
             print(data)
             if len(result) > 0:
                 result = result + readDataFromArduino()
@@ -326,6 +305,7 @@ def data_received(commandsFromPhone):
                 if (not data.startswith('2,')):
                     s.send(data)
         else:
+            data = '??? ' + data.upper()
             if len(result) > 0:
                 if printResult:
                     print(result)
