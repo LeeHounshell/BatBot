@@ -6,8 +6,8 @@ import android.util.Log
 public class LoggingTextTail {
     val TAG = "LEE: <" + LoggingTextTail::class.java.getName() + ">";
 
-    val MAX_LOG_LINES = 8
-    val MAX_LOG_DISPLAY_CONTENT_CHARS = 300;
+    val MAX_LOG_LINES = 11
+    val MAX_LOG_DISPLAY_CONTENT_CHARS = 333;
 
     var content = mutableListOf<String>()
 

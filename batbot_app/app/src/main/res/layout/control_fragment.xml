@@ -81,7 +81,7 @@
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@+id/textOutput"
             app:layout_constraintBottom_toTopOf="@+id/logging"
-            app:layout_constraintGuide_percent="0.65"
+            app:layout_constraintGuide_percent="0.50"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             />
@@ -107,7 +107,7 @@
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@+id/logging"
             app:layout_constraintBottom_toTopOf="@+id/controlButtons"
-            app:layout_constraintGuide_percent="0.83"
+            app:layout_constraintGuide_percent="0.79"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             />
