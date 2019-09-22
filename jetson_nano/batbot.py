@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 from bluedot.btcomm import BluetoothServer
-from bluedot import BlueDot
 from datetime import datetime
 from signal import pause
 
@@ -340,34 +339,6 @@ def data_received(commandsFromPhone):
             if len(result) > 0:
                 s.send(result)
         #--------------------------------------------
-
-
-#bd = BlueDot()
-#
-#def move(pos):
-#    command_array = []
-#    if pos.top:
-#        command_array = [uparrow]
-#        print("forward.")
-#    elif pos.bottom:
-#        command_array = [downarrow]
-#        print("backward.")
-#    elif pos.left:
-#        command_array = [leftarrow]
-#        print("left.")
-#    elif pos.right:
-#        command_array = [rightarrow]
-#        print("right.")
-#    elif pos.middle:
-#        command_array = [allstop]
-#        print("stop.")
-#    if len(command_array) > 0:
-#        #result = executeCommands(command_array)
-#        print("fake execute")
-#
-#bd.when_pressed = move
-#bd.when_moved = move
-#bd.when_released = stop
 
 
 try:
