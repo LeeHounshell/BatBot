@@ -90,7 +90,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:textColor="@color/darkgrey"
-            android:textSize="13sp"
+            android:textSize="12sp"
             app:layout_constraintTop_toBottomOf="@+id/guideline2"
             app:layout_constraintBottom_toTopOf="@+id/guideline3"
             app:layout_constraintLeft_toLeftOf="parent"

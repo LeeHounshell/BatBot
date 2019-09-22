@@ -16,6 +16,7 @@ import com.harlie.batbot.model.RobotCommandModel
 import com.harlie.batbot.ui.control.ControlFragment
 import com.harlie.batbot.ui.control.Control_ViewModel
 import java.util.*
+import kotlin.concurrent.schedule
 
 
 class ControlActivity : AppCompatActivity() {
@@ -125,6 +126,10 @@ class ControlActivity : AppCompatActivity() {
                     Log.d(TAG, "===> got speech translation result=" + result[0])
                     m_robotCommand = RobotCommandModel(result[0], "3")
                     m_ControlViewModel.processAndDecodeMessage(m_robotCommand!!)
+                    Timer().schedule(3000) {
+                        Log.d(TAG, "One-Shot-Timer: -Check-The-Log-")
+                        m_ControlFragment?.send("")
+                    }
                 }
             }
         }
