@@ -178,8 +178,10 @@ boolean good = 0;
 int servoSpeed = moveSlow;
 int sensorSpeed = moveNormal;
 
-char buffer[33];
-char number[13];
+char buffer[42];
+char camera[42];
+char status[42];
+char number[16];
 
 //========================================
 
@@ -750,10 +752,10 @@ boolean function_eight() {
 }
 
 void showState() {
-  snprintf(buffer, sizeof(buffer), " Camera Angle=%d, Camera Motion=%d ", servoAngle, servoDelta);
-  println(buffer, 1);
-  snprintf(buffer, sizeof(buffer), " State= %s, Motion=%s ", state, motion);
-  println(buffer, 1);
+  snprintf(camera, sizeof(camera), " Camera Angle=%d, Motion=%d ", servoAngle, servoDelta);
+  println(camera, 1);
+  snprintf(status, sizeof(status), " State= %s, Motion=%s ", state, motion);
+  println(status, 1);
 }
 
 // go faster
@@ -771,7 +773,7 @@ boolean function_nine() {
 
 // run security monitor protocol
 boolean function_zero() {
-  state = "security monitor";
+  state = "monitor";
   // FIXME
   println(" function_zero: 'security monitor' TODO/FIXME", 1);
   return 1;
@@ -779,7 +781,7 @@ boolean function_zero() {
 
 // run Elegoo collision avoidance
 boolean function_star() {
-  state = "avoid collision";
+  state = "avoid";
   // FIXME
   println(" function_star: 'collision avoidance' TODO/FIXME", 1);
   return 1;
@@ -788,7 +790,7 @@ boolean function_star() {
 // run Elegoo line following
 boolean function_sharp() {
   // FIXME
-  state = "line following";
+  state = "following";
   println(" function_sharp: 'line following' TODO/FIXME", 1);
   return 1;
 }
