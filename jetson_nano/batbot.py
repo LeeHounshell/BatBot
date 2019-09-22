@@ -164,6 +164,7 @@ def data_received(commandsFromPhone):
     global camera_angle
     commandList = commandsFromPhone.splitlines()
     for data in commandList:
+        data = data.strip()
         result = readDataFromArduino()
         printResult = False
         valid = False
