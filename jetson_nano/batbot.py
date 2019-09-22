@@ -92,7 +92,7 @@ def readDataFromArduino():
             print(robot_data)
             arduino.flush()
         except Exception as e:
-            print("ERROR: e=" + str(e))
+            print("WARNING: e=" + str(e))
     return robot_data
 
 def executeCommands(command_array):
@@ -295,9 +295,10 @@ def data_received(commandsFromPhone):
             data = 'tell your fortune.'
             # sudo apt-get install fortunes
             for line in run_command('/usr/games/fortune'):
-                result = result + line.decode('ascii')
-            print(result)
-            valid = True
+                try:
+                    result = result + line.decode('ascii')
+                except Exception as e:
+                    print("WARNING: e=" + str(e))
         elif 'identify' in data:
             data = 'identify object.' # FIXME: identify what robot is looking at now
             print(data)
