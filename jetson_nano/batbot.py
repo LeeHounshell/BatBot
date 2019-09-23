@@ -88,7 +88,7 @@ def readDataFromArduino():
         try:
             # read all characters in buffer
             robot_data = arduino.read(arduino.inWaiting()).decode('ascii')
-            print(robot_data)
+            print(robot_data.strip())
             arduino.flush()
         except Exception as e:
             print("WARNING: e=" + str(e))
@@ -299,7 +299,7 @@ def data_received(commandsFromPhone):
         if len(result) > 0:
             result = result + readDataFromArduino()
             if printResult:
-                print(result)
+                print(result.strip())
         if len(data) > 0:
             s.send(data + '\n' + result)
         else:
