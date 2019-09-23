@@ -183,7 +183,7 @@ class ControlFragment : Fragment() {
                     }
                 }
                 val now = System.currentTimeMillis()
-                if ((now - MAX_WAIT_LOG_DATA) > m_logging.lastLogTime()) {
+                if ((m_logging.lastLogTime() - now) > MAX_WAIT_LOG_DATA) {
                     m_timer_ok = false
                     weHaveAProblem("FROZEN BLUETOOTH!")
                 }
