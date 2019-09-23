@@ -486,24 +486,20 @@ void transmit_sensor_data(int servoSpeed) {
   if (isOutsideDelta(distance, previousDistance, distanceDelta)
    || (servoAngle != previousDistanceAngle)) {
 
-    if (servoAngle == 0) {
+    if (servoAngle < 65) {
       leftDistance = distance;
       print(" Distance Left=", 1);
       println(toString(leftDistance), 0);
     }
-    else if (servoAngle == 90) {
-      aheadDistance = distance;
-      print(" Distance Ahead=", 1);
-      println(toString(aheadDistance), 0);
-    }
-    else if (servoAngle == 180) {
+    else if (servoAngle > 115) {
       rightDistance = distance;
       print(" Distance Right=", 1);
       println(toString(rightDistance), 0);
     }
-    else if (isOutsideDelta(distance, previousDistance, distanceDelta)) {
-      print(" Distance=", 1);
-      println(toString(distance), 0);
+    else {
+      aheadDistance = distance;
+      print(" Distance Ahead=", 1);
+      println(toString(aheadDistance), 0);
     }
     previousDistance = distance;
     previousDistanceAngle = servoAngle;
