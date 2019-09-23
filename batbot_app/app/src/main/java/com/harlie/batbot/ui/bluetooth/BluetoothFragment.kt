@@ -64,6 +64,7 @@ class BluetoothFragment : Fragment() {
         m_BluetoothFragmentBinding.selected = false
         m_BluetoothFragmentBinding.btFragment = this
         m_BluetoothFragmentBinding.recyclerView.adapter = m_BluetoothRecyclerAdapter
+        m_BluetoothFragmentBinding.executePendingBindings()
 
         m_BluetoothFragmentBinding.recyclerView.apply {
             addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))

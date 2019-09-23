@@ -43,6 +43,8 @@ class ControlFragment : Fragment() {
         }
     }
 
+    val MAX_WAIT_LOG_DATA = 30000
+
     // Initialize the BluetoothChatService to perform bluetooth connections
     val m_robotConnection = ObservableBoolean(false)
     private var m_robotCommand = RobotCommandModel("", "")
@@ -79,7 +81,7 @@ class ControlFragment : Fragment() {
         m_ControlFragBinding.robotConnection = m_robotConnection
         m_ControlFragBinding.ctFragment = this
         m_ControlFragBinding.lifecycleOwner = viewLifecycleOwner
-        m_ControlFragBinding.invalidateAll()
+        m_ControlFragBinding.executePendingBindings()
 
         val view = m_ControlFragBinding.getRoot()
         return view
@@ -180,6 +182,11 @@ class ControlFragment : Fragment() {
                         logging.text = m_logging.content()
                     }
                 }
+                val now = System.currentTimeMillis()
+                if ((now - MAX_WAIT_LOG_DATA) > m_logging.lastLogTime()) {
+                    m_timer_ok = false
+                    weHaveAProblem("FROZEN BLUETOOTH!")
+                }
             }
         }
     }
@@ -234,11 +241,7 @@ class ControlFragment : Fragment() {
                             Log.d(TAG, "no ping reply yet")
                             val now = System.currentTimeMillis();
                             if ((m_pingStartTime - now) > 10000) {
-                                activity?.runOnUiThread(java.lang.Runnable {
-                                    Toast.makeText(context, "ping failed", Toast.LENGTH_LONG).show()
-                                });
-                                disconnect()
-                                gotoBluetoothActivity()
+                                weHaveAProblem("ping failed")
                             }
                         }
                     }
@@ -284,32 +287,29 @@ class ControlFragment : Fragment() {
         }
     }
 
+    fun weHaveAProblem(theProblem: String) {
+        Log.e(TAG, "===> weHaveAProblem: " + theProblem)
+        activity?.runOnUiThread(java.lang.Runnable {
+            Toast.makeText(context, theProblem.toUpperCase(), Toast.LENGTH_LONG).show()
+        });
+        disconnect()
+        gotoBluetoothActivity()
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN) // from notify
     fun onBluetoothStatusEvent(bt_status_event: BluetoothStatusEvent) {
         Log.d(TAG, "onBluetoothStatusEvent: message=" + bt_status_event.message)
         msg(bt_status_event.message)
         if (bt_status_event.message.equals(Constants.DISCONNECT)) {
-            activity?.runOnUiThread(java.lang.Runnable {
-                Toast.makeText(context, "DISCONNECTED.", Toast.LENGTH_LONG).show()
-            });
-            disconnect()
-            gotoBluetoothActivity()
+            weHaveAProblem(Constants.DISCONNECT)
         }
         else if (bt_status_event.message.equals(Constants.CONNECTION_FAILED)) {
-            activity?.runOnUiThread(java.lang.Runnable {
-                Toast.makeText(context, "CONNECTION FAILED.", Toast.LENGTH_LONG).show()
-            });
-            disconnect()
-            gotoBluetoothActivity()
+            weHaveAProblem(Constants.CONNECTION_FAILED)
         }
         else if (bt_status_event.message.equals(Constants.CONNECTION_LOST)) {
-            activity?.runOnUiThread(java.lang.Runnable {
-                Toast.makeText(context, "BLUETOOTH FAILED.", Toast.LENGTH_LONG).show()
-            });
-            disconnect()
-            gotoBluetoothActivity()
+            weHaveAProblem(Constants.CONNECTION_LOST)
             //
-            // NOTE: this is a problem with the Android bluetooth functionality and databinding
+            // NOTE: i think there is a problem with the Android bluetooth functionality and databinding
             // (it happens when the python bluez batbot server stops during an active session)
             // the only way i have found to fix it is to manually kill the Android BatBot app
             // and then restart it.   --- the root cause seems to be a databinding problem/confusion
@@ -340,11 +340,7 @@ class ControlFragment : Fragment() {
     fun connect() {
         Log.d(TAG, "connect")
         if (m_device == null) {
-            activity?.runOnUiThread(java.lang.Runnable {
-                Toast.makeText(context, "NO DEVICE!", Toast.LENGTH_LONG).show()
-            });
-            disconnect()
-            gotoBluetoothActivity()
+            weHaveAProblem("NO DEVICE FOUND!")
         }
         else {
             // we need to initialize the bluetooth adapter

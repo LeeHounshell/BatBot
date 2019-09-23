@@ -10,9 +10,12 @@ public class LoggingTextTail {
     val MAX_LOG_DISPLAY_CONTENT_CHARS = 333;
 
     var content = mutableListOf<String>()
+    private var m_lastLogReceiptTime = System.currentTimeMillis()
+
 
     fun append(log_text: String) {
         Log.d(TAG, "append: " + log_text)
+        m_lastLogReceiptTime = System.currentTimeMillis()
         val lines = log_text.lines()
         lines.forEach {
             if (it.length > 0) {
@@ -40,6 +43,11 @@ public class LoggingTextTail {
             return sb.toString()
         }
         return ""
+    }
+
+    fun lastLogTime(): Long {
+        Log.d(TAG, "lastLogTime: " + m_lastLogReceiptTime)
+        return m_lastLogReceiptTime
     }
 
     fun clear() {
