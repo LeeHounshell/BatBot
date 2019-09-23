@@ -289,15 +289,25 @@ def data_received(commandsFromPhone):
         #--------------------------------------------
         data = data.strip()
         if len(data) > 0:
+
             # don't echo back the movement commands
-            if (not data.startswith('2,')):
-                if valid:
-                    data = '--> ' + data.upper()
-                else:
-                    data = '??? ' + data.upper()
-                print(data)
+            if not valid:
+                if (data.startswith('2,')): # BlueDot onMove
+                    data = '[MOVE: ' + data + ']'
+                    valid = True
+                elif (data.startswith('1,')): # BlueDot onPress
+                    data = '[CLICK: ' + data + ']'
+                    valid = True
+                elif (data.startswith('0,')): # BlueDot onRelease
+                    data = '[RELEASE: ' + data + ']'
+                    valid = True
+
+            if valid:
+                data = '--> ' + data.upper()
             else:
-                data = ''
+                data = '??? ' + data.upper()
+            print(data)
+
         else:
             arduino.flush()
         if len(result) > 0:
