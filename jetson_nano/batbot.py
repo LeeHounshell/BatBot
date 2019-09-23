@@ -79,7 +79,7 @@ def batbot_help():
     data = data + 'and help.\n\n'
     return data
 
-def readDataFromArduino():
+def read_data_from_arduino():
     robot_data = ''
     # Serial read section
     arduino.flush()
@@ -91,14 +91,14 @@ def readDataFromArduino():
             print(robot_data.strip())
             arduino.flush()
         except Exception as e:
-            print("WARNING: e=" + str(e))
+            print("read_data_from_arduino: WARNING: e=" + str(e))
     return robot_data
 
-def executeCommands(command_array):
+def execute_commands(command_array):
     i = 0
     data = ''
     while (i < len(command_array)):
-        data = data + readDataFromArduino()
+        data = data + read_data_from_arduino()
 
         # Serial write section
         arduino.flush()
@@ -111,22 +111,22 @@ def executeCommands(command_array):
         i = i + 1
 
     time.sleep(1) # I shortened this to match the new value in your Arduino code
-    data = data + readDataFromArduino()
+    data = data + read_data_from_arduino()
     return data
 
 def do_star():
     command_array = [run_star]
-    result = executeCommands(command_array)
+    result = execute_commands(command_array)
     return result
 
 def do_stop():
     command_array = [allstop]
-    result = executeCommands(command_array)
+    result = execute_commands(command_array)
     return result
 
 def do_sharp():
     command_array = [run_sharp]
-    result = executeCommands(command_array)
+    result = execute_commands(command_array)
     return result
 
 def run_command(command):
@@ -151,8 +151,54 @@ def set_arduino_time():
     time.sleep(1)
     print("SET_TIME offset sent: ")
     print(str(timestamp))
-    timedata = readDataFromArduino()
+    timedata = read_data_from_arduino()
     return timedata
+
+# examples:
+# --> [CLICK: 1,0.0056,-0.1275]
+# --> [MOVE: 2,0.0072,-0.1232,0.0072,-0.1152]
+# --> [MOVE: 2,4.0E-4,-0.1021]
+# --> [MOVE: 2,-0.6271,0.1484]
+# --> [MOVE: 2,-0.6433,0.1421]
+# --> [MOVE: 2,-0.6328,0.10272,-0.625,0.0889]
+# --> [RELEASE: 0,-0.625,0.0889]
+
+def decode_blue_dot(movementCommand):
+    movementData = movementCommand.split(',')
+    try:
+        if len(movementData) >= 3:
+            x = int(float(movementData[1]) * 100)
+            y = int(float(movementData[2]) * 100)
+            pos = "X=" + str(x) + ", Y=" + str(y)
+            dir = ''
+            if (abs(x) <= 20 and abs(y) <= 20):
+                dir = 'STOP'
+            elif (x > 0):
+                if (y > 0):
+                    if (x > y):
+                        dir = 'RIGHT'
+                    else:
+                        dir = 'FORWARD'
+                else:
+                    if (x > abs(y)):
+                        dir = 'RIGHT'
+                    else:
+                        dir = 'BACKWARD'
+            else:
+                if (y > 0):
+                    if (abs(x) > y):
+                        dir = 'LEFT'
+                    else:
+                        dir = 'FORWARD'
+                else:
+                    if (abs(x) > abs(y)):
+                        dir = 'LEFT'
+                    else:
+                        dir = 'BACKWARD'
+            return pos + ", " + dir
+    except Exception as e:
+        print("decode_blue_dot: WARNING: e=" + str(e))
+    return "invalid"
 
 # a primitive language parser
 def data_received(commandsFromPhone):
@@ -160,7 +206,7 @@ def data_received(commandsFromPhone):
     pokeLogs = (commandsFromPhone == ' ')
     commandList = commandsFromPhone.splitlines()
     for data in commandList:
-        result = readDataFromArduino()
+        result = read_data_from_arduino()
         printResult = False
         valid = False
         if pokeLogs:
@@ -188,59 +234,59 @@ def data_received(commandsFromPhone):
             valid = True
         elif 'forward' in data:
             command_array = [uparrow]
-            result = result + executeCommands(command_array)
+            result = result + execute_commands(command_array)
             valid = True
         elif 'back' in data:
             command_array = [downarrow]
-            result = result + executeCommands(command_array)
+            result = result + execute_commands(command_array)
             valid = True
         elif 'look ahead' in data:
             command_array = [lookahead]
-            result = result + executeCommands(command_array)
+            result = result + execute_commands(command_array)
             camera_angle = 90
             valid = True
         elif 'look right' in data or 'turn right' in data:
             if camera_angle == 45:
                 command_array = [lookfullright]
-                result = result + executeCommands(command_array)
+                result = result + execute_commands(command_array)
                 camera_angle = 0
             else:
                 command_array = [lookright]
-                result = result + executeCommands(command_array)
+                result = result + execute_commands(command_array)
                 camera_angle = 45
             valid = True
         elif 'right' in data:
             command_array = [rightarrow]
-            result = result + executeCommands(command_array)
+            result = result + execute_commands(command_array)
             valid = True
         elif 'look left' in data or 'turn left' in data:
             if camera_angle == 90 + 45:
                 command_array = [lookfullleft]
-                result = result + executeCommands(command_array)
+                result = result + execute_commands(command_array)
                 camera_angle = 180 
             else:
                 command_array = [lookleft]
-                result = result + executeCommands(command_array)
+                result = result + execute_commands(command_array)
                 camera_angle = 90 + 45
             valid = True
         elif 'left' in data:
             command_array = [leftarrow]
-            result = result + executeCommands(command_array)
+            result = result + execute_commands(command_array)
             valid = True
         elif 'stop' in data:
             result = result + do_stop()
             valid = True
         elif 'faster' in data or 'speed up' in data:
             command_array = [faster]
-            result = result + executeCommands(command_array)
+            result = result + execute_commands(command_array)
             valid = True
         elif 'slower' in data or 'slow down' in data:
             command_array = [slower]
-            result = result + executeCommands(command_array)
+            result = result + execute_commands(command_array)
             valid = True
         elif 'sensor' in data or 'value' in data:
             command_array = [values]
-            result = result + executeCommands(command_array)
+            result = result + execute_commands(command_array)
             valid = True
         elif 'fortune' in data or 'joke' in data:
             # sudo apt-get install fortunes
@@ -249,7 +295,7 @@ def data_received(commandsFromPhone):
                     text = line.decode('ascii')
                     result = result + text
                 except Exception as e:
-                    print("WARNING: e=" + str(e))
+                    print("data_received: WARNING: e=" + str(e))
             printResult = True
             valid = True
         elif 'follow' in data: # FIXME: run Elegoo line following
@@ -260,7 +306,7 @@ def data_received(commandsFromPhone):
             valid = True
         elif 'monitor' in data or 'security' in data: # FIXME: security monitor
             command_array = [monitor]
-            result = result + executeCommands(command_array)
+            result = result + execute_commands(command_array)
             valid = True
         elif 'photo' in data or 'picture' in data: # FIXME: optional item
             result = result + 'FIXME: take a picture'
@@ -276,7 +322,7 @@ def data_received(commandsFromPhone):
             valid = True
         elif 'map' in data: # FIXME: map the world
             command_array = [map_world]
-            result = result + executeCommands(command_array)
+            result = result + execute_commands(command_array)
             valid = True
         elif 'name' in data:
             result = result + 'i am ' + hostname + '. i live at ' + IPAddr
@@ -293,13 +339,13 @@ def data_received(commandsFromPhone):
             # don't echo back the movement commands
             if not valid:
                 if (data.startswith('2,')): # BlueDot onMove
-                    data = '[MOVE: ' + data + ']'
+                    data = '[MOVE: ' + decode_blue_dot(data) + ']'
                     valid = True
                 elif (data.startswith('1,')): # BlueDot onPress
-                    data = '[CLICK: ' + data + ']'
+                    data = '[CLICK: ' + decode_blue_dot(data) + ']'
                     valid = True
                 elif (data.startswith('0,')): # BlueDot onRelease
-                    data = '[RELEASE: ' + data + ']'
+                    data = '[RELEASE: ' + decode_blue_dot(data) + ']'
                     valid = True
 
             if valid:
@@ -311,7 +357,7 @@ def data_received(commandsFromPhone):
         else:
             arduino.flush()
         if len(result) > 0:
-            result = result + readDataFromArduino()
+            result = result + read_data_from_arduino()
             if printResult:
                 print(result.strip())
         if len(data) > 0:
@@ -326,5 +372,5 @@ try:
     print('---> waiting for connection <---')
     pause()
 except Exception as e:
-    print("ERROR: e=" + str(e))
+    print("PROGRAM ERROR: e=" + str(e))
 
