@@ -469,7 +469,7 @@ void transmit_sensor_data(int servoSpeed) {
       pinMode(SRVO_PIN, OUTPUT);
       println("SERVO: on", 1);
       myservo.write(servoAngle);
-      print(" ServoAngle=", 1);
+      print("ServoAngle=", 1);
       println(toString(servoAngle), 0);
     }
     previousServoAngle = servoAngle;
@@ -488,17 +488,17 @@ void transmit_sensor_data(int servoSpeed) {
 
     if (servoAngle < 65) {
       leftDistance = distance;
-      print(" Distance Left=", 1);
+      print("Distance Left=", 1);
       println(toString(leftDistance), 0);
     }
     else if (servoAngle > 115) {
       rightDistance = distance;
-      print(" Distance Right=", 1);
+      print("Distance Right=", 1);
       println(toString(rightDistance), 0);
     }
     else {
       aheadDistance = distance;
-      print(" Distance Ahead=", 1);
+      print("Distance Ahead=", 1);
       println(toString(aheadDistance), 0);
     }
     previousDistance = distance;
@@ -508,19 +508,19 @@ void transmit_sensor_data(int servoSpeed) {
   // transmit line following sensor values
   lt_r = LT_R;
   if (lt_r != previous_lt_r) {
-    print(" LT_R=", 1);
+    print("LT_R=", 1);
     println(toString(lt_r), 0);
     previous_lt_r = lt_r;
   }
   lt_m = LT_M;
   if (lt_m != previous_lt_m) {
-    print(" LT_M=", 1);
+    print("LT_M=", 1);
     println(toString(lt_m), 0);
     previous_lt_m = lt_m;
   }
   lt_l = LT_L;
   if (lt_l != previous_lt_l) {
-    print(" LT_L=", 1);
+    print("LT_L=", 1);
     println(toString(lt_l), 0);
     previous_lt_l = lt_l;
   }
@@ -540,8 +540,8 @@ boolean isOutsideDelta(int distance1, int distance2, int theDelta) {
 
 void printdate() {
   time_now = now();
-  //snprintf(buffer, sizeof(buffer), " %0ld ", time_now);
-  snprintf(buffer, sizeof(buffer), " %02d/%02d/%4d %02d:%02d:%02d ", month(), day(), year(), hour() - adjustTimeZone, minute(), second());
+  //snprintf(buffer, sizeof(buffer), "%0ld ", time_now);
+  snprintf(buffer, sizeof(buffer), "%02d/%02d/%4d %02d:%02d:%02d ", month(), day(), year(), hour() - adjustTimeZone, minute(), second());
   Serial.print(buffer);
 }
 
@@ -567,7 +567,7 @@ char * toString(unsigned long num) {
 boolean execute_command(int cmd) {
   boolean valid = 0;
   if (cmd != 0) {
-    print(" got cmd=", 1);
+    print("got cmd=", 1);
     println(toString(cmd), 0);
     switch(cmd) {
       case SET_TIME:
@@ -639,35 +639,35 @@ boolean execute_command(int cmd) {
 
 boolean function_set_time() {
   read_time = 1;
-  println(" fn_set_time: set", 1);
+  println("fn_set_time: set", 1);
   return 1;
 }
 
 boolean function_up() {
   forward();
   motion = "forward";
-  println(" fn_up: go forward", 1);
+  println("fn_up: go forward", 1);
   return 1;
 }
 
 boolean function_left() {
   left();
   motion = "left";
-  println(" fn_left: go left", 1);
+  println("fn_left: go left", 1);
   return 1;
 }
 
 boolean function_right() {
   right();
   motion = "right";
-  println(" fn_right: go right", 1);
+  println("fn_right: go right", 1);
   return 1;
 }
 
 boolean function_down() {
   back();
   motion = "down";
-  println(" fn_down: go back", 1);
+  println("fn_down: go back", 1);
   return 1;
 }
 
@@ -678,49 +678,49 @@ boolean function_ok() {
   motion = "none";
   speedDelta = 0;
   servoDelta = 0;
-  println(" fn_ok: STOP", 1);
+  println("fn_ok: STOP", 1);
   return 1;
 }
 
 // look right
 boolean function_one() {
   setAngle(45, 0);
-  println(" fn_one: look toward left", 1);
+  println("fn_one: look toward left", 1);
   return 1;
 }
 
 // look ahead
 boolean function_two() {
   setAngle(90, 0);
-  println(" fn_two: look ahead", 1);
+  println("fn_two: look ahead", 1);
   return 1;
 }
 
 // look left
 boolean function_three() {
   setAngle(90 + 45, 0);
-  println(" fn_three: look toward right", 1);
+  println("fn_three: look toward right", 1);
   return 1;
 }
 
 // look full right
 boolean function_four() {
   setAngle(0, 0);
-  println(" fn_four: look full left", 1);
+  println("fn_four: look full left", 1);
   return 1;
 }
 
 // map your world
 boolean function_five() {
   // FIXME
-  println(" fn_five: 'map'", 1);
+  println("fn_five: 'map'", 1);
   return 1;
 }
 
 // look full left
 boolean function_six() {
   setAngle(180, 0);
-  println(" fn_six: look full right", 1);
+  println("fn_six: look full right", 1);
   return 1;
 }
 
@@ -730,40 +730,40 @@ boolean function_seven() {
      speedDelta -= 3;
   }
   else {
-    println(" -limit", 1);
+    println("-limit", 1);
   }
-  print(" fn_seven: (slower) speed=", 1);
+  print("fn_seven: (slower) speed=", 1);
   print(toString(carSpeed + speedDelta), 0);
   return 1;
 }
 
 // sensors: return all sensor and status data
 boolean function_eight() {
-  println(" fn_eight: 'sensors'", 1);
-  print(" Last Distance: ", 1);
+  println("fn_eight: 'sensors'", 1);
+  print("Last Distance: ", 1);
   println(toString(distance), 0);
-  print(" Ahead Distance: ", 1);
+  print("Ahead Distance: ", 1);
   println(toString(aheadDistance), 0);
-  print(" Left Distance: ", 1);
+  print("Left Distance: ", 1);
   println(toString(leftDistance), 0);
-  print(" Right Distance: ", 1);
+  print("Right Distance: ", 1);
   println(toString(rightDistance), 0);
-  print(" LT_R: ", 1);
+  print("LT_R: ", 1);
   println(toString(lt_r), 0);
-  print(" LT_M: ", 1);
+  print("LT_M: ", 1);
   println(toString(lt_m), 0);
-  print(" LT_L: ", 1);
+  print("LT_L: ", 1);
   println(toString(lt_l), 0);
-  print(" Throttle: ", 1);
+  print("Throttle: ", 1);
   println(toString(carSpeed + speedDelta), 0);
-  snprintf(camera, sizeof(camera), " Camera Angle: %d, Motion: %d ", servoAngle, servoDelta);
+  snprintf(camera, sizeof(camera), "Camera Angle: %d, Motion: %d ", servoAngle, servoDelta);
   println(camera, 1);
   showState();
   return 1;
 }
 
 void showState() {
-  snprintf(status, sizeof(status), " State: %s, Motion: %s ", state, motion);
+  snprintf(status, sizeof(status), "State: %s, Motion: %s ", state, motion);
   println(status, 1);
 }
 
@@ -773,9 +773,9 @@ boolean function_nine() {
     speedDelta += 3;
   }
   else {
-    println(" +limit", 1);
+    println("+limit", 1);
   }
-  print(" fn_nine: (faster) speed=", 1);
+  print("fn_nine: (faster) speed=", 1);
   print(toString(carSpeed + speedDelta), 0);
   return 1;
 }
@@ -784,7 +784,7 @@ boolean function_nine() {
 boolean function_zero() {
   if (state != 'm') {
     state = "monitor";
-    println(" fn_zero: 'monitor'", 1);
+    println("fn_zero: 'monitor'", 1);
   }
   // FIXME
   return 1;
@@ -794,7 +794,7 @@ boolean function_zero() {
 boolean function_star() {
   if (*state != 'a') {
     state = "avoid";
-    println(" fn_star: 'avoid'", 1);
+    println("fn_star: 'avoid'", 1);
   }
   // FIXME
   return 1;
@@ -804,7 +804,7 @@ boolean function_star() {
 boolean function_sharp() {
   if (*state != 'f') {
     state = "following";
-    println(" fn_sharp: 'following'", 1);
+    println("fn_sharp: 'following'", 1);
   }
   // FIXME
   return 1;

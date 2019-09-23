@@ -157,12 +157,16 @@ def set_arduino_time():
 # a primitive language parser
 def data_received(commandsFromPhone):
     global camera_angle
+    pokeLogs = (commandsFromPhone == ' ')
     commandList = commandsFromPhone.splitlines()
     for data in commandList:
         result = readDataFromArduino()
         printResult = False
         valid = False
-        if 'ping' in data:
+        if pokeLogs:
+            data = '' # don't echo the space used to poke the logs
+            valid = True
+        elif 'ping' in data:
             result = result + set_arduino_time()
             result = result + batbot_help()
             valid = True
