@@ -42,7 +42,7 @@ class Bluetooth_ViewModel : ViewModel() {
     }
 
     fun initDefaultAdapter(): BluetoothAdapter {
-        Log.d(TAG, "initDefaultAdapter")
+        Log.d(TAG, "initialize")
         m_BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         return m_BluetoothAdapter
     }

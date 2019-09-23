@@ -14,7 +14,6 @@ import androidx.annotation.Nullable
 import com.harlie.batbot.databinding.ControlFragmentBinding
 import com.harlie.batbot.service.BluetoothChatService
 import com.harlie.batbot.util.DynamicMatrix
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.widget.Toast
@@ -32,7 +31,6 @@ import com.harlie.batbot.R
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
 import kotlin.concurrent.schedule
-import kotlin.math.exp
 
 
 class ControlFragment : Fragment() {
@@ -46,7 +44,6 @@ class ControlFragment : Fragment() {
     }
 
     // Initialize the BluetoothChatService to perform bluetooth connections
-    private var m_BluetoothChatService = BluetoothChatService()
     val m_robotConnection = ObservableBoolean(false)
     private var m_robotCommand = RobotCommandModel("", "")
     private var m_logging = LoggingTextTail()
@@ -59,7 +56,6 @@ class ControlFragment : Fragment() {
 
     private lateinit var m_ControlFragBinding : ControlFragmentBinding
     private lateinit var m_ControlViewModel: Control_ViewModel
-    private lateinit var m_BluetoothAdapter: BluetoothAdapter
     private lateinit var m_fixedTimer: Timer
 
     private var m_name: String? = null
@@ -100,7 +96,8 @@ class ControlFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Log.d(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState)
-        getViewModel()
+        getViewModel().initialize()
+
         m_ControlViewModel.getInputCommand().observe(this, Observer {
             it?.let {
                 Log.d(TAG, "observe getInputCommand() ===> it.m_robotCommand=" + it.robotCommand)
@@ -111,24 +108,28 @@ class ControlFragment : Fragment() {
                 m_ControlFragBinding.robotCommand?.notifyChange()
             }
         })
+
         m_ControlViewModel.getStarClicked().observe(this, Observer {
             it?.let {
                 Log.d(TAG, "observe getStarClicked()===> * clicked=" + it)
                 send("click: *")
             }
         })
+
         m_ControlViewModel.getOkClicked().observe(this, Observer {
             it?.let {
                 Log.d(TAG, "observe getOkClicked()===> ok clicked=" + it)
                 send("click: ok")
             }
         })
+
         m_ControlViewModel.getSharpClicked().observe(this, Observer {
             it?.let {
                 Log.d(TAG, "obsere getSharpClicked()===> # clicked=" + it)
                 send("click: #")
             }
         })
+
         disableButtons()
         connect()
     }
@@ -338,66 +339,71 @@ class ControlFragment : Fragment() {
 
     fun connect() {
         Log.d(TAG, "connect")
-        // we need to initialize the bluetooth adapter
-        getViewModel()
-        m_BluetoothAdapter = m_ControlViewModel.initDefaultAdapter()
+        if (m_device == null) {
+            activity?.runOnUiThread(java.lang.Runnable {
+                Toast.makeText(context, "NO DEVICE!", Toast.LENGTH_LONG).show()
+            });
+            disconnect()
+            gotoBluetoothActivity()
+        }
+        else {
+            // we need to initialize the bluetooth adapter
+            getViewModel().initialize()
 
-        // Get the BluetoothDevice object
-        //val device = mBluetoothAdapter.getRemoteDevice(activity)
-        // Attempt to connect to the device
+            // Attempt to connect to the device
+            msg("connecting..")
 
-        msg("connecting..")
+            m_ControlViewModel.connect(m_device!!, true)
 
-        m_BluetoothChatService.connect(m_device, true)
+            msg("please wait..")
 
-        msg("please wait..")
-
-        // Once connected setup the listener
-        bluedot_matrix.setOnUseListener(object : DynamicMatrix.DynamicMatrixListener {
-            override fun onPress(
-                cell: DynamicMatrix.MatrixCell,
-                pointerId: Int,
-                actual_x: Float,
-                actual_y: Float
-            ) {
-                Log.d(TAG, "onPress")
-                val x = calcX(cell, actual_x)
-                val y = calcY(cell, actual_y)
-                send(buildMessage("1", x, y))
-                last_x = x
-                last_y = y
-            }
-
-            override fun onMove(
-                cell: DynamicMatrix.MatrixCell,
-                pointerId: Int,
-                actual_x: Float,
-                actual_y: Float
-            ) {
-                Log.d(TAG, "onMove");
-                val x = calcX(cell, actual_x)
-                val y = calcY(cell, actual_y)
-                if (x != last_x || y != last_y) {
-                    send(buildMessage("2", x, y))
+            // Once connected setup the listener
+            bluedot_matrix.setOnUseListener(object : DynamicMatrix.DynamicMatrixListener {
+                override fun onPress(
+                    cell: DynamicMatrix.MatrixCell,
+                    pointerId: Int,
+                    actual_x: Float,
+                    actual_y: Float
+                ) {
+                    Log.d(TAG, "onPress")
+                    val x = calcX(cell, actual_x)
+                    val y = calcY(cell, actual_y)
+                    send(buildMessage("1", x, y))
                     last_x = x
                     last_y = y
                 }
-            }
 
-            override fun onRelease(
-                cell: DynamicMatrix.MatrixCell,
-                pointerId: Int,
-                actual_x: Float,
-                actual_y: Float
-            ) {
-                Log.d(TAG, "onRelease");
-                val x = calcX(cell, actual_x)
-                val y = calcY(cell, actual_y)
-                send(buildMessage("0", x, y))
-                last_x = x
-                last_y = y
-            }
-        })
+                override fun onMove(
+                    cell: DynamicMatrix.MatrixCell,
+                    pointerId: Int,
+                    actual_x: Float,
+                    actual_y: Float
+                ) {
+                    Log.d(TAG, "onMove");
+                    val x = calcX(cell, actual_x)
+                    val y = calcY(cell, actual_y)
+                    if (x != last_x || y != last_y) {
+                        send(buildMessage("2", x, y))
+                        last_x = x
+                        last_y = y
+                    }
+                }
+
+                override fun onRelease(
+                    cell: DynamicMatrix.MatrixCell,
+                    pointerId: Int,
+                    actual_x: Float,
+                    actual_y: Float
+                ) {
+                    Log.d(TAG, "onRelease");
+                    val x = calcX(cell, actual_x)
+                    val y = calcY(cell, actual_y)
+                    send(buildMessage("0", x, y))
+                    last_x = x
+                    last_y = y
+                }
+            })
+        }
     }
 
     private fun calcX(cell: DynamicMatrix.MatrixCell, actual_x: Float): Double {
@@ -427,7 +433,7 @@ class ControlFragment : Fragment() {
             // it will display on the nano log, so.. using space is least intrusive.
             msg_tail = " "
         }
-        m_BluetoothChatService.send(message + msg_tail)
+        m_ControlViewModel.send(message + msg_tail)
     }
 
     private fun msg(message: String) {
@@ -455,7 +461,7 @@ class ControlFragment : Fragment() {
 
     private fun disconnect() {
         Log.d(TAG, "disconnect");
-        m_BluetoothChatService.stop()
+        m_ControlViewModel.disconnect()
     }
 
 }
