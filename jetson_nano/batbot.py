@@ -10,6 +10,7 @@ import struct
 import subprocess
 import time
 
+
 #The following line is for serial over GPIO
 port = '/dev/ttyACM0' # note I'm using Jetson Nano
 
@@ -42,17 +43,14 @@ allstop        = 'H' # Halt
 run_star       = '*' # Star
 run_sharp      = '#' # Sharp
 
-game_w         = 'W'
-game_a         = 'A'
-game_s         = 'S'
-game_d         = 'D'
+joy_nullregion = 20
 
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
 
 
 def batbot_help():
-    data = 'HELP: i recognize these key words:\n'
+    data = '\n--->: i recognize these key words:\n'
     data = data + 'look ahead, '
     data = data + 'look right, '
     data = data + 'look left, '
@@ -83,7 +81,7 @@ def read_data_from_arduino():
     robot_data = ''
     # Serial read section
     arduino.flush()
-    if (arduino.inWaiting() > 0):
+    if arduino.inWaiting() > 0:
         robot_data = ''
         try:
             # read all characters in buffer
@@ -154,51 +152,59 @@ def set_arduino_time():
     timedata = read_data_from_arduino()
     return timedata
 
-# examples:
-# --> [CLICK: 1,0.0056,-0.1275]
-# --> [MOVE: 2,0.0072,-0.1232,0.0072,-0.1152]
-# --> [MOVE: 2,4.0E-4,-0.1021]
-# --> [MOVE: 2,-0.6271,0.1484]
-# --> [MOVE: 2,-0.6433,0.1421]
-# --> [MOVE: 2,-0.6328,0.10272,-0.625,0.0889]
-# --> [RELEASE: 0,-0.625,0.0889]
-
 def decode_blue_dot(movementCommand):
     movementData = movementCommand.split(',')
     try:
         if len(movementData) >= 3:
             x = int(float(movementData[1]) * 100)
             y = int(float(movementData[2]) * 100)
-            pos = "X=" + str(x) + ", Y=" + str(y)
+            #pos = "X=" + str(x) + ", Y=" + str(y)
+            joystick = 0
             dir = ''
-            if (abs(x) <= 20 and abs(y) <= 20):
+            if abs(x) <= joy_nullregion and abs(y) <= joy_nullregion:
                 dir = 'STOP'
-            elif (x > 0):
-                if (y > 0):
-                    if (x > y):
+            elif x > 0:
+                if y > 0:
+                    if x > y:
+                        joystick = x - joy_nullregion
                         dir = 'RIGHT'
                     else:
-                        dir = 'FORWARD'
+                        joystick = y - joy_nullregion
+                        dir = 'AHEAD'
                 else:
-                    if (x > abs(y)):
+                    if x > abs(y):
+                        joystick = x - joy_nullregion
                         dir = 'RIGHT'
                     else:
-                        dir = 'BACKWARD'
+                        joystick = abs(y) - joy_nullregion
+                        dir = 'BACK'
             else:
-                if (y > 0):
-                    if (abs(x) > y):
+                if y > 0:
+                    if abs(x) > y:
+                        joystick = abs(x) - joy_nullregion
                         dir = 'LEFT'
                     else:
-                        dir = 'FORWARD'
+                        joystick = abs(y) - joy_nullregion
+                        dir = 'AHEAD'
                 else:
-                    if (abs(x) > abs(y)):
+                    if abs(x) > abs(y):
+                        joystick = abs(x) - joy_nullregion
                         dir = 'LEFT'
                     else:
-                        dir = 'BACKWARD'
-            return pos + ", " + dir
+                        joystick = abs(y) - joy_nullregion
+                        dir = 'BACK'
+
+            # assume the 'joystick' value be be between 0 and ~70
+            # we will scale that to be from 0 to 9 like this:
+            # x/9 = joystick/70. solve for x. any x > 9 becomes 9
+
+            joystick = int((joystick / 70) * 9)
+            if joystick > 9:
+                joystick = 9
+            return str(joystick) + ' ' + dir
     except Exception as e:
         print("decode_blue_dot: WARNING: e=" + str(e))
-    return "invalid"
+    return "INVALID"
 
 # a primitive language parser
 def data_received(commandsFromPhone):
@@ -231,14 +237,6 @@ def data_received(commandsFromPhone):
         elif 'click: #' in data:
             data = '#'
             result = result + do_sharp()
-            valid = True
-        elif 'forward' in data:
-            command_array = [uparrow]
-            result = result + execute_commands(command_array)
-            valid = True
-        elif 'back' in data:
-            command_array = [downarrow]
-            result = result + execute_commands(command_array)
             valid = True
         elif 'look ahead' in data:
             command_array = [lookahead]
@@ -273,7 +271,15 @@ def data_received(commandsFromPhone):
             command_array = [leftarrow]
             result = result + execute_commands(command_array)
             valid = True
-        elif 'stop' in data:
+        elif 'forward' in data or 'ahead' in data:
+            command_array = [uparrow]
+            result = result + execute_commands(command_array)
+            valid = True
+        elif 'back' in data or 'reverse' in data:
+            command_array = [downarrow]
+            result = result + execute_commands(command_array)
+            valid = True
+        elif 'stop' in data or 'halt' in data:
             result = result + do_stop()
             valid = True
         elif 'faster' in data or 'speed up' in data:
@@ -338,20 +344,24 @@ def data_received(commandsFromPhone):
 
             # don't echo back the movement commands
             if not valid:
-                if (data.startswith('2,')): # BlueDot onMove
-                    data = '[MOVE: ' + decode_blue_dot(data) + ']'
+                if data.startswith('2,'): # BlueDot onMove
+                    data = '[SPEED: ' + decode_blue_dot(data) + ']'
                     valid = True
-                elif (data.startswith('1,')): # BlueDot onPress
+                elif data.startswith('1,'): # BlueDot onPress
                     data = '[CLICK: ' + decode_blue_dot(data) + ']'
                     valid = True
-                elif (data.startswith('0,')): # BlueDot onRelease
+                elif data.startswith('0,'): # BlueDot onRelease
                     data = '[RELEASE: ' + decode_blue_dot(data) + ']'
                     valid = True
 
             if valid:
                 data = '--> ' + data.upper()
             else:
-                data = '??? ' + data.upper()
+                # ignore bluedot numbers here
+                if data[0].isdigit() or data[0] in ['-', ',', '.']:
+                    data = ''
+                else:
+                    data = '??? ' + data.upper()
             print(data)
 
         else:
