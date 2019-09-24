@@ -255,7 +255,7 @@ def data_received(commandsFromPhone):
                 result = result + execute_commands(command_array)
                 camera_angle = 45
             valid = True
-        elif 'right' in data:
+        elif 'right' in data or 'spin right' in data:
             command_array = [rightarrow]
             result = result + execute_commands(command_array)
             valid = True
@@ -269,7 +269,7 @@ def data_received(commandsFromPhone):
                 result = result + execute_commands(command_array)
                 camera_angle = 90 + 45
             valid = True
-        elif 'left' in data:
+        elif 'left' in data or 'spin left' in data:
             command_array = [leftarrow]
             result = result + execute_commands(command_array)
             valid = True
