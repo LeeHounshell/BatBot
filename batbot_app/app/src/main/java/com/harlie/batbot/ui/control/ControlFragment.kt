@@ -440,9 +440,9 @@ class ControlFragment : Fragment() {
         status.text = message
     }
 
-    // FIXME: put this functionality back when a fix is found
-    // NOTE: method currently unused due to databinding issue when bluetooth disconnects
-    //       the problem forces the app to be closed manually to clear the condition.  foobar.
+    // NOTE: the app can become confused when bluetooth server dissconnects during session.
+    //       it seems to be related to a databinding non-communication issue that happens at the same time.
+    //       to clear the condition, you need to force close the app.  foobar.
     fun onClickTextOutput() {
         Log.d(TAG, "onClickTextOutput")
         m_robotCommand = RobotCommandModel(textOutput.text.toString(), "3")

@@ -66,16 +66,13 @@
             android:text="@={robotCommand.robotCommand}"
             android:textColor="@color/white"
             android:textSize="20sp"
+            android:onClick="@{() -> ctFragment.onClickTextOutput()}"
             app:layout_constraintTop_toBottomOf="@+id/guideline1"
             app:layout_constraintBottom_toTopOf="@+id/guideline2"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}"
             />
-            <!--
-            IF I USE THIS CLICK LISTENER THEN DATABINDING ON THE ROBOTCOMMAND TEXT STOPS WORKING!
-            android:onClick="@{() -> ctFragment.onClickTextOutput()}"
-            -->
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline2"
