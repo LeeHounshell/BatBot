@@ -1,5 +1,6 @@
 // adapted from code by: Martin O'Hanlon
 // from: https://github.com/martinohanlon/BlueDot/blob/master/clients/android/app/src/main/java/com/stuffaboutcode/bluedot/DynamicMatrix.java
+// this code is changed to add touch tracking
 //
 // Thanks Martin!  your BlueDot rocks!!   github.com/martinohanlon/BlueDot
 
@@ -12,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -23,22 +25,55 @@ import java.util.HashMap;
 
 
 public class DynamicMatrix extends View {
+    private final static String TAG = "LEE: <" + DynamicMatrix.class.getSimpleName() + ">";
+
+    private int TOUCH_RADIUS = 42;
 
     private ArrayList<ArrayList<MatrixCell>> mCells;
     private int mCols, mRows;
-    private Paint mCellPaint, mBorderPaint;
+    private Paint mCellPaint, mBorderPaint, mTouchPaint;
     private int mWidth, mHeight;
     int mMatrixWidth, mMatrixHeight;
     int mCellSize;
     private Context mContext;
     private RectF mMatrixBounds = new RectF();
+    private boolean mPressed = false;
+    private boolean mMoving = false;
+    private double X, Y;
 
     private HashMap<Integer, MatrixPointer> pointers = new HashMap<Integer, MatrixPointer>();
 
+    public void onPress(float X, float Y) {
+        //Log.d(TAG, "onPress: X=" + X + ", Y=" + Y);
+        mPressed = true;
+        mMoving = false;
+        this.X = X;
+        this.Y = Y;
+        invalidate();
+    }
+
+    public void onMove(float X, float Y) {
+        //Log.d(TAG, "onMove: X=" + X + ", Y=" + Y);
+        mPressed = true;
+        mMoving = true;
+        this.X = X;
+        this.Y = Y;
+        invalidate();
+    }
+
+    public void onRelease(float X, float Y) {
+        //Log.d(TAG, "onRelease: X=" + X + ", Y=" + Y);
+        mPressed = false;
+        mMoving = false;
+        this.X = X;
+        this.Y = Y;
+        invalidate();
+    }
+
     public interface DynamicMatrixListener {
-        public void onPress(MatrixCell cell, int pointerId, float actual_x, float actual_y);
-        public void onMove(MatrixCell cell, int pointerId, float actual_x, float actual_y);
-        public void onRelease(MatrixCell cell, int pointerId, float actual_x, float actual_y);
+        public void onPress(MatrixCell cell, int pointerId, float X, float Y);
+        public void onMove(MatrixCell cell, int pointerId, float X, float Y);
+        public void onRelease(MatrixCell cell, int pointerId, float X, float Y);
     }
 
     private DynamicMatrixListener listener;
@@ -78,6 +113,12 @@ public class DynamicMatrix extends View {
         mBorderPaint.setStyle(Paint.Style.STROKE);
         mBorderPaint.setStrokeWidth(5);
         mBorderPaint.setColor(mContext.getResources().getColor(R.color.darkgrey));
+
+        mTouchPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mTouchPaint.setStyle(Paint.Style.STROKE);
+        mTouchPaint.setStrokeWidth(TOUCH_RADIUS * 2);
+        mTouchPaint.setAntiAlias(true);
+        mTouchPaint.setColor(mContext.getResources().getColor(R.color.colorBackground));
 
         setupMatrix();
     }
@@ -201,7 +242,12 @@ public class DynamicMatrix extends View {
             }
         }
 
-        // TODO: fancy animations
+        // fancy animations
+        if (mPressed) {
+            float _x = (float) X;
+            float _y = (float) Y;
+            canvas.drawCircle(_x, _y, TOUCH_RADIUS, mTouchPaint);
+        }
     }
 
     // manage the touch events

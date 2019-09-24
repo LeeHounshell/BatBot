@@ -65,8 +65,8 @@ class ControlFragment : Fragment() {
     private var m_device: BluetoothDevice? = null
     private var m_uniqueId: String? = null
 
-    private var last_x = 0.0
-    private var last_y = 0.0
+    private var m_last_x: Double = 0.0
+    private var m_last_y: Double = 0.0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -361,12 +361,13 @@ class ControlFragment : Fragment() {
                     actual_x: Float,
                     actual_y: Float
                 ) {
-                    Log.d(TAG, "onPress")
+                    Log.d(TAG, "onPress: actual_x=" + actual_x + ", actual_y=" + actual_y)
                     val x = calcX(cell, actual_x)
                     val y = calcY(cell, actual_y)
+                    m_ControlFragBinding.bluedotMatrix.onPress(actual_x, actual_y)
                     send(buildMessage("1", x, y))
-                    last_x = x
-                    last_y = y
+                    m_last_x = x
+                    m_last_y = y
                 }
 
                 override fun onMove(
@@ -375,13 +376,14 @@ class ControlFragment : Fragment() {
                     actual_x: Float,
                     actual_y: Float
                 ) {
-                    Log.d(TAG, "onMove");
+                    Log.d(TAG, "onMove: actual_x=" + actual_x + ", actual_y=" + actual_y)
                     val x = calcX(cell, actual_x)
                     val y = calcY(cell, actual_y)
-                    if (x != last_x || y != last_y) {
+                    if (x != m_last_x || y != m_last_y) {
                         send(buildMessage("2", x, y))
-                        last_x = x
-                        last_y = y
+                        m_ControlFragBinding.bluedotMatrix.onMove(actual_x, actual_y)
+                        m_last_x = x
+                        m_last_y = y
                     }
                 }
 
@@ -391,12 +393,13 @@ class ControlFragment : Fragment() {
                     actual_x: Float,
                     actual_y: Float
                 ) {
-                    Log.d(TAG, "onRelease");
+                    Log.d(TAG, "onRelease: actual_x=" + actual_x + ", actual_y=" + actual_y)
                     val x = calcX(cell, actual_x)
                     val y = calcY(cell, actual_y)
                     send(buildMessage("0", x, y))
-                    last_x = x
-                    last_y = y
+                    m_ControlFragBinding.bluedotMatrix.onRelease(actual_x, actual_y)
+                    m_last_x = x
+                    m_last_y = y
                 }
             })
         }
