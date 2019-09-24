@@ -45,9 +45,7 @@ class ControlActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.control_activity)
-        this.let {
-            m_ControlViewModel = ViewModelProviders.of(it).get(Control_ViewModel::class.java)
-        }
+        m_ControlViewModel = ViewModelProviders.of(this).get(Control_ViewModel::class.java)
         m_ControlViewModel.initLiveData()
 
         m_name = intent.getStringExtra(ControlActivity.EXTRA_NAME)
