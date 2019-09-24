@@ -44,6 +44,7 @@ run_star       = '*' # Star
 run_sharp      = '#' # Sharp
 
 joy_nullregion = 20
+joystick = 0
 
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
@@ -154,6 +155,7 @@ def set_arduino_time():
 
 def decode_blue_dot(movementCommand):
     movementData = movementCommand.split(',')
+    global joystick
     try:
         if len(movementData) >= 3:
             x = int(float(movementData[1]) * 100)
@@ -377,8 +379,17 @@ def data_received(commandsFromPhone):
         #--------------------------------------------
 
 
+def client_connect():
+    print("*** BLUETOOTH CLIENT CONNECTED ***")
+
+def client_disconnect():
+    print("*** BLUETOOTH CLIENT DISCONNECTED ***")
+
+
 try:
-    s = BluetoothServer(data_received)
+    s = BluetoothServer(data_received_callback = data_received,
+            when_client_connects=client_connect,
+            when_client_disconnects=client_disconnect)
     print('---> waiting for connection <---')
     pause()
 except Exception as e:
