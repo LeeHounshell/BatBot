@@ -26,8 +26,7 @@ public class DynamicMatrix extends View {
 
     private ArrayList<ArrayList<MatrixCell>> mCells;
     private int mCols, mRows;
-    private Paint mTextPaint, mCellPaint, mBorderPaint, mLinePaint;
-    private float mTextHeight;
+    private Paint mCellPaint, mBorderPaint;
     private int mWidth, mHeight;
     int mMatrixWidth, mMatrixHeight;
     int mCellSize;
@@ -202,27 +201,7 @@ public class DynamicMatrix extends View {
             }
         }
 
-        // fancy animation stuff, but its a bit weird
-        /*for (Integer pointerId : pointers.keySet()){
-            MatrixPointer pointer = pointers.get(pointerId);
-
-            float x = pointer.getX();
-            float y = pointer.getY();
-            RectF cellBounds = pointer.getPressedCell().getBounds();
-            float highlightWidth = cellBounds.width() * 0.1f;
-
-            //draw a line from the centre of the cell to the position
-            mLinePaint.setColor(pointer.getPressedCell().getMovedColor());
-            canvas.drawLine(cellBounds.centerX(), cellBounds.centerY(), x, y, mLinePaint);
-
-            // is pointer inside the pressed cell?
-            //if (cellBounds.contains(x,y)){
-            //    RectF selectedRect = new RectF(x - highlightWidth, y - highlightWidth, x + highlightWidth, y + highlightWidth);
-            //    mCellPaint.setColor(pointer.getPressedCell().getMovedColor());
-            //    canvas.drawRect(selectedRect, mCellPaint);
-            //}
-
-        }*/
+        // TODO: fancy animations
     }
 
     // manage the touch events
