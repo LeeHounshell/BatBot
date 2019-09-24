@@ -345,13 +345,13 @@ def data_received(commandsFromPhone):
             # don't echo back the movement commands
             if not valid:
                 if data.startswith('2,'): # BlueDot onMove
-                    data = '[SPEED: ' + decode_blue_dot(data) + ']'
+                    data = 'SPEED: ' + decode_blue_dot(data)
                     valid = True
                 elif data.startswith('1,'): # BlueDot onPress
-                    data = '[CLICK: ' + decode_blue_dot(data) + ']'
+                    data = 'CLICK: ' + decode_blue_dot(data)
                     valid = True
                 elif data.startswith('0,'): # BlueDot onRelease
-                    data = '[RELEASE: ' + decode_blue_dot(data) + ']'
+                    data = 'RELEASE: ' + decode_blue_dot(data)
                     valid = True
 
             if valid:
