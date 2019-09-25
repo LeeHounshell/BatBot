@@ -287,9 +287,9 @@ void loop() {
   // check interrupt
   if (irrecv.decode(&results)) {
     ir_value = results.value;
-    ircMillis = millis();
     irrecv.resume();
     if (ir_value != -1) {
+      ircMillis = millis();
       raw_cmd = null;
       cmd = 0;
       if (ir_value == IR_FORWARD) {
