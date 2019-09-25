@@ -2,20 +2,11 @@
 //----------------- BATBOT ---------------
 //----------------------------------------
 
-
 #include <IRremote.h>
 #include <Servo.h>
 #include "TimeLib.h"
 
-//----------------------------------------
-//--------------- CAR SPEED --------------
-
 #define null 0
-#define carSpeed 200  // initial speed of car >=0 to <=255
-int speedDelta = 0;
-
-char *state  = "default";
-char *motion = "none";
 
 //----------------------------------------
 //----------- IR REMOTE CODES ------------
@@ -42,6 +33,7 @@ char *motion = "none";
 //-------------- COMMANDS ----------------
 
 #define SET_TIME          88 // 'X'
+#define SET_JOYSTICK      89 // 'Y'
 #define UPARROW           70 // 'F'
 #define DOWNARROW         66 // 'B'
 #define RIGHTARROW        82 // 'R'
@@ -108,6 +100,16 @@ unsigned int lt_r, lt_m, lt_l;
 unsigned int previous_lt_r, previous_lt_m, previous_lt_l;
 
 //----------------------------------------
+//--------------- CAR SPEED --------------
+
+#define carSpeed 200  // initial speed of car >=0 to <=255
+int speedDelta = 0;
+char direction = ALLSTOP;
+
+char *state    = "default";
+char *motion   = "none";
+
+//----------------------------------------
 //-------------- DISTANCE ----------------
 
 unsigned int rightDistance    = 0;
@@ -150,14 +152,16 @@ Servo myservo; // used to control the ultrasonics servo
 #define YEAR_OFFSET          1900
 #define MONTH_OFFSET            1
 
-int adjustTimeZone            = 7; // FIXME: adjust for daylight savings time
+int adjustTimeZone            = 0; // FIXME: adjust for daylight savings time
 time_t time_offset            = 0L;
 time_t time_now               = 0L;
+
 time_t curMillis              = 0L;
 time_t prvMillis              = 0L;
 time_t senMillis              = 0L;
 time_t ircMillis              = 0L;
 time_t srvMillis              = 0L;
+time_t joystick               = 0L;
 
 //----------------------------------------
 //--------------- COMMAND ----------------
@@ -169,7 +173,8 @@ long servo_movement_time; // time servo last moved
 boolean have_cmd = 0;
 boolean move_servo = 0;
 boolean send_sensor_data = 0;
-boolean read_time = 0;
+boolean read_time_value = 0;
+boolean read_joystick = 0;
 boolean good = 0;
 
 //----------------------------------------
@@ -180,7 +185,7 @@ int sensorSpeed = moveNormal;
 
 char buffer[42];
 char camera[42];
-char status[42];
+char status[64];
 char number[16];
 
 //========================================
@@ -266,7 +271,7 @@ void setup() {
 
 void loop() {
   curMillis = millis();
-  if ((curMillis - 5000) > prvMillis) {
+  if ((curMillis - prvMillis) > 5000) {
     prvMillis = curMillis;
     showState();
   }
@@ -387,11 +392,16 @@ void loop() {
   if (Serial.available()) {
 
     // get the SET_TIME offset
-    if (read_time) {
-      read_time = 0;
+    if (read_time_value > 0) {
       time_offset = (time_t) readPythonIntValue();
       time_now = time_offset;
       setTime(time_now);
+    }
+
+    // get the SET_JOYSTICK value
+    if (read_joystick) {
+      read_joystick = 0;
+      joystick = (time_t) readPythonIntValue();
     }
 
     // read next command from jetson nano
@@ -432,8 +442,8 @@ uint32_t readPythonIntValue() {
   char byte4 = 0;
   Serial.readBytes(&byte4, 1);
   uint32_t value = ((uint32_t)byte1 << 24) + ((uint32_t)byte2 << 16) + ((uint32_t)byte3 << 8) + (uint32_t)byte4; // big-endian
-  print("TIME OFFSET=", 1);
-  snprintf(buffer, sizeof(buffer), " %0ld ", value);
+  print("VALUE READ=", 1);
+  snprintf(buffer, sizeof(buffer), " %0ld ", (long) value);
   Serial.print(buffer);
   println("", 0);
   return value;
@@ -540,7 +550,6 @@ boolean isOutsideDelta(int distance1, int distance2, int theDelta) {
 
 void printdate() {
   time_now = now();
-  //snprintf(buffer, sizeof(buffer), "%0ld ", time_now);
   snprintf(buffer, sizeof(buffer), "%02d/%02d/%4d %02d:%02d:%02d ", month(), day(), year(), hour() - adjustTimeZone, minute(), second());
   Serial.print(buffer);
 }
@@ -572,6 +581,9 @@ boolean execute_command(int cmd) {
     switch(cmd) {
       case SET_TIME:
         valid = function_set_time();
+        break;
+      case SET_JOYSTICK:
+        valid = function_set_joystick();
         break;
       case UPARROW:
       case GAME_W:
@@ -638,14 +650,21 @@ boolean execute_command(int cmd) {
 // CUSTOM IR-REMOTE and SERIAL COMMANDS
 
 boolean function_set_time() {
-  read_time = 1;
-  println("fn_set_time: set", 1);
+  read_time_value = 1;
+  //println("fn_set_time: do set", 1);
+  return 1;
+}
+
+boolean function_set_joystick() {
+  read_joystick = 1;
+  //println("fn_set_joystick: do set", 1);
   return 1;
 }
 
 boolean function_up() {
   forward();
   motion = "forward";
+  direction = UPARROW;
   println("fn_up: go forward", 1);
   return 1;
 }
@@ -653,6 +672,7 @@ boolean function_up() {
 boolean function_left() {
   left();
   motion = "left";
+  direction = LEFTARROW;
   println("fn_left: go left", 1);
   return 1;
 }
@@ -660,6 +680,7 @@ boolean function_left() {
 boolean function_right() {
   right();
   motion = "right";
+  direction = RIGHTARROW;
   println("fn_right: go right", 1);
   return 1;
 }
@@ -667,6 +688,7 @@ boolean function_right() {
 boolean function_down() {
   back();
   motion = "down";
+  direction = DOWNARROW;
   println("fn_down: go back", 1);
   return 1;
 }
@@ -674,6 +696,7 @@ boolean function_down() {
 // reset to defaults
 boolean function_ok() {
   stop();
+  direction = ALLSTOP;
   state = "default";
   motion = "none";
   speedDelta = 0;
@@ -763,7 +786,23 @@ boolean function_eight() {
 }
 
 void showState() {
-  snprintf(status, sizeof(status), "State: %s, Motion: %s ", state, motion);
+  char *dir = "";
+  if (direction == ALLSTOP) {
+    dir = "STOP";
+  }
+  if (direction == UPARROW) {
+    dir = "AHEAD";
+  }
+  else if (direction == DOWNARROW) {
+    dir = "BACK";
+  }
+  else if (direction == RIGHTARROW) {
+    dir = "RIGHT";
+  }
+  else if (direction == LEFTARROW) {
+    dir = "LEFT";
+  }
+  snprintf(status, sizeof(status), "State: %s %s, Joystick: %s %d", state, motion, dir, (int) joystick);
   println(status, 1);
 }
 
