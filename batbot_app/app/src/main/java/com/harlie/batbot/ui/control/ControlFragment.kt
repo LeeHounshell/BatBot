@@ -55,6 +55,7 @@ class ControlFragment : Fragment() {
     private var m_fixedTimerLoopCount = 0
     private var m_haveRobotCommand = false
     private var m_pingStartTime = System.currentTimeMillis();
+    private var m_joystickTime = System.currentTimeMillis();
 
     private lateinit var m_ControlFragBinding : ControlFragmentBinding
     private lateinit var m_ControlViewModel: Control_ViewModel
@@ -368,22 +369,32 @@ class ControlFragment : Fragment() {
                     send(buildMessage("1", x, y))
                     m_last_x = x
                     m_last_y = y
+                    m_joystickTime = System.currentTimeMillis()
                 }
 
+                // throttle onMove to avoid flooding the Arduino with commands
                 override fun onMove(
                     cell: DynamicMatrix.MatrixCell,
                     pointerId: Int,
                     actual_x: Float,
                     actual_y: Float
                 ) {
-                    Log.d(TAG, "onMove: actual_x=" + actual_x + ", actual_y=" + actual_y)
-                    val x = calcX(cell, actual_x)
-                    val y = calcY(cell, actual_y)
-                    if (x != m_last_x || y != m_last_y) {
-                        send(buildMessage("2", x, y))
+                    val now = System.currentTimeMillis()
+                    if ((now - m_joystickTime) > 200) {
+                        Log.d(TAG, "onMove: actual_x=" + actual_x + ", actual_y=" + actual_y)
+                        val x = calcX(cell, actual_x)
+                        val y = calcY(cell, actual_y)
+                        if (x != m_last_x || y != m_last_y) {
+                            send(buildMessage("2", x, y))
+                            m_ControlFragBinding.bluedotMatrix.onMove(actual_x, actual_y)
+                            m_last_x = x
+                            m_last_y = y
+                        }
+                        m_joystickTime = System.currentTimeMillis()
+                    }
+                    else {
+                        Log.d(TAG, "onMove: IGNORED");
                         m_ControlFragBinding.bluedotMatrix.onMove(actual_x, actual_y)
-                        m_last_x = x
-                        m_last_y = y
                     }
                 }
 
@@ -400,6 +411,7 @@ class ControlFragment : Fragment() {
                     m_ControlFragBinding.bluedotMatrix.onRelease(actual_x, actual_y)
                     m_last_x = x
                     m_last_y = y
+                    m_joystickTime = System.currentTimeMillis()
                 }
             })
         }
