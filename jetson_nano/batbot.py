@@ -39,11 +39,15 @@ faster         = '9' # Function 9
 monitor        = '0' # Function 0
 
 settime        = 'X' # Time
+setjoystick    = 'Y' # Joystick
 allstop        = 'H' # Halt
 run_star       = '*' # Star
 run_sharp      = '#' # Sharp
 
 joy_nullregion = 20
+joystick       = 0
+prev_joystick  = 0
+direction      = ''
 
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
@@ -133,6 +137,14 @@ def run_command(command):
                          stderr=subprocess.STDOUT)
     return iter(p.stdout.readline, b'')
 
+def arduino_write_integer(value):
+    # send 4 bytes of integer in network byte order
+    commdata = arduino.write(struct.pack('>L', value))
+    time.sleep(1) # wait for Arduino
+    arduino.flush()
+    result = read_data_from_arduino()
+    return result
+
 def set_arduino_time():
     arduino.flush()
     command = settime
@@ -143,7 +155,7 @@ def set_arduino_time():
     # send 4 bytes of integer in network byte order
     now = datetime.now()
     timestamp = int(datetime.timestamp(now))
-    commdata = arduino.write(struct.pack('>L', timestamp))
+    commdata = arduino.write(struct.pack('>L', timestamp)) # BINARY
     arduino.flush()
     # wait a bit
     time.sleep(1)
@@ -152,47 +164,62 @@ def set_arduino_time():
     timedata = read_data_from_arduino()
     return timedata
 
+def send_joystick_to_arduino(joystick):
+    arduino.flush()
+    command = setjoystick
+    encoded_command = command.encode()
+    arduino.write(encoded_command)
+    arduino.flush()
+    # send 4 bytes of integer in network byte order
+    now = datetime.now()
+    commdata = arduino.write(struct.pack('>L', joystick))
+    arduino.flush()
+    print("SET_JOYSTICK sent: " + str(joystick))
+
 def decode_blue_dot(movementCommand):
     movementData = movementCommand.split(',')
+    global direction
+    global joystick
+    global prev_joystick
     try:
         if len(movementData) >= 3:
             x = int(float(movementData[1]) * 100)
             y = int(float(movementData[2]) * 100)
             #pos = "X=" + str(x) + ", Y=" + str(y)
             joystick = 0
-            dir = ''
+            direction = ''
             if abs(x) <= joy_nullregion and abs(y) <= joy_nullregion:
-                dir = 'STOP'
+                direction = 'STOP'
             elif x > 0:
                 if y > 0:
                     if x > y:
                         joystick = x - joy_nullregion
-                        dir = 'RIGHT'
+                        direction = 'RIGHT'
                     else:
                         joystick = y - joy_nullregion
-                        dir = 'AHEAD'
+                        direction = 'AHEAD'
                 else:
                     if x > abs(y):
                         joystick = x - joy_nullregion
-                        dir = 'RIGHT'
+                        direction = 'RIGHT'
                     else:
                         joystick = abs(y) - joy_nullregion
-                        dir = 'BACK'
+                        direction = 'BACK'
             else:
                 if y > 0:
                     if abs(x) > y:
                         joystick = abs(x) - joy_nullregion
-                        dir = 'LEFT'
+                        direction = 'LEFT'
                     else:
                         joystick = abs(y) - joy_nullregion
-                        dir = 'AHEAD'
+                        direction = 'AHEAD'
                 else:
                     if abs(x) > abs(y):
                         joystick = abs(x) - joy_nullregion
-                        dir = 'LEFT'
+                        direction = 'LEFT'
                     else:
                         joystick = abs(y) - joy_nullregion
-                        dir = 'BACK'
+                        direction = 'BACK'
 
             # assume the 'joystick' value be be between 0 and ~70
             # we will scale that to be from 0 to 9 like this:
@@ -201,7 +228,12 @@ def decode_blue_dot(movementCommand):
             joystick = int((joystick / 70) * 9)
             if joystick > 9:
                 joystick = 9
-            return str(joystick) + ' ' + dir
+
+            if joystick != prev_joystick:
+                prev_joystick = joystick
+                send_joystick_to_arduino(joystick)
+
+            return str(joystick) + ' ' + direction
     except Exception as e:
         print("decode_blue_dot: WARNING: e=" + str(e))
     return "INVALID"
@@ -219,7 +251,6 @@ def data_received(commandsFromPhone):
             data = '' # don't echo the space used to poke the logs
             valid = True
         elif 'ping' in data:
-            result = result + set_arduino_time()
             result = result + batbot_help()
             valid = True
         elif 'IP address' in data:
@@ -377,8 +408,28 @@ def data_received(commandsFromPhone):
         #--------------------------------------------
 
 
+def client_connect():
+    print("*** BLUETOOTH CLIENT CONNECTED ***")
+
+def client_disconnect():
+    print("*** BLUETOOTH CLIENT DISCONNECTED ***")
+
+
 try:
-    s = BluetoothServer(data_received)
+    result = ''
+    while True:
+        result = read_data_from_arduino()
+        if len(result) == 0:
+            break
+        print(result)
+
+    #result = set_arduino_time()
+    #print("ARDUINO TIME: " + result)
+
+    s = BluetoothServer(data_received_callback = data_received,
+            when_client_connects=client_connect,
+            when_client_disconnects=client_disconnect)
+
     print('---> waiting for connection <---')
     pause()
 except Exception as e:
