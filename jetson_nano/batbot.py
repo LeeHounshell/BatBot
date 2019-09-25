@@ -96,6 +96,15 @@ def read_data_from_arduino():
             print("read_data_from_arduino: WARNING: e=" + str(e))
     return robot_data
 
+def read_all_data_from_arduino():
+    result = ''
+    while True:
+        data = read_data_from_arduino()
+        if len(data) == 0:
+            break
+        result = result + data
+    return result
+
 def execute_commands(command_array):
     i = 0
     data = ''
@@ -113,7 +122,7 @@ def execute_commands(command_array):
         i = i + 1
 
     time.sleep(1) # I shortened this to match the new value in your Arduino code
-    data = data + read_data_from_arduino()
+    data = data + read_all_data_from_arduino()
     return data
 
 def do_star():
@@ -142,7 +151,7 @@ def arduino_write_integer(value):
     commdata = arduino.write(struct.pack('>L', value))
     time.sleep(1) # wait for Arduino
     arduino.flush()
-    result = read_data_from_arduino()
+    result = read_all_data_from_arduino()
     return result
 
 def set_arduino_time():
@@ -152,16 +161,14 @@ def set_arduino_time():
     arduino.write(encoded_command)
     arduino.flush()
     time.sleep(1)
-    # send 4 bytes of integer in network byte order
     now = datetime.now()
-    timestamp = int(datetime.timestamp(now))
-    commdata = arduino.write(struct.pack('>L', timestamp)) # BINARY
+    timestamp = 'T' + str(int(datetime.timestamp(now)))
+    encoded_timestamp = timestamp.encode()
+    arduino.write(encoded_timestamp)
     arduino.flush()
-    # wait a bit
-    time.sleep(1)
     print("SET_TIME offset sent: ")
-    print(str(timestamp))
-    timedata = read_data_from_arduino()
+    print(timestamp)
+    timedata = read_all_data_from_arduino()
     return timedata
 
 def send_joystick_to_arduino(joystick):
@@ -398,7 +405,7 @@ def data_received(commandsFromPhone):
         else:
             arduino.flush()
         if len(result) > 0:
-            result = result + read_data_from_arduino()
+            result = result + read_all_data_from_arduino()
             if printResult:
                 print(result.strip())
         if len(data) > 0:
@@ -414,17 +421,18 @@ def client_connect():
 def client_disconnect():
     print("*** BLUETOOTH CLIENT DISCONNECTED ***")
 
-
 try:
-    result = ''
-    while True:
-        result = read_data_from_arduino()
-        if len(result) == 0:
-            break
-        print(result)
 
-    #result = set_arduino_time()
-    #print("ARDUINO TIME: " + result)
+    result = read_all_data_from_arduino()
+    print(result)
+    result = set_arduino_time()
+    print("ARDUINO TIME: " + result)
+
+    command_array = [values]
+    result = execute_commands(command_array)
+    print("SENSOR VALUES: " + result)
+    result = read_all_data_from_arduino()
+    print(result)
 
     s = BluetoothServer(data_received_callback = data_received,
             when_client_connects=client_connect,
