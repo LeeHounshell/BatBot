@@ -102,7 +102,7 @@ unsigned int previous_lt_r, previous_lt_m, previous_lt_l;
 //----------------------------------------
 //--------------- CAR SPEED --------------
 
-#define DEFAULT_SPEED 180  // initial speed of car >=0 to <=255
+#define DEFAULT_SPEED 150  // initial speed of car >=0 to <=255
 #define MAX_CAR_SPEED 255  // max speed of car
 #define OFFSET_SPEED (MAX_CAR_SPEED - DEFAULT_SPEED)
 
@@ -865,7 +865,46 @@ boolean function_star() {
     state = "avoid";
     println("fn_star: 'avoid'", 1);
   }
-  // FIXME
+  myservo.write(90);
+  delay(500);
+  aheadDistance = get_distance();
+
+  if (aheadDistance <= 20) {
+    stop();
+    delay(500);
+    myservo.write(10);
+    delay(1000);
+    rightDistance = get_distance();
+
+    delay(500);
+    myservo.write(90);
+    delay(1000);
+    myservo.write(180);
+    delay(1000);
+    leftDistance = get_distance();
+
+    delay(500);
+    myservo.write(90);
+    delay(1000);
+    if (rightDistance > leftDistance) {
+      right();
+      delay(360);
+    }
+    else if (rightDistance < leftDistance) {
+      left();
+      delay(360);
+    }
+    else if ((rightDistance <= 20) || (leftDistance <= 20)) {
+      back();
+      delay(180);
+    }
+    else {
+      forward();
+    }
+  }
+  else {
+      forward();
+  }
   return 1;
 }
 
@@ -875,7 +914,17 @@ boolean function_sharp() {
     state = "following";
     println("fn_sharp: 'following'", 1);
   }
-  // FIXME
+  if(LT_M){
+    forward();
+  }
+  else if(LT_R) {
+    right();
+    while(LT_R);
+  }
+  else if(LT_L) {
+    left();
+    while(LT_L);
+  }
   return 1;
 }
 
