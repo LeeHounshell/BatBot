@@ -44,7 +44,8 @@ allstop        = 'H' # Halt
 run_star       = '*' # Star
 run_sharp      = '#' # Sharp
 
-joy_nullregion = 20
+joy_max_value  = 70
+joy_nullregion = 10
 joystick       = 0
 prev_joystick  = 0
 direction      = ''
@@ -192,9 +193,6 @@ def decode_blue_dot(movementCommand):
         if len(movementData) >= 3:
             x = int(float(movementData[1]) * 100)
             y = int(float(movementData[2]) * 100)
-            #pos = "X=" + str(x) + ", Y=" + str(y)
-            joystick = 0
-            direction = ''
             if abs(x) <= joy_nullregion and abs(y) <= joy_nullregion:
                 direction = 'STOP'
             elif x > 0:
@@ -232,7 +230,7 @@ def decode_blue_dot(movementCommand):
             # we will scale that to be from 0 to 9 like this:
             # x/9 = joystick/70. solve for x. any x > 9 becomes 9
 
-            joystick = int((joystick / 70) * 9)
+            joystick = int((joystick / joy_max_value) * 9)
             if joystick > 9:
                 joystick = 9
 
