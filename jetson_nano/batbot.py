@@ -15,47 +15,51 @@ import time
 port = '/dev/ttyACM0' # note I'm using Jetson Nano
 
 arduino = serial.Serial(port,9600,timeout=5)
-time.sleep(2) # wait for Arduino
+time.sleep(3) # wait for Arduino
 
-camera_angle   = 90
+camera_angle      = 90
 
-uparrow        = 'F' # Foward
-downarrow      = 'B' # Back
-rightarrow     = 'R' # Right
-leftarrow      = 'L' # Left
+uparrow           = 'F' # Foward
+downarrow         = 'B' # Back
+rightarrow        = 'R' # Right
+leftarrow         = 'L' # Left
 
-lookright      = '1' # Function 1
-lookahead      = '2' # Function 2
-lookleft       = '3' # Function 3
+lookright         = '1' # Function 1
+lookahead         = '2' # Function 2
+lookleft          = '3' # Function 3
 
-lookfullright  = '4' # Function 4
-map_world      = '5' # Function 5
-lookfullleft   = '6' # Function 6
+lookfullright     = '4' # Function 4
+map_world         = '5' # Function 5
+lookfullleft      = '6' # Function 6
 
-slower         = '7' # Function 7
-values         = '8' # Function 8
-faster         = '9' # Function 9
+slower            = '7' # Function 7
+values            = '8' # Function 8
+faster            = '9' # Function 9
 
-monitor        = '0' # Function 0
+monitor           = '0' # Function 0
 
-settime        = 'X' # Time
-setjoystick    = 'Y' # Joystick
-allstop        = 'H' # Halt
-run_star       = '*' # Star
-run_sharp      = '#' # Sharp
+settime           = 'X' # Time
+setjoystick       = 'Y' # Joystick
+allstop           = 'H' # Halt
+run_star          = '*' # Star
+run_sharp         = '#' # Sharp
 
-joy_max_value  = 70
-joy_nullregion = 10
-joystick       = 0
-prev_joystick  = 0
-direction      = ''
+JOY_MAX_VALUE     = 70.0
+JOY_NULL_REGION   = 10.0
+
+joystick          = 0 # maps to the 90 degree camera_angle
+slider            = 5 # maps to the 90 degree camera_angle
+prev_slider       = 5
+prev_joystick     = 0
+direction         = 'stopped'
+state             = 'default'
 
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
 
 
 def batbot_help():
-    data = '\n--->: i recognize these key words:\n'
+    data = '\n--->: here are some key words i know:\n'
     data = data + 'look ahead, '
     data = data + 'look right, '
     data = data + 'look left, '
@@ -83,9 +87,8 @@ def batbot_help():
     return data
 
 def read_data_from_arduino():
-    robot_data = ''
-    # Serial read section
     arduino.flush()
+    robot_data = ''
     if arduino.inWaiting() > 0:
         robot_data = ''
         try:
@@ -94,10 +97,11 @@ def read_data_from_arduino():
             print(robot_data.strip())
             arduino.flush()
         except Exception as e:
-            print("read_data_from_arduino: WARNING: e=" + str(e))
+            print("ERROR: read_data_from_arduino: e=" + str(e))
     return robot_data
 
 def read_all_data_from_arduino():
+    arduino.flush()
     result = ''
     while True:
         data = read_data_from_arduino()
@@ -105,6 +109,15 @@ def read_all_data_from_arduino():
             break
         result = result + data
     return result
+
+def write_commands(command_array):
+    i = 0
+    while (i < len(command_array)):
+        command = str(command_array[i])
+        encoded_command = command.encode()
+        arduino.write(encoded_command)
+        #print(encoded_command)
+        i = i + 1
 
 def execute_commands(command_array):
     i = 0
@@ -114,7 +127,7 @@ def execute_commands(command_array):
 
         # Serial write section
         arduino.flush()
-        print("--> wrote: ")
+        print("--> wrote command: ")
         command = str(command_array[i])
         encoded_command = command.encode()
         arduino.write(encoded_command)
@@ -127,16 +140,22 @@ def execute_commands(command_array):
     return data
 
 def do_star():
+    global state
+    state = 'avoid'
     command_array = [run_star]
     result = execute_commands(command_array)
     return result
 
 def do_stop():
+    global state
+    state = 'default'
     command_array = [allstop]
     result = execute_commands(command_array)
     return result
 
 def do_sharp():
+    global state
+    state = 'following'
     command_array = [run_sharp]
     result = execute_commands(command_array)
     return result
@@ -161,91 +180,182 @@ def set_arduino_time():
     encoded_command = command.encode()
     arduino.write(encoded_command)
     arduino.flush()
-    time.sleep(1)
+    time.sleep(2)
+    arduino.flush()
+    result = read_all_data_from_arduino()
+    #print("result=" + result)
+    time.sleep(2)
     now = datetime.now()
-    timestamp = 'T' + str(int(datetime.timestamp(now)))
+    timestamp = 'T' + str(int(datetime.timestamp(now))) + '\n'
     encoded_timestamp = timestamp.encode()
     arduino.write(encoded_timestamp)
     arduino.flush()
-    print("SET_TIME offset sent: ")
-    print(timestamp)
-    timedata = read_all_data_from_arduino()
-    return timedata
+    #print("SET_TIME offset sent: ")
+    #print(timestamp)
+    result = result + read_all_data_from_arduino()
+    return result
 
-def send_joystick_to_arduino(joystick):
-    arduino.flush()
+def send_joystick_09_to_arduino(joystick):
+    print("DBG: send_joystick_09_to_arduino=" + str(joystick))
     command = setjoystick
     encoded_command = command.encode()
     arduino.write(encoded_command)
-    arduino.flush()
     # send 4 bytes of integer in network byte order
     now = datetime.now()
     commdata = arduino.write(struct.pack('>L', joystick))
-    arduino.flush()
     print("SET_JOYSTICK sent: " + str(joystick))
 
-def decode_blue_dot(movementCommand):
+def move_arduino_using_joystick(direction):
+    print("DBG: move_arduino_using_joystick=" + direction)
+    if direction == 'AHEAD':
+        command_array = [uparrow]
+        write_commands(command_array)
+    elif direction == 'BACK':
+        command_array = [downarrow]
+        write_commands(command_array)
+    elif direction == 'RIGHT':
+        command_array = [rightarrow]
+        write_commands(command_array)
+    elif direction == 'LEFT':
+        command_array = [leftarrow]
+        write_commands(command_array)
+
+def change_camera_angle_using_slider_value(slider):
+    print("DBG: change_camera_angle_using_slider_value=" + str(slider))
+    if (slider == 0):
+        pass
+    elif (slider == 1):
+        camera_angle = 10
+        command_array = [lookfullright]
+        write_commands(command_array)
+    elif (slider == 2):
+        #camera_angle = 22
+        pass
+    elif (slider == 3):
+        camera_angle = 45
+        command_array = [lookright]
+        write_commands(command_array)
+    elif (slider == 4):
+        #camera_angle = 67
+        pass
+    elif (slider == 5):
+        camera_angle = 90
+        command_array = [lookahead]
+        write_commands(command_array)
+    elif (slider == 6):
+        #camera_angle = 113
+        pass
+    elif (slider == 7):
+        camera_angle = 135
+        command_array = [lookleft]
+        write_commands(command_array)
+    elif (slider == 8):
+        #camera_angle = 158
+        pass
+    elif (slider == 9):
+        camera_angle = 170
+        command_array = [lookfullleft]
+        write_commands(command_array)
+    return result
+
+def process_blue_dot_slider(movementCommand):
+    movementData = movementCommand.split(',')
+    global camera_angle
+    global slider
+    global prev_slider
+    try:
+        if len(movementData) >= 3:
+            x = int(float(movementData[1]) * 100)
+            if abs(x) <= JOY_NULL_REGION:
+                slider = 5
+            else:
+                # assume the 'slider' value be be between 0 and ~70
+                # we will scale that to be from 0 to 9 like this:
+                # x/9 = slider/70. solve for x. any x > 9 becomes 9
+
+                slider = int((slider / JOY_MAX_VALUE) * 9)
+                if slider > 9:
+                    slider = 9
+
+            if slider != prev_slider:
+                prev_slider = slider
+                change_camera_angle_using_slider_value(slider)
+
+    except Exception as e:
+        print("ERROR: process_blue_dot_slider: e=" + str(e))
+    return str(slider)
+
+def process_blue_dot_joystick(movementCommand):
     movementData = movementCommand.split(',')
     global direction
     global joystick
     global prev_joystick
     try:
         if len(movementData) >= 3:
-            x = int(float(movementData[1]) * 100)
-            y = int(float(movementData[2]) * 100)
-            if abs(x) <= joy_nullregion and abs(y) <= joy_nullregion:
+            x = 0
+            y = 0
+            try:
+                x = int(float(movementData[1]) * 100)
+                y = int(float(movementData[2]) * 100)
+                print("DBG: x=" + str(x) + ", y=" + str(y))
+            except Exception as bad:
+                print("ERROR: process_blue_dot_joystick: problem x/y: bad=" + str(bad))
+                return "INVALID X/Y"
+
+            if abs(x) <= JOY_NULL_REGION and abs(y) <= JOY_NULL_REGION:
                 direction = 'STOP'
             elif x > 0:
                 if y > 0:
                     if x > y:
-                        joystick = x - joy_nullregion
+                        joystick = x - JOY_NULL_REGION
                         direction = 'RIGHT'
                     else:
-                        joystick = y - joy_nullregion
+                        joystick = y - JOY_NULL_REGION
                         direction = 'AHEAD'
                 else:
                     if x > abs(y):
-                        joystick = x - joy_nullregion
+                        joystick = x - JOY_NULL_REGION
                         direction = 'RIGHT'
                     else:
-                        joystick = abs(y) - joy_nullregion
+                        joystick = abs(y) - JOY_NULL_REGION
                         direction = 'BACK'
             else:
                 if y > 0:
                     if abs(x) > y:
-                        joystick = abs(x) - joy_nullregion
+                        joystick = abs(x) - JOY_NULL_REGION
                         direction = 'LEFT'
                     else:
-                        joystick = abs(y) - joy_nullregion
+                        joystick = abs(y) - JOY_NULL_REGION
                         direction = 'AHEAD'
                 else:
                     if abs(x) > abs(y):
-                        joystick = abs(x) - joy_nullregion
+                        joystick = abs(x) - JOY_NULL_REGION
                         direction = 'LEFT'
                     else:
-                        joystick = abs(y) - joy_nullregion
+                        joystick = abs(y) - JOY_NULL_REGION
                         direction = 'BACK'
 
             # assume the 'joystick' value be be between 0 and ~70
             # we will scale that to be from 0 to 9 like this:
             # x/9 = joystick/70. solve for x. any x > 9 becomes 9
 
-            joystick = int((joystick / joy_max_value) * 9)
+            joystick = int((joystick / JOY_MAX_VALUE) * 9)
             if joystick > 9:
                 joystick = 9
 
             if joystick != prev_joystick:
                 prev_joystick = joystick
-                send_joystick_to_arduino(joystick)
+                send_joystick_09_to_arduino(joystick)
+                move_arduino_using_joystick(direction)
 
-            return str(joystick) + ' ' + direction
     except Exception as e:
-        print("decode_blue_dot: WARNING: e=" + str(e))
-    return "INVALID"
+        print("ERROR: process_blue_dot_joystick: e=" + str(e))
+    return str(joystick) + ' ' + direction
 
 # a primitive language parser
 def data_received(commandsFromPhone):
     global camera_angle
+    global state
     pokeLogs = (commandsFromPhone == ' ')
     commandList = commandsFromPhone.splitlines()
     for data in commandList:
@@ -254,9 +364,11 @@ def data_received(commandsFromPhone):
         valid = False
         if pokeLogs:
             data = '' # don't echo the space used to poke the logs
+            result = result + read_all_data_from_arduino()
             valid = True
         elif 'ping' in data:
             result = result + batbot_help()
+            printResult = True
             valid = True
         elif 'IP address' in data:
             result = result + 'host=' + hostname + ', IP Address=' + IPAddr
@@ -265,70 +377,84 @@ def data_received(commandsFromPhone):
         elif 'click: *' in data:
             data = '*'
             result = result + do_star()
+            printResult = True
             valid = True
         elif 'click: ok' in data:
             data = 'ok'
             result = result + do_stop()
+            printResult = True
             valid = True
         elif 'click: #' in data:
             data = '#'
             result = result + do_sharp()
+            printResult = True
             valid = True
         elif 'look ahead' in data:
             command_array = [lookahead]
             result = result + execute_commands(command_array)
+            printResult = True
             camera_angle = 90
             valid = True
         elif 'look right' in data or 'turn right' in data:
             if camera_angle == 45:
                 command_array = [lookfullright]
                 result = result + execute_commands(command_array)
-                camera_angle = 0
+                camera_angle = 10
             else:
                 command_array = [lookright]
                 result = result + execute_commands(command_array)
                 camera_angle = 45
+            printResult = True
             valid = True
         elif 'right' in data:
             command_array = [rightarrow]
             result = result + execute_commands(command_array)
+            printResult = True
             valid = True
         elif 'look left' in data or 'turn left' in data:
-            if camera_angle == 90 + 45:
+            if camera_angle == 135:
                 command_array = [lookfullleft]
                 result = result + execute_commands(command_array)
-                camera_angle = 180 
+                camera_angle = 170
             else:
                 command_array = [lookleft]
                 result = result + execute_commands(command_array)
-                camera_angle = 90 + 45
+                camera_angle = 135
+            printResult = True
             valid = True
         elif 'left' in data:
             command_array = [leftarrow]
             result = result + execute_commands(command_array)
+            printResult = True
             valid = True
         elif 'forward' in data or 'ahead' in data:
             command_array = [uparrow]
             result = result + execute_commands(command_array)
+            printResult = True
             valid = True
         elif 'back' in data or 'reverse' in data:
             command_array = [downarrow]
             result = result + execute_commands(command_array)
+            printResult = True
             valid = True
         elif 'stop' in data or 'halt' in data:
             result = result + do_stop()
+            printResult = True
             valid = True
         elif 'faster' in data or 'speed up' in data:
             command_array = [faster]
             result = result + execute_commands(command_array)
+            printResult = True
             valid = True
         elif 'slower' in data or 'slow down' in data:
             command_array = [slower]
             result = result + execute_commands(command_array)
+            printResult = True
             valid = True
         elif 'sensor' in data or 'value' in data:
             command_array = [values]
             result = result + execute_commands(command_array)
+            printResult = True
             valid = True
         elif 'fortune' in data or 'joke' in data:
             # sudo apt-get install fortunes
@@ -337,41 +463,51 @@ def data_received(commandsFromPhone):
                     text = line.decode('ascii')
                     result = result + text
                 except Exception as e:
-                    print("data_received: WARNING: e=" + str(e))
+                    print("ERROR: data_received: e=" + str(e))
             printResult = True
             valid = True
         elif 'follow' in data: # FIXME: run Elegoo line following
             result = result + do_sharp()
+            printResult = True
             valid = True
         elif 'avoid' in data: # FIXME: run Elegoo collision avoidance
             result = result + do_star()
+            printResult = True
             valid = True
         elif 'monitor' in data or 'security' in data: # FIXME: security monitor
             command_array = [monitor]
             result = result + execute_commands(command_array)
+            printResult = True
             valid = True
         elif 'photo' in data or 'picture' in data: # FIXME: optional item
             result = result + 'FIXME: take a picture'
+            printResult = True
             valid = True
         elif 'find' in data or 'search' in data: # FIXME: next word is object
             result = result + 'FIXME: find some object'
+            printResult = True
             valid = True
         elif 'identify' in data: # FIXME: identify what robot is looking at
             result = result + 'FIXME: learn to identify'
+            printResult = True
             valid = True
         elif 'learn' in data: # FIXME: teach item name
             result = result + 'FIXME: learn about object'
+            printResult = True
             valid = True
         elif 'map' in data: # FIXME: map the world
+            state = 'map'
             command_array = [map_world]
             result = result + execute_commands(command_array)
+            printResult = True
             valid = True
         elif 'name' in data:
             result = result + 'i am ' + hostname + '. i live at ' + IPAddr
             printResult = True
             valid = True
         elif 'help' in data or 'commands' in data:
-            data = batbot_help()
+            result = batbot_help()
+            printResult = True
             valid = True
 
         #--------------------------------------------
@@ -380,15 +516,26 @@ def data_received(commandsFromPhone):
 
             # don't echo back the movement commands
             if not valid:
-                if data.startswith('2,'): # BlueDot onMove
-                    data = 'SPEED: ' + decode_blue_dot(data)
-                    valid = True
-                elif data.startswith('1,'): # BlueDot onPress
-                    data = 'CLICK: ' + decode_blue_dot(data)
-                    valid = True
-                elif data.startswith('0,'): # BlueDot onRelease
-                    data = 'RELEASE: ' + decode_blue_dot(data)
-                    valid = True
+                if (state == 'default'):
+                    if data.startswith('2,'): # BlueDot onMove
+                        data = 'JOYSTICK: ' + process_blue_dot_joystick(data)
+                        valid = True
+                    elif data.startswith('1,'): # BlueDot onPress
+                        data = 'CLICK: ' + process_blue_dot_joystick(data)
+                        valid = True
+                    elif data.startswith('0,'): # BlueDot onRelease
+                        data = 'RELEASE: ' + process_blue_dot_joystick(data)
+                        valid = True
+                else:
+                    if data.startswith('2,'): # BlueDot onMove
+                        data = 'SLIDER: ' + process_blue_dot_slider(data)
+                        valid = True
+                    elif data.startswith('1,'): # BlueDot onPress
+                        data = 'CLICK: ' + process_blue_dot_slider(data)
+                        valid = True
+                    elif data.startswith('0,'): # BlueDot onRelease
+                        data = 'RELEASE: ' + process_blue_dot_slider(data)
+                        valid = True
 
             if valid:
                 data = '--> ' + data.upper()
@@ -422,15 +569,28 @@ def client_disconnect():
 try:
 
     result = read_all_data_from_arduino()
-    print(result)
-    result = set_arduino_time()
-    print("ARDUINO TIME: " + result)
+    #print(result)
 
+    result = set_arduino_time()
+    #print("ARDUINO TIME: " + result)
+    result = read_all_data_from_arduino()
+    #print(result)
+
+    time.sleep(3)
+    result = read_all_data_from_arduino()
+    #print(result)
+
+    result = do_stop()
+    #print(result)
+    result = read_all_data_from_arduino()
+    #print(result)
+
+    time.sleep(3)
     command_array = [values]
     result = execute_commands(command_array)
-    print("SENSOR VALUES: " + result)
+    #print("SENSOR VALUES: " + result)
     result = read_all_data_from_arduino()
-    print(result)
+    #print(result)
 
     s = BluetoothServer(data_received_callback = data_received,
             when_client_connects=client_connect,
@@ -438,6 +598,7 @@ try:
 
     print('---> waiting for connection <---')
     pause()
-except Exception as e:
-    print("PROGRAM ERROR: e=" + str(e))
+
+except Exception as ex:
+    print("PROGRAM ERROR: ex=" + str(ex))
 
