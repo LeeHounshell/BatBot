@@ -108,7 +108,7 @@ unsigned int previous_lt_r, previous_lt_m, previous_lt_l;
 
 char direction                = ALLSTOP;
 char *state                   = "default";
-char *motion                  = "none";
+char *motion                  = "stopped";
 
 //----------------------------------------
 //-------------- DISTANCE ----------------
@@ -723,7 +723,7 @@ boolean function_right() {
 
 boolean function_down() {
   back();
-  motion = "down";
+  motion = "back";
   direction = DOWNARROW;
   println("fn_down: go back", 1);
   return 1;
@@ -734,7 +734,7 @@ boolean function_ok() {
   stop();
   direction = ALLSTOP;
   state = "default";
-  motion = "none";
+  motion = "stopped";
   servoDelta = 0;
   joystick = 0;
   println("fn_ok: STOP", 1);
@@ -819,7 +819,7 @@ void show_state() {
   if (direction == ALLSTOP) {
     dir = "STOP";
   }
-  if (direction == UPARROW) {
+  else if (direction == UPARROW) {
     dir = "AHEAD";
   }
   else if (direction == DOWNARROW) {
