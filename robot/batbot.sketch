@@ -128,7 +128,7 @@ int distanceDelta             = 3;
 //--------------- ANGLES -----------------
 
 int servoAngle                = servoAngleStart;
-int previousServoAngle        = 0;
+int previousServoAngle        = servoAngleStart;
 int servoDelta                = 0; // for servoAngle movement
 
 //----------------------------------------
@@ -159,6 +159,8 @@ Servo myservo; // used to control the ultrasonics servo
 #define TIME_HEADER            'T' // command for serial time sync
 #define YEAR_OFFSET          1900
 #define MONTH_OFFSET            1
+
+int initialized               = 0;
 
 // FIXME: still need to adjust for daylight savings time here
 int adjustTimeZone            = -(7 * 60 * 60);
@@ -252,7 +254,7 @@ int get_distance() {
   delayMicroseconds(10);
   digitalWrite(Trig, LOW);
   distance = (int)pulseIn(Echo, HIGH) / 58;
-  if (distance <= MINIMUM_SAFE_DISTANCE) {
+  if (distance > 0 && distance <= MINIMUM_SAFE_DISTANCE) {
     function_ok(); // stop
   }
   return distance;
@@ -279,7 +281,6 @@ void setup() {
   pinMode(IN4, OUTPUT);
   pinMode(ENA, OUTPUT);
   pinMode(ENB, OUTPUT);
-  stop();
   irrecv.enableIRIn();
   println("Ready", 1);
   delayMicroseconds(3);
@@ -287,16 +288,18 @@ void setup() {
 
 void loop() {
   curMillis = millis();
-  if ((curMillis - prvMillis) > 5000) {
-    prvMillis = curMillis;
-    show_state();
-  }
-  // the IR button effects only last 1 second
-  if (ircMillis != 0) {
-    if (have_cmd && (curMillis - ircMillis) > 1000) {
-      stop();
-      have_cmd = 0;
-      ircMillis = 0L;
+  if (initialized) {
+    if ((curMillis - prvMillis) > 5000) {
+      prvMillis = curMillis;
+      show_state();
+    }
+    // the IR button effects only last 1 second
+    if (ircMillis != 0) {
+      if (have_cmd && (curMillis - ircMillis) > 1000) {
+        stop();
+        have_cmd = 0;
+        ircMillis = 0L;
+      }
     }
   }
 
@@ -399,6 +402,7 @@ void loop() {
       }
 
       if (have_cmd) {
+        initialized = 1; // fake it for IR
         good = execute_command(cmd);
       }
     }
@@ -407,28 +411,32 @@ void loop() {
   // handle input from Jetson Nano
   if (Serial.available()) {
 
-    if (read_time_value > 0) {
+    if (! initialized || read_time_value > 0) {
       read_time_value = 0;
-      processSyncMessage();
+      setArduinoTime();
     }
 
-    // get the SET_JOYSTICK value
-    else if (read_joystick) {
-      read_joystick = 0;
-      joystick = (time_t) read_python_int_value();
+    if (initialized) {
+      // get the SET_JOYSTICK value
+      if (read_joystick) {
+        read_joystick = 0;
+        joystick = (time_t) read_python_int_value();
+      }
     }
 
     // read next command from jetson nano
-    else {
+    if (initialized) {
       se_value = Serial.read();
       good = execute_command(se_value);
     }
   }
 
-  send_sensor_data = (millis() - senMillis > sensorSpeed) ? 1 : 0;
-  if (send_sensor_data) {
-    transmit_sensor_data(servoSpeed);
-    senMillis = millis();
+  if (initialized) {
+    send_sensor_data = (millis() - senMillis > sensorSpeed) ? 1 : 0;
+    if (send_sensor_data) {
+      transmit_sensor_data(servoSpeed);
+      senMillis = millis();
+    }
   }
 
   // check for special run states
@@ -474,18 +482,21 @@ void set_angle(int newAngle, int newDelta) {
 void increment_angle() {
   if (servoDelta != 0) {
     servoAngle += servoDelta;
-    if (servoAngle > 180) {
+    if (servoAngle > 170) {
       servoDelta = -servoDelta;
-      servoAngle = 180;
+      servoAngle = 170;
     }
-    if (servoAngle < 0) {
+    if (servoAngle < 10) {
       servoDelta = -servoDelta;
-      servoAngle = 0;
+      servoAngle = 10;
     }
   }
 }
 
 void transmit_sensor_data(int servoSpeed) {
+  if (! initialized) {
+    return;
+  }
   // point the servo to the next servoAngle
   // transmit the servoAngle value
   move_servo = (millis() - srvMillis > servoSpeed) ? 1 : 0;
@@ -589,24 +600,31 @@ char * toString(unsigned long num) {
   return number;
 }
 
-void processSyncMessage() {
-  // update time and return true
+void setArduinoTime() {
   // time message is a header and ten ascii digits
-  while (Serial.available() >= TIME_MSG_LEN) {
-    char c = Serial.read();
-    Serial.print(c);
-    if (c == TIME_HEADER) {
-      time_t pctime = 0;
-      for (int i=0; i < TIME_MSG_LEN -1; i++) {
-        c = Serial.read();
+  int count = 0;
+  time_t pctime = 0;
+  while (count < TIME_MSG_LEN) {
+    if (Serial.available()) {
+      char c = Serial.read();
+      Serial.print(c);
+      if (c == SET_TIME) {
+        count = 0;
+      }
+      else if (c == TIME_HEADER) {
+        count = 1;
+      }
+      else {
         if (c >= '0' && c <= '9') {
           pctime = (10 * pctime) + (c - '0') ; // digit to number
+          count += 1;
         }
       }
-      setTime(pctime); // sync Arduino clock
-      adjustTime(adjustTimeZone);
     }
   }
+  setTime(pctime); // sync Arduino clock
+  adjustTime(adjustTimeZone);
+  initialized = 1;
 }
 
 boolean execute_command(int cmd) {
@@ -614,69 +632,71 @@ boolean execute_command(int cmd) {
   if (cmd != 0) {
     print("got cmd=", 1);
     println(toString(cmd), 0);
-    switch(cmd) {
-      case SET_TIME:
-        valid = function_set_time();
-        break;
-      case SET_JOYSTICK:
-        valid = function_set_joystick();
-        break;
-      case UPARROW:
-      case GAME_W:
-        valid = function_up();
-        break;
-      case DOWNARROW:
-      case GAME_S:
-        valid = function_down();
-        break;
-      case LEFTARROW:
-      case GAME_A:
-        valid = function_left();
-        break;
-      case RIGHTARROW:
-      case GAME_D:
-        valid = function_right();
-        break;
-      case ALLSTOP:
-      case GAME_STOP:
-        valid = function_ok();
-        break;
-      case DO_FUNCTION_ONE:
-        valid = function_one();
-        break;
-      case DO_FUNCTION_TWO:
-        valid = function_two();
-        break;
-      case DO_FUNCTION_THREE:
-        valid = function_three();
-        break;
-      case DO_FUNCTION_FOUR:
-        valid = function_four();
-        break;
-      case DO_FUNCTION_FIVE:
-        valid = function_five();
-        break;
-      case DO_FUNCTION_SIX:
-        valid = function_six();
-        break;
-      case DO_FUNCTION_SEVEN:
-        valid = function_seven();
-        break;
-      case DO_FUNCTION_EIGHT:
-        valid = function_eight();
-        break;
-      case DO_FUNCTION_NINE:
-        valid = function_nine();
-        break;
-      case DO_FUNCTION_ZERO:
-        valid = function_zero();
-        break;
-      case DO_FUNCTION_STAR:
-        valid = function_star();
-        break;
-      case DO_FUNCTION_SHARP:
-        valid = function_sharp();
-        break;
+    if (cmd == SET_TIME) {
+      valid = function_set_time();
+    }
+    else if (initialized) {
+      switch(cmd) {
+        case SET_JOYSTICK:
+          valid = function_set_joystick();
+          break;
+        case UPARROW:
+        case GAME_W:
+          valid = function_up();
+          break;
+        case DOWNARROW:
+        case GAME_S:
+          valid = function_down();
+          break;
+        case LEFTARROW:
+        case GAME_A:
+          valid = function_left();
+          break;
+        case RIGHTARROW:
+        case GAME_D:
+          valid = function_right();
+          break;
+        case ALLSTOP:
+        case GAME_STOP:
+          valid = function_ok();
+          break;
+        case DO_FUNCTION_ONE:
+          valid = function_one();
+          break;
+        case DO_FUNCTION_TWO:
+          valid = function_two();
+          break;
+        case DO_FUNCTION_THREE:
+          valid = function_three();
+          break;
+        case DO_FUNCTION_FOUR:
+          valid = function_four();
+          break;
+        case DO_FUNCTION_FIVE:
+          valid = function_five();
+          break;
+        case DO_FUNCTION_SIX:
+          valid = function_six();
+          break;
+        case DO_FUNCTION_SEVEN:
+          valid = function_seven();
+          break;
+        case DO_FUNCTION_EIGHT:
+          valid = function_eight();
+          break;
+        case DO_FUNCTION_NINE:
+          valid = function_nine();
+          break;
+        case DO_FUNCTION_ZERO:
+          valid = function_zero();
+          break;
+        case DO_FUNCTION_STAR:
+          valid = function_star();
+          break;
+        case DO_FUNCTION_SHARP:
+          valid = function_sharp();
+          break;
+      }
     }
   }
   return valid;
@@ -686,8 +706,9 @@ boolean execute_command(int cmd) {
 // CUSTOM IR-REMOTE and SERIAL COMMANDS
 
 boolean function_set_time() {
+  // setup to interpret the next Serial input as date and time
   read_time_value = 1;
-  //println("fn_set_time: do set", 1);
+  println("fn_set_time: do set", 1);
   return 1;
 }
 
@@ -771,7 +792,7 @@ boolean function_four() {
 
 // look full left
 boolean function_six() {
-  set_angle(180, 0);
+  set_angle(170, 0);
   println("fn_six: look full right", 1);
   return 1;
 }
@@ -901,7 +922,7 @@ boolean function_star() {
       }
       case 5: {
         delay(1000);
-        myservo.write(180);
+        myservo.write(170);
         break;
       }
       case 6: {
@@ -935,7 +956,7 @@ boolean function_star() {
           if (Serial.available()) {
             return 1;
           }
-          delay(180);
+          delay(170);
         }
         else {
           forward();
@@ -975,7 +996,8 @@ boolean function_sharp() {
       }
       break;
     }
-    case 3: { if (LT_L) {
+    case 3: {
+      if (LT_L) {
         left();
         while(LT_L) {
           if (Serial.available()) {
