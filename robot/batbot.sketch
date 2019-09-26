@@ -102,12 +102,13 @@ unsigned int previous_lt_r, previous_lt_m, previous_lt_l;
 //----------------------------------------
 //--------------- CAR SPEED --------------
 
-#define carSpeed 200  // initial speed of car >=0 to <=255
-int speedDelta = 0;
-char direction = ALLSTOP;
+#define DEFAULT_SPEED 180  // initial speed of car >=0 to <=255
+#define MAX_CAR_SPEED 255  // max speed of car
+#define OFFSET_SPEED (MAX_CAR_SPEED - DEFAULT_SPEED)
 
-char *state    = "default";
-char *motion   = "none";
+char direction                = ALLSTOP;
+char *state                   = "default";
+char *motion                  = "none";
 
 //----------------------------------------
 //-------------- DISTANCE ----------------
@@ -191,10 +192,15 @@ char number[16];
 
 //========================================
 
+int speed_delta() {
+  // compute range DEFAULT_SPEED .. MAX_CAR_SPEED
+  // (joystick / 9) == (x / OFFSET_SPEED).  solve for x then adjust
+  return int((joystick / 9.0) * OFFSET_SPEED) + OFFSET_SPEED;
+}
 
 void forward(){
-  analogWrite(ENA, carSpeed + speedDelta);
-  analogWrite(ENB, carSpeed + speedDelta);
+  analogWrite(ENA, DEFAULT_SPEED + speed_delta());
+  analogWrite(ENB, DEFAULT_SPEED + speed_delta());
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
@@ -202,8 +208,8 @@ void forward(){
 }
 
 void back() {
-  analogWrite(ENA, carSpeed + speedDelta);
-  analogWrite(ENB, carSpeed + speedDelta);
+  analogWrite(ENA, DEFAULT_SPEED + speed_delta());
+  analogWrite(ENB, DEFAULT_SPEED + speed_delta());
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
   digitalWrite(IN3, HIGH);
@@ -211,8 +217,8 @@ void back() {
 }
 
 void left() {
-  analogWrite(ENA, carSpeed + speedDelta);
-  analogWrite(ENB, carSpeed + speedDelta);
+  analogWrite(ENA, DEFAULT_SPEED + speed_delta());
+  analogWrite(ENB, DEFAULT_SPEED + speed_delta());
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
   digitalWrite(IN3, LOW);
@@ -220,8 +226,8 @@ void left() {
 }
 
 void right() {
-  analogWrite(ENA, carSpeed + speedDelta);
-  analogWrite(ENB, carSpeed + speedDelta);
+  analogWrite(ENA, DEFAULT_SPEED + speed_delta());
+  analogWrite(ENB, DEFAULT_SPEED + speed_delta());
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, HIGH);
@@ -234,7 +240,7 @@ void stop() {
 }
 
 //Ultrasonic distance measurement Sub function
-int getDistance() {
+int get_distance() {
   digitalWrite(Trig, LOW);
   delayMicroseconds(2);
   digitalWrite(Trig, HIGH);
@@ -243,12 +249,12 @@ int getDistance() {
   return (int)pulseIn(Echo, HIGH) / 58;
 }
 
-void getDistanceUsingBounceWrapper() {
-  distance = getDistance();
-  if (isOutsideDelta(distance, previousDistance, distanceDelta)) {
-    distance = getDistance();
+void get_distance_using_bounce_wrapper() {
+  distance = get_distance();
+  if (is_outside_delta(distance, previousDistance, distanceDelta)) {
+    distance = get_distance();
     if (distance > 50000) {
-      distance = getDistance();
+      distance = get_distance();
     }
   }
 }
@@ -274,7 +280,7 @@ void loop() {
   curMillis = millis();
   if ((curMillis - prvMillis) > 5000) {
     prvMillis = curMillis;
-    showState();
+    show_state();
   }
   // the IR button effects only last 1 second
   if (ircMillis != 0) {
@@ -393,13 +399,14 @@ void loop() {
   if (Serial.available()) {
 
     if (read_time_value > 0) {
+      read_time_value = 0;
       processSyncMessage();
     }
 
     // get the SET_JOYSTICK value
     else if (read_joystick) {
       read_joystick = 0;
-      joystick = (time_t) readPythonIntValue();
+      joystick = (time_t) read_python_int_value();
     }
 
     // read next command from jetson nano
@@ -416,8 +423,8 @@ void loop() {
   }
 
   // check for special run states
-  if (*state != 'd') { // 'default'
-    if (*state == 'm') { // 'monitor'
+  if (*state != 'd') {        // 'default'
+    if (*state == 's') {      // 'security'
       function_zero();
     }
     else if (*state == 'f') { // 'following'
@@ -426,10 +433,13 @@ void loop() {
     else if (*state == 'a') { // 'avoid'
       function_star();
     }
+    else if (*state == 'm') { // 'map'
+      function_five();
+    }
   }
 }
 
-uint32_t readPythonIntValue() {
+uint32_t read_python_int_value() {
   delayMicroseconds(300);
   char byte1 = 0;
   Serial.readBytes(&byte1, 1);
@@ -447,12 +457,12 @@ uint32_t readPythonIntValue() {
   return value;
 }
 
-void setAngle(int newAngle, int newDelta) {
+void set_angle(int newAngle, int newDelta) {
   servoAngle = newAngle;
   servoDelta = newDelta;
 }
 
-void incrementAngle() {
+void increment_angle() {
   if (servoDelta != 0) {
     servoAngle += servoDelta;
     if (servoAngle > 180) {
@@ -471,13 +481,13 @@ void transmit_sensor_data(int servoSpeed) {
   // transmit the servoAngle value
   move_servo = (millis() - srvMillis > servoSpeed) ? 1 : 0;
   if (move_servo) {
-    incrementAngle();
+    increment_angle();
     if (previousServoAngle != servoAngle) {
       srvMillis = millis();
       pinMode(SRVO_PIN, OUTPUT);
       println("SERVO: on", 1);
       myservo.write(servoAngle);
-      print("ServoAngle=", 1);
+      print("SET servoAngle=", 1);
       println(toString(servoAngle), 0);
     }
     previousServoAngle = servoAngle;
@@ -490,8 +500,8 @@ void transmit_sensor_data(int servoSpeed) {
   }
 
   // transmit distance sensor value
-  getDistanceUsingBounceWrapper();
-  if (isOutsideDelta(distance, previousDistance, distanceDelta)
+  get_distance_using_bounce_wrapper();
+  if (is_outside_delta(distance, previousDistance, distanceDelta)
    || (servoAngle != previousDistanceAngle)) {
 
     if (servoAngle < 65) {
@@ -534,7 +544,7 @@ void transmit_sensor_data(int servoSpeed) {
   }
 }
 
-boolean isOutsideDelta(int distance1, int distance2, int theDelta) {
+boolean is_outside_delta(int distance1, int distance2, int theDelta) {
   if (distance1 == distance2) {
     return 0;
   }
@@ -716,64 +726,57 @@ boolean function_ok() {
   direction = ALLSTOP;
   state = "default";
   motion = "none";
-  speedDelta = 0;
   servoDelta = 0;
+  joystick = 0;
   println("fn_ok: STOP", 1);
   return 1;
 }
 
 // look right
 boolean function_one() {
-  setAngle(45, 0);
+  set_angle(45, 0);
   println("fn_one: look toward left", 1);
   return 1;
 }
 
 // look ahead
 boolean function_two() {
-  setAngle(90, 0);
+  set_angle(90, 0);
   println("fn_two: look ahead", 1);
   return 1;
 }
 
 // look left
 boolean function_three() {
-  setAngle(90 + 45, 0);
+  set_angle(90 + 45, 0);
   println("fn_three: look toward right", 1);
   return 1;
 }
 
 // look full right
 boolean function_four() {
-  setAngle(0, 0);
+  set_angle(0, 0);
   println("fn_four: look full left", 1);
-  return 1;
-}
-
-// map your world
-boolean function_five() {
-  // FIXME
-  println("fn_five: 'map'", 1);
   return 1;
 }
 
 // look full left
 boolean function_six() {
-  setAngle(180, 0);
+  set_angle(180, 0);
   println("fn_six: look full right", 1);
   return 1;
 }
 
 // go slower
 boolean function_seven() {
-  if ((carSpeed + speedDelta) >= 170) {
-     speedDelta -= 3;
+  if (joystick > 0) {
+     --joystick;
   }
   else {
     println("-limit", 1);
   }
-  print("fn_seven: (slower) speed=", 1);
-  print(toString(carSpeed + speedDelta), 0);
+  print("fn_seven: (slower) joystick=", 1);
+  print(toString(joystick), 0);
   return 1;
 }
 
@@ -795,14 +798,14 @@ boolean function_eight() {
   print("LT_L: ", 1);
   println(toString(lt_l), 0);
   print("Throttle: ", 1);
-  println(toString(carSpeed + speedDelta), 0);
+  println(toString(DEFAULT_SPEED + speed_delta()), 0);
   snprintf(camera, sizeof(camera), "Camera Angle: %d, Motion: %d ", servoAngle, servoDelta);
   println(camera, 1);
-  showState();
+  show_state();
   return 1;
 }
 
-void showState() {
+void show_state() {
   char *dir = "";
   if (direction == ALLSTOP) {
     dir = "STOP";
@@ -825,21 +828,31 @@ void showState() {
 
 // go faster
 boolean function_nine() {
-  if ((carSpeed + speedDelta) <= 250) {
-    speedDelta += 3;
+  if (joystick < 9) {
+    ++joystick;
   }
   else {
     println("+limit", 1);
   }
-  print("fn_nine: (faster) speed=", 1);
-  print(toString(carSpeed + speedDelta), 0);
+  print("fn_nine: (faster) joystick=", 1);
+  print(toString(joystick), 0);
+  return 1;
+}
+
+// map your world
+boolean function_five() {
+  if (*state != 'm') {
+    state = "map";
+    println("fn_five: 'map'", 1);
+  }
+  // FIXME
   return 1;
 }
 
 // run security monitor protocol
 boolean function_zero() {
-  if (state != 'm') {
-    state = "monitor";
+  if (*state != 's') {
+    state = "security";
     println("fn_zero: 'monitor'", 1);
   }
   // FIXME
