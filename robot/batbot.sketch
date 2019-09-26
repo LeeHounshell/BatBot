@@ -859,7 +859,7 @@ boolean function_zero() {
   return 1;
 }
 
-// run Elegoo collision avoidance
+// run Elegoo collision avoidance modified for Serial interrupt
 boolean function_star() {
   if (*state != 'a') {
     state = "avoid";
@@ -871,31 +871,64 @@ boolean function_star() {
 
   if (aheadDistance <= 20) {
     stop();
+    if (Serial.available()) {
+      return 1;
+    }
     delay(500);
     myservo.write(10);
+    if (Serial.available()) {
+      return 1;
+    }
     delay(1000);
     rightDistance = get_distance();
 
+    if (Serial.available()) {
+      return 1;
+    }
     delay(500);
     myservo.write(90);
+    if (Serial.available()) {
+      return 1;
+    }
     delay(1000);
     myservo.write(180);
+    if (Serial.available()) {
+      return 1;
+    }
     delay(1000);
     leftDistance = get_distance();
 
+    if (Serial.available()) {
+      return 1;
+    }
     delay(500);
     myservo.write(90);
+    if (Serial.available()) {
+      return 1;
+    }
     delay(1000);
+    if (Serial.available()) {
+      return 1;
+    }
     if (rightDistance > leftDistance) {
       right();
+      if (Serial.available()) {
+        return 1;
+      }
       delay(360);
     }
     else if (rightDistance < leftDistance) {
       left();
+      if (Serial.available()) {
+        return 1;
+      }
       delay(360);
     }
     else if ((rightDistance <= 20) || (leftDistance <= 20)) {
       back();
+      if (Serial.available()) {
+        return 1;
+      }
       delay(180);
     }
     else {
@@ -908,7 +941,7 @@ boolean function_star() {
   return 1;
 }
 
-// run Elegoo line following
+// run Elegoo line following modified for Serial interrupt
 boolean function_sharp() {
   if (*state != 'f') {
     state = "following";
@@ -919,11 +952,19 @@ boolean function_sharp() {
   }
   else if(LT_R) {
     right();
-    while(LT_R);
+    while(LT_R) {
+      if (Serial.available()) {
+        break;
+      }
+    }
   }
   else if(LT_L) {
     left();
-    while(LT_L);
+    while(LT_L) {
+      if (Serial.available()) {
+        break;
+      }
+    }
   }
   return 1;
 }
