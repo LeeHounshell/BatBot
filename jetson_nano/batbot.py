@@ -113,6 +113,7 @@ def read_all_data_from_arduino():
 def write_commands(command_array):
     i = 0
     while (i < len(command_array)):
+        arduino.flush()
         command = str(command_array[i])
         encoded_command = command.encode()
         arduino.write(encoded_command)
@@ -230,33 +231,40 @@ def change_camera_angle_using_slider_value(slider):
         write_commands(command_array)
     elif (slider == 2):
         #camera_angle = 22
-        pass
+        camera_angle = 45
+        command_array = [lookright]
+        write_commands(command_array)
     elif (slider == 3):
         camera_angle = 45
         command_array = [lookright]
         write_commands(command_array)
     elif (slider == 4):
         #camera_angle = 67
-        pass
+        camera_angle = 45
+        command_array = [lookright]
+        write_commands(command_array)
     elif (slider == 5):
         camera_angle = 90
         command_array = [lookahead]
         write_commands(command_array)
     elif (slider == 6):
         #camera_angle = 113
-        pass
+        camera_angle = 135
+        command_array = [lookleft]
+        write_commands(command_array)
     elif (slider == 7):
         camera_angle = 135
         command_array = [lookleft]
         write_commands(command_array)
     elif (slider == 8):
         #camera_angle = 158
-        pass
+        camera_angle = 170
+        command_array = [lookfullleft]
+        write_commands(command_array)
     elif (slider == 9):
         camera_angle = 170
         command_array = [lookfullleft]
         write_commands(command_array)
-    return result
 
 def process_blue_dot_slider(movementCommand):
     movementData = movementCommand.split(',')
