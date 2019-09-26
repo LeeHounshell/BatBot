@@ -457,15 +457,32 @@ void loop() {
 }
 
 uint32_t read_python_int_value() {
-  delayMicroseconds(300);
+  int count = 0;
   char byte1 = 0;
-  Serial.readBytes(&byte1, 1);
   char byte2 = 0;
-  Serial.readBytes(&byte2, 1);
   char byte3 = 0;
-  Serial.readBytes(&byte3, 1);
   char byte4 = 0;
-  Serial.readBytes(&byte4, 1);
+  while (count < 4) {
+    if (Serial.available()) {
+      ++count;
+      switch(count) {
+        case 1:
+          Serial.readBytes(&byte1, 1);
+          break;
+        case 2:
+          Serial.readBytes(&byte2, 1);
+          break;
+        case 3:
+          Serial.readBytes(&byte3, 1);
+          break;
+        case 4:
+          Serial.readBytes(&byte4, 1);
+      }
+    }
+    else {
+      delayMicroseconds(300);
+    }
+  }
   uint32_t value = ((uint32_t)byte1 << 24) + ((uint32_t)byte2 << 16) + ((uint32_t)byte3 << 8) + (uint32_t)byte4; // big-endian
   print("VALUE READ=", 1);
   snprintf(buffer, sizeof(buffer), " %0ld ", (long) value);
