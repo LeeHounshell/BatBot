@@ -281,9 +281,11 @@ def process_blue_dot_slider(movementCommand):
                 # we will scale that to be from 0 to 9 like this:
                 # x/9 = slider/70. solve for x. any x > 9 becomes 9
 
-                slider = int((slider / JOY_MAX_VALUE) * 9)
+                x = abs(x) - JOY_NULL_REGION
+                slider = int((x / JOY_MAX_VALUE) * 9)
                 if slider > 9:
                     slider = 9
+                print("DBG: calculated slider=" + str(slider))
 
             if slider != prev_slider:
                 prev_slider = slider
@@ -350,6 +352,8 @@ def process_blue_dot_joystick(movementCommand):
             joystick = int((joystick / JOY_MAX_VALUE) * 9)
             if joystick > 9:
                 joystick = 9
+            print("DBG: calculated joystick=" + str(joystick))
+            print("DBG: calculated direction=" + direction)
 
             if joystick != prev_joystick:
                 prev_joystick = joystick
