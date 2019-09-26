@@ -49,6 +49,7 @@ public class DynamicMatrix extends View {
         mMoving = false;
         this.X = X;
         this.Y = Y;
+        setColor(mContext.getResources().getColor(R.color.touchCellColor));
         invalidate();
     }
 
@@ -67,6 +68,7 @@ public class DynamicMatrix extends View {
         mMoving = false;
         this.X = X;
         this.Y = Y;
+        setColor(mContext.getResources().getColor(R.color.defaultCellColor));
         invalidate();
     }
 

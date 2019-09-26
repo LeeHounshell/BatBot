@@ -10,4 +10,5 @@
     <color name="blue">#0000FF</color>
     <color name="darkgrey">#6d6d6e</color>
     <color name="defaultCellColor">#00000000</color>
+    <color name="touchCellColor">#50000000</color>
 </resources>

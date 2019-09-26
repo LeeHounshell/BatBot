@@ -44,8 +44,9 @@ class ControlFragment : Fragment() {
     }
 
     val MAX_WAIT_LOG_DATA = 30000
+    val BLUEDOT_SAMPLE_RATE_MILLIS = 333
 
-    // Initialize the BluetoothChatService to perform bluetooth connections
+        // Initialize the BluetoothChatService to perform bluetooth connections
     val m_robotConnection = ObservableBoolean(false)
     private var m_robotCommand = RobotCommandModel("", "")
     private var m_logging = LoggingTextTail()
@@ -380,7 +381,7 @@ class ControlFragment : Fragment() {
                     actual_y: Float
                 ) {
                     val now = System.currentTimeMillis()
-                    if ((now - m_joystickTime) > 200) {
+                    if ((now - m_joystickTime) > BLUEDOT_SAMPLE_RATE_MILLIS) {
                         Log.d(TAG, "onMove: actual_x=" + actual_x + ", actual_y=" + actual_y)
                         val x = calcX(cell, actual_x)
                         val y = calcY(cell, actual_y)
