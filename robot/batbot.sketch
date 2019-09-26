@@ -621,7 +621,7 @@ void setArduinoTime() {
   // time message is a header and ten ascii digits
   int count = 0;
   time_t pctime = 0;
-  while (count < TIME_MSG_LEN) {
+  while (count <= TIME_MSG_LEN) {
     if (Serial.available()) {
       char c = Serial.read();
       Serial.print(c);
@@ -630,6 +630,9 @@ void setArduinoTime() {
       }
       else if (c == TIME_HEADER) {
         count = 1;
+      }
+      else if (c == '\n') {
+          count += 1;
       }
       else {
         if (c >= '0' && c <= '9') {
@@ -641,6 +644,7 @@ void setArduinoTime() {
   }
   setTime(pctime); // sync Arduino clock
   adjustTime(adjustTimeZone);
+  println("SET_TIME: completed", 1);
   initialized = 1;
 }
 
