@@ -113,6 +113,8 @@ char *motion                  = "none";
 //----------------------------------------
 //-------------- DISTANCE ----------------
 
+#define MINIMUM_SAFE_DISTANCE 30
+
 unsigned int rightDistance    = 0;
 unsigned int leftDistance     = 0;
 unsigned int aheadDistance    = 0;
@@ -141,6 +143,9 @@ unsigned long ir_value;
 //--------------- SERIAL -----------------
 
 unsigned long se_value;
+int followState               = 0;
+int avoidState                = 0;
+int mapState                  = 0;
 
 //----------------------------------------
 //--------------- SERVO ------------------
@@ -239,14 +244,18 @@ void stop() {
   digitalWrite(ENB, LOW);
 }
 
-//Ultrasonic distance measurement Sub function
+// ultrasonic distance measurement
 int get_distance() {
   digitalWrite(Trig, LOW);
   delayMicroseconds(2);
   digitalWrite(Trig, HIGH);
   delayMicroseconds(10);
   digitalWrite(Trig, LOW);
-  return (int)pulseIn(Echo, HIGH) / 58;
+  distance = (int)pulseIn(Echo, HIGH) / 58;
+  if (distance <= MINIMUM_SAFE_DISTANCE) {
+    function_ok(); // stop
+  }
+  return distance;
 }
 
 void get_distance_using_bounce_wrapper() {
@@ -868,71 +877,71 @@ boolean function_star() {
   myservo.write(90);
   delay(500);
   aheadDistance = get_distance();
-
   if (aheadDistance <= 20) {
-    stop();
-    if (Serial.available()) {
-      return 1;
-    }
-    delay(500);
-    myservo.write(10);
-    if (Serial.available()) {
-      return 1;
-    }
-    delay(1000);
-    rightDistance = get_distance();
-
-    if (Serial.available()) {
-      return 1;
-    }
-    delay(500);
-    myservo.write(90);
-    if (Serial.available()) {
-      return 1;
-    }
-    delay(1000);
-    myservo.write(180);
-    if (Serial.available()) {
-      return 1;
-    }
-    delay(1000);
-    leftDistance = get_distance();
-
-    if (Serial.available()) {
-      return 1;
-    }
-    delay(500);
-    myservo.write(90);
-    if (Serial.available()) {
-      return 1;
-    }
-    delay(1000);
-    if (Serial.available()) {
-      return 1;
-    }
-    if (rightDistance > leftDistance) {
-      right();
-      if (Serial.available()) {
-        return 1;
+    ++avoidState;
+    switch (avoidState) {
+      case 1: {
+        stop();
+        break;
       }
-      delay(360);
-    }
-    else if (rightDistance < leftDistance) {
-      left();
-      if (Serial.available()) {
-        return 1;
+      case 2: {
+        delay(500);
+        myservo.write(10);
+        break;
       }
-      delay(360);
-    }
-    else if ((rightDistance <= 20) || (leftDistance <= 20)) {
-      back();
-      if (Serial.available()) {
-        return 1;
+      case 3: {
+        delay(1000);
+        rightDistance = get_distance();
+        break;
       }
-      delay(180);
-    }
-    else {
-      forward();
+      case 4: {
+        delay(500);
+        myservo.write(90);
+        break;
+      }
+      case 5: {
+        delay(1000);
+        myservo.write(180);
+        break;
+      }
+      case 6: {
+        delay(1000);
+        leftDistance = get_distance();
+        break;
+      }
+      case 7: {
+        delay(500);
+        myservo.write(90);
+        break;
+      }
+      case 8: {
+        delay(1000);
+        if (rightDistance > leftDistance) {
+          right();
+          if (Serial.available()) {
+            return 1;
+          }
+          delay(360);
+        }
+        else if (rightDistance < leftDistance) {
+          left();
+          if (Serial.available()) {
+            return 1;
+          }
+          delay(360);
+        }
+        else if ((rightDistance <= 20) || (leftDistance <= 20)) {
+          back();
+          if (Serial.available()) {
+            return 1;
+          }
+          delay(180);
+        }
+        else {
+          forward();
+        }
+        break;
+      }
     }
   }
   else {
@@ -947,23 +956,38 @@ boolean function_sharp() {
     state = "following";
     println("fn_sharp: 'following'", 1);
   }
-  if(LT_M){
-    forward();
-  }
-  else if(LT_R) {
-    right();
-    while(LT_R) {
-      if (Serial.available()) {
-        break;
+  ++followState;
+  switch (followState) {
+    case 1: {
+      if (LT_M) {
+        forward();
       }
+      break;
     }
-  }
-  else if(LT_L) {
-    left();
-    while(LT_L) {
-      if (Serial.available()) {
-        break;
+    case 2: {
+      if (LT_R) {
+        right();
+        while(LT_R) {
+          if (Serial.available()) {
+            break;
+          }
+        }
       }
+      break;
+    }
+    case 3: { if (LT_L) {
+        left();
+        while(LT_L) {
+          if (Serial.available()) {
+            break;
+          }
+        }
+      }
+      followState = 0;
+      break;
+    }
+    defalt: {
+      followState = 0;
     }
   }
   return 1;
