@@ -77,16 +77,10 @@ int Trig =         A5; // ultrasonic
 //----------------------------------------
 //--------------- TIMING -----------------
 
-#define servoAngleStart  90
+#define cameraStart  90
 #define moveFast        500
 #define moveNormal      750
 #define moveSlow       1000
-
-//----------------------------------------
-//-------------- DEFAULTS ----------------
-
-#define servoDeltaRight  10
-#define servoDeltaLeft  -10
 
 //----------------------------------------
 //-------------- SENSORS -----------------
@@ -127,9 +121,9 @@ int distanceDelta             = 3;
 //----------------------------------------
 //--------------- ANGLES -----------------
 
-int servoAngle                = servoAngleStart;
-int previousServoAngle        = servoAngleStart;
-int servoDelta                = 0; // for servoAngle movement
+int cameraAngle               = cameraStart;
+int previousCameraAngle       = cameraStart;
+int servoDelta                = 0; // for cameraAngle movement
 
 //----------------------------------------
 //-------------- INFRA RED ---------------
@@ -255,6 +249,7 @@ int get_distance() {
   digitalWrite(Trig, LOW);
   distance = (int)pulseIn(Echo, HIGH) / 58;
   if (distance > 0 && distance <= MINIMUM_SAFE_DISTANCE) {
+    println("MINIMUM_SAFE_DISTANCE!", 1);
     function_ok(); // stop
   }
   return distance;
@@ -492,20 +487,20 @@ uint32_t read_python_int_value() {
 }
 
 void set_angle(int newAngle, int newDelta) {
-  servoAngle = newAngle;
+  cameraAngle = newAngle;
   servoDelta = newDelta;
 }
 
 void increment_angle() {
   if (servoDelta != 0) {
-    servoAngle += servoDelta;
-    if (servoAngle > 170) {
+    cameraAngle += servoDelta;
+    if (cameraAngle > 170) {
       servoDelta = -servoDelta;
-      servoAngle = 170;
+      cameraAngle = 170;
     }
-    if (servoAngle < 10) {
+    if (cameraAngle < 10) {
       servoDelta = -servoDelta;
-      servoAngle = 10;
+      cameraAngle = 10;
     }
   }
 }
@@ -514,20 +509,20 @@ void transmit_sensor_data(int servoSpeed) {
   if (! initialized) {
     return;
   }
-  // point the servo to the next servoAngle
-  // transmit the servoAngle value
+  // point the servo to the next cameraAngle
+  // transmit the cameraAngle value
   move_servo = (millis() - srvMillis > servoSpeed) ? 1 : 0;
   if (move_servo) {
     increment_angle();
-    if (previousServoAngle != servoAngle) {
+    if (previousCameraAngle != cameraAngle) {
       srvMillis = millis();
       pinMode(SRVO_PIN, OUTPUT);
       println("SERVO: on", 1);
-      myservo.write(servoAngle);
-      print("SET servoAngle=", 1);
-      println(toString(servoAngle), 0);
+      myservo.write(cameraAngle);
+      print("SET cameraAngle=", 1);
+      println(toString(cameraAngle), 0);
     }
-    previousServoAngle = servoAngle;
+    previousCameraAngle = cameraAngle;
   }
   // turn the servo off when not in use
   if (srvMillis != 0L && ((millis() + 3000L) > srvMillis)) {
@@ -539,14 +534,14 @@ void transmit_sensor_data(int servoSpeed) {
   // transmit distance sensor value
   get_distance_using_bounce_wrapper();
   if (is_outside_delta(distance, previousDistance, distanceDelta)
-   || (servoAngle != previousDistanceAngle)) {
+   || (cameraAngle != previousDistanceAngle)) {
 
-    if (servoAngle < 65) {
+    if (cameraAngle < 65) {
       leftDistance = distance;
       print("Distance Left=", 1);
       println(toString(leftDistance), 0);
     }
-    else if (servoAngle > 115) {
+    else if (cameraAngle > 115) {
       rightDistance = distance;
       print("Distance Right=", 1);
       println(toString(rightDistance), 0);
@@ -557,7 +552,7 @@ void transmit_sensor_data(int servoSpeed) {
       println(toString(aheadDistance), 0);
     }
     previousDistance = distance;
-    previousDistanceAngle = servoAngle;
+    previousDistanceAngle = cameraAngle;
   }
 
   // transmit line following sensor values
@@ -727,99 +722,100 @@ boolean execute_command(int cmd) {
 // CUSTOM IR-REMOTE and SERIAL COMMANDS
 
 boolean function_set_time() {
+  println("fn_set_time: do set", 1);
   // setup to interpret the next Serial input as date and time
   read_time_value = 1;
-  println("fn_set_time: do set", 1);
   return 1;
 }
 
 boolean function_set_joystick() {
-  read_joystick = 1;
   //println("fn_set_joystick: do set", 1);
+  read_joystick = 1;
   return 1;
 }
 
 boolean function_up() {
+  println("fn_up: go forward", 1);
   forward();
   motion = "forward";
   direction = UPARROW;
-  println("fn_up: go forward", 1);
   return 1;
 }
 
 boolean function_left() {
+  println("fn_left: go left", 1);
   left();
   motion = "left";
   direction = LEFTARROW;
-  println("fn_left: go left", 1);
   return 1;
 }
 
 boolean function_right() {
+  println("fn_right: go right", 1);
   right();
   motion = "right";
   direction = RIGHTARROW;
-  println("fn_right: go right", 1);
   return 1;
 }
 
 boolean function_down() {
+  println("fn_down: go back", 1);
   back();
   motion = "back";
   direction = DOWNARROW;
-  println("fn_down: go back", 1);
   return 1;
 }
 
 // reset to defaults
 boolean function_ok() {
+  println("fn_ok: STOP", 1);
   stop();
   direction = ALLSTOP;
   state = "default";
   motion = "stopped";
   servoDelta = 0;
   joystick = 0;
-  println("fn_ok: STOP", 1);
   return 1;
 }
 
 // look right
 boolean function_one() {
-  set_angle(45, 0);
   println("fn_one: look toward left", 1);
+  set_angle(45, servoDelta);
   return 1;
 }
 
 // look ahead
 boolean function_two() {
-  set_angle(90, 0);
   println("fn_two: look ahead", 1);
+  set_angle(90, servoDelta);
   return 1;
 }
 
 // look left
 boolean function_three() {
-  set_angle(90 + 45, 0);
   println("fn_three: look toward right", 1);
+  set_angle(135, servoDelta);
   return 1;
 }
 
 // look full right
 boolean function_four() {
-  set_angle(0, 0);
   println("fn_four: look full left", 1);
+  set_angle(10, servoDelta);
   return 1;
 }
 
 // look full left
 boolean function_six() {
-  set_angle(170, 0);
   println("fn_six: look full right", 1);
+  set_angle(170, servoDelta);
   return 1;
 }
 
 // go slower
 boolean function_seven() {
+  print(toString(joystick), 0);
   if (joystick > 0) {
      --joystick;
   }
@@ -827,7 +823,6 @@ boolean function_seven() {
     println("-limit", 1);
   }
   print("fn_seven: (slower) joystick=", 1);
-  print(toString(joystick), 0);
   return 1;
 }
 
@@ -850,7 +845,7 @@ boolean function_eight() {
   println(toString(lt_l), 0);
   print("Throttle: ", 1);
   println(toString(DEFAULT_SPEED + speed_delta()), 0);
-  snprintf(camera, sizeof(camera), "Camera Angle: %d, Motion: %d ", servoAngle, servoDelta);
+  snprintf(camera, sizeof(camera), "Camera Angle: %d, Motion: %d ", cameraAngle, servoDelta);
   println(camera, 1);
   show_state();
   return 1;
