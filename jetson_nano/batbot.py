@@ -231,7 +231,7 @@ def change_camera_angle_using_slider_value(slider):
         write_commands(command_array)
     elif (slider == 2):
         #camera_angle = 22
-        camera_angle = 45
+        camera_angle = 10
         command_array = [lookright]
         write_commands(command_array)
     elif (slider == 3):
@@ -531,22 +531,28 @@ def data_received(commandsFromPhone):
                 if (state == 'default'):
                     if data.startswith('2,'): # BlueDot onMove
                         data = 'JOYSTICK: ' + process_blue_dot_joystick(data)
+                        result = result + read_all_data_from_arduino()
                         valid = True
                     elif data.startswith('1,'): # BlueDot onPress
                         data = 'CLICK: ' + process_blue_dot_joystick(data)
+                        result = result + read_all_data_from_arduino()
                         valid = True
                     elif data.startswith('0,'): # BlueDot onRelease
                         data = 'RELEASE: ' + process_blue_dot_joystick(data)
+                        result = result + read_all_data_from_arduino()
                         valid = True
                 else:
                     if data.startswith('2,'): # BlueDot onMove
                         data = 'SLIDER: ' + process_blue_dot_slider(data)
+                        result = result + read_all_data_from_arduino()
                         valid = True
                     elif data.startswith('1,'): # BlueDot onPress
                         data = 'CLICK: ' + process_blue_dot_slider(data)
+                        result = result + read_all_data_from_arduino()
                         valid = True
                     elif data.startswith('0,'): # BlueDot onRelease
                         data = 'RELEASE: ' + process_blue_dot_slider(data)
+                        result = result + read_all_data_from_arduino()
                         valid = True
 
             if valid:
