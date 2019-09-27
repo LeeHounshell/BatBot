@@ -107,7 +107,7 @@ char *motion                  = "stopped";
 //----------------------------------------
 //-------------- DISTANCE ----------------
 
-#define MINIMUM_SAFE_DISTANCE 30
+#define MINIMUM_SAFE_DISTANCE 10
 
 unsigned int rightDistance    = 0;
 unsigned int leftDistance     = 0;
@@ -251,6 +251,7 @@ int get_distance() {
   if (distance > 0 && distance <= MINIMUM_SAFE_DISTANCE) {
     println("MINIMUM_SAFE_DISTANCE!", 1);
     function_ok(); // stop
+    function_eight(); // print distance values
   }
   return distance;
 }
@@ -889,6 +890,7 @@ boolean function_nine() {
 boolean function_five() {
   if (*state != 'm') {
     state = "map";
+    servoDelta = 10;
     println("fn_five: 'map'", 1);
   }
   // FIXME
