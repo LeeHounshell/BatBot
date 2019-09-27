@@ -232,51 +232,47 @@ def change_camera_angle_using_slider_value(slider, slider_direction):
         command_array = [lookahead]
         write_commands(command_array)
     elif (slider == 2):
-        if go_right:
-            camera_angle = 80
-            command_array = [lookahead]
-        else:
-            camera_angle = 100
-            command_array = [lookahead]
+        camera_angle = 90
+        command_array = [lookahead]
         write_commands(command_array)
     elif (slider == 3):
         if go_right:
-            camera_angle = 70
-            command_array = [lookahead]
+            camera_angle = 55
+            command_array = [lookright]
         else:
-            camera_angle = 110
-            command_array = [lookahead]
+            camera_angle = 125
+            command_array = [lookleft]
         write_commands(command_array)
     elif (slider == 4):
         if go_right:
-            camera_angle = 60
+            camera_angle = 55
             command_array = [lookright]
         else:
-            camera_angle = 120
+            camera_angle = 125
             command_array = [lookleft]
         write_commands(command_array)
     elif (slider == 5):
         if go_right:
-            camera_angle = 50
+            camera_angle = 55
             command_array = [lookright]
         else:
-            camera_angle = 130
+            camera_angle = 125
             command_array = [lookleft]
         write_commands(command_array)
     elif (slider == 6):
         if go_right:
-            camera_angle = 40
+            camera_angle = 55
             command_array = [lookright]
         else:
-            camera_angle = 140
+            camera_angle = 125
             command_array = [lookleft]
         write_commands(command_array)
     elif (slider == 7):
         if go_right:
-            camera_angle = 30
+            camera_angle = 20
             command_array = [lookfullright]
         else:
-            camera_angle = 150
+            camera_angle = 160
             command_array = [lookfullleft]
         write_commands(command_array)
     elif (slider == 8):
@@ -289,10 +285,10 @@ def change_camera_angle_using_slider_value(slider, slider_direction):
         write_commands(command_array)
     elif (slider == 9):
         if go_right:
-            camera_angle = 10
+            camera_angle = 20
             command_array = [lookfullright]
         else:
-            camera_angle = 170
+            camera_angle = 160
             command_array = [lookfullleft]
         write_commands(command_array)
 

@@ -495,13 +495,13 @@ void set_angle(int newAngle, int newDelta) {
 void increment_angle() {
   if (servoDelta != 0) {
     cameraAngle += servoDelta;
-    if (cameraAngle > 170) {
+    if (cameraAngle > 160) {
       servoDelta = -servoDelta;
-      cameraAngle = 170;
+      cameraAngle = 160;
     }
-    if (cameraAngle < 10) {
+    if (cameraAngle < 20) {
       servoDelta = -servoDelta;
-      cameraAngle = 10;
+      cameraAngle = 20;
     }
   }
 }
@@ -782,7 +782,7 @@ boolean function_ok() {
 // look right
 boolean function_one() {
   println("fn_one: look toward left", 1);
-  set_angle(45, servoDelta);
+  set_angle(55, servoDelta);
   return 1;
 }
 
@@ -796,21 +796,21 @@ boolean function_two() {
 // look left
 boolean function_three() {
   println("fn_three: look toward right", 1);
-  set_angle(135, servoDelta);
+  set_angle(125, servoDelta);
   return 1;
 }
 
 // look full right
 boolean function_four() {
   println("fn_four: look full left", 1);
-  set_angle(10, servoDelta);
+  set_angle(20, servoDelta);
   return 1;
 }
 
 // look full left
 boolean function_six() {
   println("fn_six: look full right", 1);
-  set_angle(170, servoDelta);
+  set_angle(160, servoDelta);
   return 1;
 }
 
@@ -940,7 +940,7 @@ boolean function_star() {
       }
       case 5: {
         delay(1000);
-        myservo.write(170);
+        myservo.write(160);
         break;
       }
       case 6: {
