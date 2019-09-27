@@ -51,8 +51,9 @@ joystick          = 0 # maps to the 90 degree camera_angle
 slider            = 5 # maps to the 90 degree camera_angle
 prev_slider       = 5
 prev_joystick     = 0
-direction         = 'stopped'
 state             = 'default'
+joy_direction     = 'stopped'
+slider_direction  = 'stopped'
 
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
@@ -221,49 +222,78 @@ def move_arduino_using_joystick(direction):
         command_array = [leftarrow]
         write_commands(command_array)
 
-def change_camera_angle_using_slider_value(slider):
-    print("DBG: change_camera_angle_using_slider_value=" + str(slider))
+def change_camera_angle_using_slider_value(slider, slider_direction):
+    print("DBG: change_camera_angle_using_slider_value=" + str(slider) + ", direction=" + slider_direction)
+    go_right = slider_direction == 'RIGHT'
     if (slider == 0):
         pass
     elif (slider == 1):
-        camera_angle = 10
-        command_array = [lookfullright]
-        write_commands(command_array)
-    elif (slider == 2):
-        #camera_angle = 22
-        camera_angle = 10
-        command_array = [lookright]
-        write_commands(command_array)
-    elif (slider == 3):
-        camera_angle = 45
-        command_array = [lookright]
-        write_commands(command_array)
-    elif (slider == 4):
-        #camera_angle = 67
-        camera_angle = 45
-        command_array = [lookright]
-        write_commands(command_array)
-    elif (slider == 5):
         camera_angle = 90
         command_array = [lookahead]
         write_commands(command_array)
+    elif (slider == 2):
+        if go_right:
+            camera_angle = 80
+            command_array = [lookahead]
+        else:
+            camera_angle = 100
+            command_array = [lookahead]
+        write_commands(command_array)
+    elif (slider == 3):
+        if go_right:
+            camera_angle = 70
+            command_array = [lookahead]
+        else:
+            camera_angle = 110
+            command_array = [lookahead]
+        write_commands(command_array)
+    elif (slider == 4):
+        if go_right:
+            camera_angle = 60
+            command_array = [lookright]
+        else:
+            camera_angle = 120
+            command_array = [lookleft]
+        write_commands(command_array)
+    elif (slider == 5):
+        if go_right:
+            camera_angle = 50
+            command_array = [lookright]
+        else:
+            camera_angle = 130
+            command_array = [lookleft]
+        write_commands(command_array)
     elif (slider == 6):
-        #camera_angle = 113
-        camera_angle = 135
-        command_array = [lookleft]
+        if go_right:
+            camera_angle = 40
+            command_array = [lookright]
+        else:
+            camera_angle = 140
+            command_array = [lookleft]
         write_commands(command_array)
     elif (slider == 7):
-        camera_angle = 135
-        command_array = [lookleft]
+        if go_right:
+            camera_angle = 30
+            command_array = [lookfullright]
+        else:
+            camera_angle = 150
+            command_array = [lookfullleft]
         write_commands(command_array)
     elif (slider == 8):
-        #camera_angle = 158
-        camera_angle = 170
-        command_array = [lookfullleft]
+        if go_right:
+            camera_angle = 20
+            command_array = [lookfullright]
+        else:
+            camera_angle = 160
+            command_array = [lookfullleft]
         write_commands(command_array)
     elif (slider == 9):
-        camera_angle = 170
-        command_array = [lookfullleft]
+        if go_right:
+            camera_angle = 10
+            command_array = [lookfullright]
+        else:
+            camera_angle = 170
+            command_array = [lookfullleft]
         write_commands(command_array)
 
 def process_blue_dot_slider(movementCommand):
@@ -271,25 +301,33 @@ def process_blue_dot_slider(movementCommand):
     global camera_angle
     global slider
     global prev_slider
+    global slider_direction
     try:
         if len(movementData) >= 3:
             x = int(float(movementData[1]) * 100)
             if abs(x) <= JOY_NULL_REGION:
                 slider = 5
+            elif x > 0:
+                slider = x - JOY_NULL_REGION
+                slider_direction = 'RIGHT'
             else:
-                # assume the 'slider' value be be between 0 and ~70
-                # we will scale that to be from 0 to 9 like this:
-                # x/9 = slider/70. solve for x. any x > 9 becomes 9
+                slider = abs(x) - JOY_NULL_REGION
+                slider_direction = 'LEFT'
 
-                x = abs(x) - JOY_NULL_REGION
-                slider = int((x / JOY_MAX_VALUE) * 9)
-                if slider > 9:
-                    slider = 9
-                print("DBG: calculated slider=" + str(slider))
+            # assume the 'slider' value be be between 0 and ~70
+            # we will scale that to be from 0 to 9 like this:
+            # x/9 = slider/70. solve for x. any x > 9 becomes 9
+
+            x = abs(x) - JOY_NULL_REGION
+            slider = int((x / JOY_MAX_VALUE) * 9)
+            if slider > 9:
+                slider = 9
+            print("DBG: calculated slider=" + str(slider))
+            print("DBG: calculated slider_direction=" + slider_direction)
 
             if slider != prev_slider:
                 prev_slider = slider
-                change_camera_angle_using_slider_value(slider)
+                change_camera_angle_using_slider_value(slider, slider_direction)
 
     except Exception as e:
         print("ERROR: process_blue_dot_slider: e=" + str(e))
@@ -297,7 +335,7 @@ def process_blue_dot_slider(movementCommand):
 
 def process_blue_dot_joystick(movementCommand):
     movementData = movementCommand.split(',')
-    global direction
+    global joy_direction
     global joystick
     global prev_joystick
     try:
@@ -313,37 +351,37 @@ def process_blue_dot_joystick(movementCommand):
                 return "INVALID X/Y"
 
             if abs(x) <= JOY_NULL_REGION and abs(y) <= JOY_NULL_REGION:
-                direction = 'STOP'
+                joy_direction = 'STOP'
             elif x > 0:
                 if y > 0:
                     if x > y:
                         joystick = x - JOY_NULL_REGION
-                        direction = 'RIGHT'
+                        joy_direction = 'RIGHT'
                     else:
                         joystick = y - JOY_NULL_REGION
-                        direction = 'AHEAD'
+                        joy_direction = 'AHEAD'
                 else:
                     if x > abs(y):
                         joystick = x - JOY_NULL_REGION
-                        direction = 'RIGHT'
+                        joy_direction = 'RIGHT'
                     else:
                         joystick = abs(y) - JOY_NULL_REGION
-                        direction = 'BACK'
+                        joy_direction = 'BACK'
             else:
                 if y > 0:
                     if abs(x) > y:
                         joystick = abs(x) - JOY_NULL_REGION
-                        direction = 'LEFT'
+                        joy_direction = 'LEFT'
                     else:
                         joystick = abs(y) - JOY_NULL_REGION
-                        direction = 'AHEAD'
+                        joy_direction = 'AHEAD'
                 else:
                     if abs(x) > abs(y):
                         joystick = abs(x) - JOY_NULL_REGION
-                        direction = 'LEFT'
+                        joy_direction = 'LEFT'
                     else:
                         joystick = abs(y) - JOY_NULL_REGION
-                        direction = 'BACK'
+                        joy_direction = 'BACK'
 
             # assume the 'joystick' value be be between 0 and ~70
             # we will scale that to be from 0 to 9 like this:
@@ -353,16 +391,16 @@ def process_blue_dot_joystick(movementCommand):
             if joystick > 9:
                 joystick = 9
             print("DBG: calculated joystick=" + str(joystick))
-            print("DBG: calculated direction=" + direction)
+            print("DBG: calculated joy_direction=" + joy_direction)
 
             if joystick != prev_joystick:
                 prev_joystick = joystick
                 send_joystick_09_to_arduino(joystick)
-                move_arduino_using_joystick(direction)
+                move_arduino_using_joystick(joy_direction)
 
     except Exception as e:
         print("ERROR: process_blue_dot_joystick: e=" + str(e))
-    return str(joystick) + ' ' + direction
+    return str(joystick) + ' ' + joy_direction
 
 # a primitive language parser
 def data_received(commandsFromPhone):
