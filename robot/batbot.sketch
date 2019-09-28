@@ -96,7 +96,7 @@ unsigned int previous_lt_r, previous_lt_m, previous_lt_l;
 //----------------------------------------
 //--------------- CAR SPEED --------------
 
-#define DEFAULT_SPEED 190  // initial speed of car >=0 to <=255
+#define DEFAULT_SPEED 200  // initial speed of car >=0 to <=255
 #define MAX_CAR_SPEED 255  // max speed of car
 #define OFFSET_SPEED (MAX_CAR_SPEED - DEFAULT_SPEED)
 
