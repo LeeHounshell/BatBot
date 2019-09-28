@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
 import com.harlie.batbot.model.RobotCommandModel
@@ -44,6 +45,8 @@ class ControlActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.control_activity)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
         m_ControlViewModel = ViewModelProviders.of(this).get(Control_ViewModel::class.java)
         m_ControlViewModel!!.initLiveData()
 
