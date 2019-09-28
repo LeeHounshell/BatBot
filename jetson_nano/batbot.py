@@ -44,6 +44,7 @@ allstop           = 'H' # Halt
 run_star          = '*' # Star
 run_sharp         = '#' # Sharp
 
+SLD_MAX_VALUE     = 80.0
 JOY_MAX_VALUE     = 70.0
 JOY_NULL_REGION   = 10.0
 
@@ -301,21 +302,16 @@ def process_blue_dot_slider(movementCommand):
     try:
         if len(movementData) >= 3:
             x = int(float(movementData[1]) * 100)
-            if abs(x) <= JOY_NULL_REGION:
-                slider = 5
-            elif x > 0:
-                slider = x - JOY_NULL_REGION
+            if x > 0:
                 slider_direction = 'RIGHT'
             else:
-                slider = abs(x) - JOY_NULL_REGION
                 slider_direction = 'LEFT'
 
-            # assume the 'slider' value be be between 0 and ~70
+            # assume the 'slider' value be be between 0 and ~80
             # we will scale that to be from 0 to 9 like this:
-            # x/9 = slider/70. solve for x. any x > 9 becomes 9
+            # x/9 = slider/80. solve for x. any x > 9 becomes 9
 
-            x = abs(x) - JOY_NULL_REGION
-            slider = int((x / JOY_MAX_VALUE) * 9)
+            slider = int((abs(x) / SLD_MAX_VALUE) * 9)
             if slider > 9:
                 slider = 9
             print("DBG: calculated slider=" + str(slider))
