@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.harlie.batbot.model.RobotCommandModel
@@ -26,6 +25,7 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import androidx.databinding.ObservableBoolean
+import androidx.fragment.app.Fragment
 import com.harlie.batbot.BluetoothActivity
 import com.harlie.batbot.R
 import java.util.*
@@ -50,7 +50,7 @@ class ControlFragment : Fragment() {
     val m_robotConnection = ObservableBoolean(false)
     private var m_robotCommand = RobotCommandModel("", "")
     private var m_logging = LoggingTextTail()
-    private var m_timer_ok = true
+    private var m_timer_ok = false
     private var m_havePing = false
     private var m_expectRobotCommand = 0 // workaround databinding issue when bluetooth server disconnects
     private var m_fixedTimerLoopCount = 0
@@ -59,7 +59,7 @@ class ControlFragment : Fragment() {
     private var m_joystickTime = System.currentTimeMillis();
 
     private lateinit var m_ControlFragBinding : ControlFragmentBinding
-    private lateinit var m_ControlViewModel: Control_ViewModel
+    private var m_ControlViewModel: Control_ViewModel? = null
     private lateinit var m_fixedTimer: Timer
 
     private var m_name: String? = null
@@ -100,9 +100,10 @@ class ControlFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Log.d(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState)
-        getViewModel().initialize()
+        m_ControlViewModel = getViewModel()
+        m_ControlViewModel!!.initialize()
 
-        m_ControlViewModel.getInputCommand().observe(this, Observer {
+        m_ControlViewModel!!.getInputCommand().observe(this, Observer {
             it?.let {
                 Log.d(TAG, "observe getInputCommand() ===> it.m_robotCommand=" + it.robotCommand)
                 m_haveRobotCommand = true
@@ -113,21 +114,21 @@ class ControlFragment : Fragment() {
             }
         })
 
-        m_ControlViewModel.getStarClicked().observe(this, Observer {
+        m_ControlViewModel!!.getStarClicked().observe(this, Observer {
             it?.let {
                 Log.d(TAG, "observe getStarClicked()===> * clicked=" + it)
                 send("click: *")
             }
         })
 
-        m_ControlViewModel.getOkClicked().observe(this, Observer {
+        m_ControlViewModel!!.getOkClicked().observe(this, Observer {
             it?.let {
                 Log.d(TAG, "observe getOkClicked()===> ok clicked=" + it)
                 send("click: ok")
             }
         })
 
-        m_ControlViewModel.getSharpClicked().observe(this, Observer {
+        m_ControlViewModel!!.getSharpClicked().observe(this, Observer {
             it?.let {
                 Log.d(TAG, "obsere getSharpClicked()===> # clicked=" + it)
                 send("click: #")
@@ -172,7 +173,10 @@ class ControlFragment : Fragment() {
 
     fun runFixedRateTimer() {
         Log.d(TAG, "runFixedRateTimer")
-        m_fixedTimer = fixedRateTimer("timer", false, 0L, 100) {
+        if (::m_fixedTimer.isInitialized) {
+            m_fixedTimer.cancel()
+        }
+        m_fixedTimer = fixedRateTimer("timer", true, 0L, 100) {
             if (m_timer_ok) {
                 m_fixedTimerLoopCount += 1
                 if ((m_fixedTimerLoopCount % 30) == 0) { // flush every 3 seconds
@@ -190,6 +194,9 @@ class ControlFragment : Fragment() {
                     weHaveAProblem("FROZEN BLUETOOTH!")
                 }
             }
+            else {
+                m_fixedTimer.cancel()
+            }
         }
     }
 
@@ -197,6 +204,12 @@ class ControlFragment : Fragment() {
         Log.d(TAG, "onStart")
         super.onStart()
         EventBus.getDefault().register(this);
+    }
+
+    override fun onResume() {
+        Log.d(TAG, "onStart")
+        super.onResume()
+        m_timer_ok = true
         runFixedRateTimer()
     }
 
@@ -254,7 +267,7 @@ class ControlFragment : Fragment() {
                 val connectedDeviceName = bt_event.extra.getString(Constants.DEVICE_NAME)
                 Log.d(TAG, "===> connectedDeviceName=" + connectedDeviceName!!)
                 enableButtons()
-                m_ControlViewModel.doClickOk()
+                m_ControlViewModel?.doClickOk()
             }
             Constants.MESSAGE_TOAST -> {
                 val message = bt_event.extra.getString(Constants.TOAST)
@@ -329,9 +342,9 @@ class ControlFragment : Fragment() {
         EventBus.getDefault().unregister(this);
     }
 
-    private fun getViewModel(): Control_ViewModel {
+    private fun getViewModel(): Control_ViewModel? {
         Log.d(TAG, "getViewModel");
-        if (! ::m_ControlViewModel.isInitialized) {
+        if (m_ControlViewModel == null) {
             activity?.let {
                 m_ControlViewModel = ViewModelProviders.of(it).get(Control_ViewModel::class.java)
             }
@@ -346,12 +359,13 @@ class ControlFragment : Fragment() {
         }
         else {
             // we need to initialize the bluetooth adapter
-            getViewModel().initialize()
+            m_ControlViewModel = getViewModel();
+            m_ControlViewModel!!.initialize()
 
             // Attempt to connect to the device
             msg("connecting..")
 
-            m_ControlViewModel.connect(m_device!!, true)
+            m_ControlViewModel!!.connect(m_device!!, true)
 
             msg("please wait..")
 
@@ -445,7 +459,7 @@ class ControlFragment : Fragment() {
             // it will display on the nano log, so.. using space is least intrusive.
             msg_tail = " "
         }
-        m_ControlViewModel.send(message + msg_tail)
+        m_ControlViewModel?.send(message + msg_tail)
     }
 
     private fun msg(message: String) {
@@ -459,7 +473,12 @@ class ControlFragment : Fragment() {
     fun onClickTextOutput() {
         Log.d(TAG, "onClickTextOutput")
         m_robotCommand = RobotCommandModel(textOutput.text.toString(), "3")
-        m_ControlViewModel.processAndDecodeMessage(m_robotCommand!!)
+        m_ControlViewModel?.processAndDecodeMessage(m_robotCommand!!)
+    }
+
+    private fun disconnect() {
+        Log.d(TAG, "disconnect");
+        m_ControlViewModel?.disconnect()
     }
 
     fun gotoBluetoothActivity() {
@@ -469,11 +488,17 @@ class ControlFragment : Fragment() {
         controlIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(controlIntent)
         activity!!.overridePendingTransition(0, R.anim.fade_out);
+        activity!!.finish();
     }
 
-    private fun disconnect() {
-        Log.d(TAG, "disconnect");
-        m_ControlViewModel.disconnect()
+    override fun onDestroy() {
+        Log.d(TAG, "onDestroy");
+        disconnect()
+        if (::m_fixedTimer.isInitialized) {
+            m_fixedTimer.cancel()
+        }
+        m_ControlViewModel = null
+        super.onDestroy()
     }
 
 }

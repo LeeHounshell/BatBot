@@ -17,8 +17,7 @@ class BluetoothActivity : AppCompatActivity() {
 
     val REQUEST_ENABLE_BLUETOOTH = 1
 
-    private lateinit var m_BluetoothViewModel: Bluetooth_ViewModel
-    private lateinit var m_BluetoothAdapter: BluetoothAdapter
+    private var m_BluetoothViewModel: Bluetooth_ViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
@@ -26,9 +25,9 @@ class BluetoothActivity : AppCompatActivity() {
         setContentView(R.layout.bluetooth_activity)
 
         m_BluetoothViewModel = ViewModelProviders.of(this).get(Bluetooth_ViewModel::class.java)
-        m_BluetoothAdapter = m_BluetoothViewModel.initDefaultAdapter()
+        m_BluetoothViewModel!!.initDefaultAdapter()
 
-        if (0 <= m_BluetoothViewModel.initializeDeviceList(this)) {
+        if (0 <= m_BluetoothViewModel!!.initializeDeviceList(this)) {
             Log.d(TAG, "*** ENABLING BLUETOOTH ***")
             val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             startActivityForResult(enableBluetoothIntent, REQUEST_ENABLE_BLUETOOTH)
@@ -40,7 +39,7 @@ class BluetoothActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_ENABLE_BLUETOOTH) {
             if (resultCode == Activity.RESULT_OK) {
-                if (m_BluetoothViewModel.m_BluetoothAdapter!!.isEnabled) {
+                if (m_BluetoothViewModel?.m_BluetoothAdapter!!.isEnabled) {
                     Log.i(TAG, "onActivityResult: Bluetooth Enabled")
 
                     //--------------------------------------------------
@@ -62,6 +61,18 @@ class BluetoothActivity : AppCompatActivity() {
                 Toast.makeText(this@BluetoothActivity, "BlueTooth Problem", Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    override fun onBackPressed() {
+        Log.d(TAG, "onBackPressed")
+        super.onBackPressed()
+        finish()
+    }
+
+    override fun onDestroy() {
+        Log.d(TAG, "onDestroy")
+        super.onDestroy()
+        m_BluetoothViewModel = null
     }
 
 }

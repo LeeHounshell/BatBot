@@ -36,8 +36,8 @@ class ControlActivity : AppCompatActivity() {
 
     private var m_uniqueId: String? = null
     private var m_robotCommand : RobotCommandModel? = null
-    private lateinit var m_ControlViewModel : Control_ViewModel
-    private lateinit var m_ControlFragment: ControlFragment
+    private var m_ControlViewModel : Control_ViewModel? = null
+    private var m_ControlFragment: ControlFragment? = null
 
 
     @SuppressLint("HardwareIds")
@@ -46,7 +46,7 @@ class ControlActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.control_activity)
         m_ControlViewModel = ViewModelProviders.of(this).get(Control_ViewModel::class.java)
-        m_ControlViewModel.initLiveData()
+        m_ControlViewModel!!.initLiveData()
 
         m_name = intent.getStringExtra(ControlActivity.EXTRA_NAME)
         m_address = intent.getStringExtra(ControlActivity.EXTRA_ADDRESS)
@@ -59,11 +59,11 @@ class ControlActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             m_ControlFragment = ControlFragment.getInstance() as ControlFragment
             supportFragmentManager.beginTransaction()
-                .replace(R.id.container, m_ControlFragment)
+                .replace(R.id.container, m_ControlFragment!!)
                 .commitNow()
 
             Log.d(TAG, "creating Connection to batbot..")
-            m_ControlFragment.setDeviceInfo(m_name, m_address, m_device, m_uniqueId!!)
+            m_ControlFragment!!.setDeviceInfo(m_name, m_address, m_device, m_uniqueId!!)
         }
     }
 
@@ -91,17 +91,17 @@ class ControlActivity : AppCompatActivity() {
 
     fun onClickButtonStar(v: View) {
         Log.d(TAG, "onClickButtonStar")
-        m_ControlViewModel.doClickStar()
+        m_ControlViewModel?.doClickStar()
     }
 
     fun onClickButtonOk(v: View?) {
         Log.d(TAG, "onClickButtonOk")
-        m_ControlViewModel.doClickOk()
+        m_ControlViewModel?.doClickOk()
     }
 
     fun onClickButtonSharp(v: View) {
         Log.d(TAG, "onClickButtonSharp")
-        m_ControlViewModel.doClickSharp()
+        m_ControlViewModel?.doClickSharp()
     }
 
     fun onClickTranslateSpeech(v: View) {
@@ -123,8 +123,8 @@ class ControlActivity : AppCompatActivity() {
                     val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     Log.d(TAG, "===> got speech translation result=" + result[0])
                     m_robotCommand = RobotCommandModel(result[0], "3")
-                    m_ControlFragment.expectRobotCommand(true)
-                    m_ControlViewModel.processAndDecodeMessage(m_robotCommand!!)
+                    m_ControlFragment?.expectRobotCommand(true)
+                    m_ControlViewModel?.processAndDecodeMessage(m_robotCommand!!)
                     Timer().schedule(5000) {
                         Log.d(TAG, "One-Shot-Timer: DATABINDING VALIDATION")
                         m_ControlFragment?.validateRobotCommand()
@@ -143,14 +143,13 @@ class ControlActivity : AppCompatActivity() {
 
     fun gotoBluetoothActivity() {
         Log.d(TAG, "gotoBluetoothActivity")
-        val controlIntent: Intent = Intent(this, BluetoothActivity::class.java)
-        controlIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        startActivity(controlIntent)
-        overridePendingTransition(0, R.anim.fade_out);
+        m_ControlFragment?.gotoBluetoothActivity()
     }
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
         super.onDestroy()
+        m_ControlFragment = null
+        m_ControlViewModel = null
     }
 }
