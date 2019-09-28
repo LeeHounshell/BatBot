@@ -21,7 +21,7 @@ class Bluetooth_ViewModel : ViewModel() {
     fun getBluetoothDevicesList(): LiveData<MutableList<BluetoothDeviceModel>> = m_bluetoothDevicesList
     fun getSelectedDevice(): LiveData<BluetoothDeviceModel> = m_selectedDevice
 
-    lateinit var m_BluetoothAdapter: BluetoothAdapter
+    private lateinit var m_BluetoothAdapter: BluetoothAdapter
     private lateinit var m_pairedDevices: Set<BluetoothDevice>
 
 
@@ -47,8 +47,18 @@ class Bluetooth_ViewModel : ViewModel() {
         return m_BluetoothAdapter
     }
 
+    fun isAdapterInitialized(): Boolean {
+        val didInit = ::m_BluetoothAdapter.isInitialized
+        Log.d(TAG, "isAdapterInitialied: " + didInit)
+        return didInit
+    }
+
     fun initializeDeviceList(context: Context): Int {
         Log.d(TAG, "initializeDeviceList")
+        if (! isAdapterInitialized()) {
+            Log.i(TAG, "BlueTooth adapter not initialized yet..")
+            return 0
+        }
         if (! m_BluetoothAdapter.isEnabled) {
             Log.i(TAG, "need to enable BlueTooth..")
             return 0
@@ -73,6 +83,13 @@ class Bluetooth_ViewModel : ViewModel() {
             m_bluetoothDevicesList.setValue(btDevicesList)
         } else {
             Toast.makeText(context,  "no paired bluetooth devices found", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun cancelDiscovery() {
+        Log.d(TAG, "cancelDiscovery")
+        if (::m_BluetoothAdapter.isInitialized) {
+            m_BluetoothAdapter.cancelDiscovery()
         }
     }
 

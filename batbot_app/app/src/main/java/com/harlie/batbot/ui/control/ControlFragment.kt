@@ -30,7 +30,6 @@ import com.harlie.batbot.BluetoothActivity
 import com.harlie.batbot.R
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
-import kotlin.concurrent.schedule
 
 
 class ControlFragment : Fragment() {
@@ -46,15 +45,12 @@ class ControlFragment : Fragment() {
     val MAX_WAIT_LOG_DATA = 30000
     val BLUEDOT_SAMPLE_RATE_MILLIS = 333
 
-        // Initialize the BluetoothChatService to perform bluetooth connections
     val m_robotConnection = ObservableBoolean(false)
     private var m_robotCommand = RobotCommandModel("", "")
     private var m_logging = LoggingTextTail()
     private var m_timer_ok = false
     private var m_havePing = false
-    private var m_expectRobotCommand = 0 // workaround databinding issue when bluetooth server disconnects
     private var m_fixedTimerLoopCount = 0
-    private var m_haveRobotCommand = false
     private var m_pingStartTime = System.currentTimeMillis();
     private var m_joystickTime = System.currentTimeMillis();
 
@@ -106,7 +102,6 @@ class ControlFragment : Fragment() {
         m_ControlViewModel!!.getInputCommand().observe(this, Observer {
             it?.let {
                 Log.d(TAG, "observe getInputCommand() ===> it.m_robotCommand=" + it.robotCommand)
-                m_haveRobotCommand = true
                 m_robotCommand.robotCommand = it.robotCommand
                 m_robotCommand.commandPriority = it.commandPriority
                 send(m_robotCommand.robotCommand) // send command to the robot
@@ -139,38 +134,6 @@ class ControlFragment : Fragment() {
         connect()
     }
 
-    fun expectRobotCommand(expecting: Boolean) {
-        Log.d(TAG, "expectRobotCommand: " + expecting)
-        if (expecting) {
-            m_expectRobotCommand += 1
-        }
-        else {
-            m_expectRobotCommand -= 1
-        }
-    }
-
-    fun validateRobotCommand() {
-        Log.d(TAG, "validateRobotCommand: m_expectRobotCommand=" + m_expectRobotCommand + ", m_haveRobotCommand=" + m_haveRobotCommand)
-        if (m_expectRobotCommand > 0 && ! m_haveRobotCommand) {
-            Log.e(TAG, "*** DATA BINDING ERROR ***")
-            // try to touch View of UI thread
-            activity?.runOnUiThread(java.lang.Runnable {
-                Toast.makeText(context, "*** EXITING: FATAL ERROR ***", Toast.LENGTH_LONG).show()
-            })
-            Timer().schedule(3000) {
-                Log.e(TAG, "*** SHUT DOWN APP ***")
-                disconnect()
-                activity?.onBackPressed()
-                activity?.finishAndRemoveTask()
-            }
-        }
-        else {
-            Log.d(TAG, "validateRobotCommand: OK")
-            m_expectRobotCommand -= 1;
-            m_haveRobotCommand = false;
-        }
-    }
-
     fun runFixedRateTimer() {
         Log.d(TAG, "runFixedRateTimer")
         if (::m_fixedTimer.isInitialized) {
@@ -179,9 +142,9 @@ class ControlFragment : Fragment() {
         m_fixedTimer = fixedRateTimer("timer", true, 0L, 100) {
             if (m_timer_ok) {
                 m_fixedTimerLoopCount += 1
-                if ((m_fixedTimerLoopCount % 30) == 0) { // flush every 3 seconds
+                if ((m_fixedTimerLoopCount % 20) == 0) { // flush every 2 seconds
                     Log.d(TAG, "runFixedRateTimer: FLUSH LOG")
-                    send("")
+                    send(" ")
                 }
                 activity!!.runOnUiThread {
                     if (logging != null) {
@@ -323,13 +286,6 @@ class ControlFragment : Fragment() {
         }
         else if (bt_status_event.message.equals(Constants.CONNECTION_LOST)) {
             weHaveAProblem(Constants.CONNECTION_LOST)
-            //
-            // NOTE: i think there is a problem with the Android bluetooth functionality and databinding
-            // (it happens when the python bluez batbot server stops during an active session)
-            // the only way i have found to fix it is to manually kill the Android BatBot app
-            // and then restart it.   --- the root cause seems to be a databinding problem/confusion
-            //
-            // the 'validateRobotCommand' method detects this failure and resets the app.
         }
         else if (bt_status_event.message.equals(Constants.INITIALIZING)) {
             Log.d(TAG, "===> INITIALIZING <===")
@@ -467,9 +423,6 @@ class ControlFragment : Fragment() {
         status.text = message
     }
 
-    // NOTE: the app can become confused when bluetooth server dissconnects during session.
-    //       it seems to be related to a databinding non-communication issue that happens at the same time.
-    //       to clear the condition, you need to force close the app.  foobar.
     fun onClickTextOutput() {
         Log.d(TAG, "onClickTextOutput")
         m_robotCommand = RobotCommandModel(textOutput.text.toString(), "3")

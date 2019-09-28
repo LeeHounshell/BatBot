@@ -92,7 +92,7 @@ class BluetoothFragment : Fragment() {
     fun onClickConnect() {
         Log.d(TAG, "onClickConnect")
         // Cancel discovery because it otherwise slows down the connection.
-        m_BluetoothViewModel.m_BluetoothAdapter?.cancelDiscovery()
+        m_BluetoothViewModel.cancelDiscovery()
         gotoControlActivity(m_selectedDevice)
     }
 

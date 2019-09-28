@@ -39,7 +39,7 @@ class BluetoothActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_ENABLE_BLUETOOTH) {
             if (resultCode == Activity.RESULT_OK) {
-                if (m_BluetoothViewModel?.m_BluetoothAdapter!!.isEnabled) {
+               if (m_BluetoothViewModel!!.isAdapterInitialized()) {
                     Log.i(TAG, "onActivityResult: Bluetooth Enabled")
 
                     //--------------------------------------------------
