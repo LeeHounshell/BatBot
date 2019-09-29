@@ -13,7 +13,7 @@ an experimental AI vision robot
 
  This project also includes a modified version of BlueDot by Martin O'Hanlon. You can find BlueDot here: https://github.com/martinohanlon/BlueDot
 
- The Elegoo Arduino Robot Car is programmed in 'C' and uses Serial over USB communication.  It acts like a 'slave' for the Jetson Nano, carrying out mostly low-level tasks and reporting back. The Arduino and Nano communicate via the Serial cable connecting them.
+ The Elegoo Arduino Robot Car is programmed in 'C' and uses Serial over USB communication.  It acts like a 'slave' for the Jetson Nano, carrying out mostly low-level tasks and reporting back. The Arduino and Nano communicate via the Serial cable connecting them. Note that when any object gets closer than 10cm to the distance sensor, the robot automatically stops.
 
 
 ## The BatBot
@@ -26,13 +26,13 @@ an experimental AI vision robot
 
 ## The app connected screen:
 
-The large oval bat image functions as a virtual joystick.  If you press it, a blue circle appears under your finger, and a larger circular boundry area also displays. The finger tracking image moves as you move your finger, within boundry limits. The log display shows joystick movement and clicks.
+The large oval bat image functions as a virtual joystick.  If you press it, a blue circle appears under your finger, and a larger circular boundry area also displays. The finger tracking image moves as you move your finger, within boundry limits. The log area shows the last 7 lines or so of log data from the Jetson Nano. Log data includes voice commands, status, state, joystick movement, clicks and more. Displayed data currently scrolls offscreen as new log data arrives.
 
 ![screen](../master/screens/BatBot_connected.jpg)
 
 ## An example voice command and response:
 
-Here the command 'Show sensor values' was spoken. The recognized spoken text appears above the logs section, in white bold text. That text also acts as a 'repeat' button, so just click it to repeat your last voice command. You can see results of voice command execution in the log section.
+Here the command 'Show sensor values' was spoken. The recognized spoken text appears under the joystick and above the logs section, in white bold text. That text also acts as a 'repeat' button, so just click it to repeat your last voice command. You can see results of voice command execution in the log section and in the robot's behavior.
 
 ![screen](../master/screens/BatBot_voice_command.jpg)
 
