@@ -24,7 +24,7 @@ an experimental AI vision robot
 
   The app connected screen:
 
-![screen](../master/screens/BatBot_connectd.jpg)
+![screen](../master/screens/BatBot_connected.jpg)
 
   An example voice command and response:
 
