@@ -196,7 +196,7 @@ char number[16];
 int speed_delta() {
   // compute range DEFAULT_SPEED .. MAX_CAR_SPEED
   // (joystick / 9) == (x / OFFSET_SPEED).  solve for x then adjust
-  return int((joystick / 9.0) * OFFSET_SPEED) + OFFSET_SPEED;
+  return int((joystick / 9.0) * OFFSET_SPEED);
 }
 
 void forward(){
