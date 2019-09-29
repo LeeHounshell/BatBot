@@ -1001,6 +1001,9 @@ boolean function_sharp() {
       if (LT_M) {
         forward();
       }
+      else if (! LT_L && ! LT_M && ! LT_R) {
+        stop();
+      }
       break;
     }
     case 2: {
@@ -1010,7 +1013,14 @@ boolean function_sharp() {
           if (Serial.available()) {
             break;
           }
+          if (! LT_L && ! LT_M && ! LT_R) {
+            stop();
+            break;
+          }
         }
+      }
+      else if (! LT_L && ! LT_M && ! LT_R) {
+        stop();
       }
       break;
     }
@@ -1021,7 +1031,14 @@ boolean function_sharp() {
           if (Serial.available()) {
             break;
           }
+          if (! LT_L && ! LT_M && ! LT_R) {
+            stop();
+            break;
+          }
         }
+      }
+      else if (! LT_L && ! LT_M && ! LT_R) {
+        stop();
       }
       followState = 0;
       break;
