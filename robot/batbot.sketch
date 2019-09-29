@@ -206,6 +206,8 @@ void forward(){
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
+  motion = "forward";
+  direction = UPARROW;
 }
 
 void back() {
@@ -215,6 +217,8 @@ void back() {
   digitalWrite(IN2, HIGH);
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
+  motion = "back";
+  direction = DOWNARROW;
 }
 
 void left() {
@@ -224,6 +228,8 @@ void left() {
   digitalWrite(IN2, HIGH);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
+  motion = "left";
+  direction = LEFTARROW;
 }
 
 void right() {
@@ -233,11 +239,15 @@ void right() {
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
+  motion = "right";
+  direction = RIGHTARROW;
 }
 
 void stop() {
   digitalWrite(ENA, LOW);
   digitalWrite(ENB, LOW);
+  motion = "stopped";
+  direction = ALLSTOP;
 }
 
 // ultrasonic distance measurement
@@ -417,6 +427,8 @@ void loop() {
       if (read_joystick) {
         read_joystick = 0;
         joystick = (time_t) read_python_int_value();
+        print("joystick=", 1);
+        println(toString(joystick), 0);
       }
     }
 
@@ -506,6 +518,15 @@ void increment_angle() {
   }
 }
 
+void set_servo_angle(int servoAngle) {
+  srvMillis = millis();
+  pinMode(SRVO_PIN, OUTPUT);
+  println("SERVO: on", 1);
+  myservo.write(servoAngle);
+  print("SET camera angle=", 1);
+  println(toString(servoAngle), 0);
+}
+
 void transmit_sensor_data(int servoSpeed) {
   if (! initialized) {
     return;
@@ -516,15 +537,11 @@ void transmit_sensor_data(int servoSpeed) {
   if (move_servo) {
     increment_angle();
     if (previousCameraAngle != cameraAngle) {
-      srvMillis = millis();
-      pinMode(SRVO_PIN, OUTPUT);
-      println("SERVO: on", 1);
-      myservo.write(cameraAngle);
-      print("SET cameraAngle=", 1);
-      println(toString(cameraAngle), 0);
+      set_servo_angle(cameraAngle);
     }
     previousCameraAngle = cameraAngle;
   }
+
   // turn the servo off when not in use
   if (srvMillis != 0L && ((millis() + 3000L) > srvMillis)) {
     srvMillis = 0L;
@@ -738,32 +755,24 @@ boolean function_set_joystick() {
 boolean function_up() {
   println("fn_up: go forward", 1);
   forward();
-  motion = "forward";
-  direction = UPARROW;
   return 1;
 }
 
 boolean function_left() {
   println("fn_left: go left", 1);
   left();
-  motion = "left";
-  direction = LEFTARROW;
   return 1;
 }
 
 boolean function_right() {
   println("fn_right: go right", 1);
   right();
-  motion = "right";
-  direction = RIGHTARROW;
   return 1;
 }
 
 boolean function_down() {
   println("fn_down: go back", 1);
   back();
-  motion = "back";
-  direction = DOWNARROW;
   return 1;
 }
 
@@ -771,9 +780,7 @@ boolean function_down() {
 boolean function_ok() {
   println("fn_ok: STOP", 1);
   stop();
-  direction = ALLSTOP;
   state = "default";
-  motion = "stopped";
   servoDelta = 0;
   joystick = 0;
   return 1;
@@ -913,7 +920,7 @@ boolean function_star() {
     state = "avoid";
     println("fn_star: 'avoid'", 1);
   }
-  myservo.write(90);
+  set_servo_angle(90);
   delay(500);
   aheadDistance = get_distance();
   if (aheadDistance <= 20) {
@@ -925,7 +932,7 @@ boolean function_star() {
       }
       case 2: {
         delay(500);
-        myservo.write(10);
+        set_servo_angle(10);
         break;
       }
       case 3: {
@@ -935,12 +942,12 @@ boolean function_star() {
       }
       case 4: {
         delay(500);
-        myservo.write(90);
+        set_servo_angle(90);
         break;
       }
       case 5: {
         delay(1000);
-        myservo.write(160);
+        set_servo_angle(160);
         break;
       }
       case 6: {
@@ -950,7 +957,7 @@ boolean function_star() {
       }
       case 7: {
         delay(500);
-        myservo.write(90);
+        set_servo_angle(90);
         break;
       }
       case 8: {
