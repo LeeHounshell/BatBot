@@ -26,9 +26,13 @@ an experimental AI vision robot
 
 ## The app connected screen:
 
+The large oval bat image functions as a virtual joystick.  If you press it, a blue circle appears under your finger, and a larger circular boundry area also displays. The finger tracking image moves as you move your finger, within boundry limits. The log display shows joystick movement and clicks.
+
 ![screen](../master/screens/BatBot_connected.jpg)
 
 ## An example voice command and response:
+
+Here the command 'Show sensor values' was spoken. The recognized spoken text appears above the logs section, in white bold text. That text also acts as a 'repeat' button, so just click it to repeat your last voice command. You can see results of voice command execution in the log section.
 
 ![screen](../master/screens/BatBot_voice_command.jpg)
 
