@@ -7,9 +7,9 @@ an experimental AI vision robot
 
  The companion Android app is a MVVM pattern written in Kotlin and Java. It uses the Bluetooth/BlueDot work by Martin O'Hanlon for joystick controls and for communication to/from the Jetson Nano.
 
- The Jetson Nano is programmed with Python and uses the BlueDot Bluetooth library, the PySerial library, the ImageAI library and dependencies. The Nano runs the AI visual pattern recognition and behavior control software and uses 'ImageAI' to tie it together, to easily change the deep learninging approach being tested.  There is no need for a LCD display to report an IP address; the Bluetooth companion app using speech recognition magic will show the Nano's IP.
+ The Jetson Nano is programmed with Python and uses the BlueDot Bluetooth library, the PySerial library, the ImageAI library and dependencies. The Nano runs the AI visual pattern recognition and behavior control software and uses 'ImageAI' to tie it together. That lets you easily change the deep learninging approach being tested.  There is no need for a LCD display to report an IP address; the Bluetooth companion app using speech recognition magic will show the Nano's IP.
 
- This project includes the pre-trained 'yolo-tiny.h5' from the 'ImageAI' project.  See https://github.com/OlafenwaMoses/ImageAI and https://stackabuse.com/object-detection-with-imageai-in-python/
+ This project uses 'ImageAI' and includes the pre-trained 'yolo-tiny.h5' from the 'ImageAI' project.  See https://github.com/OlafenwaMoses/ImageAI and https://stackabuse.com/object-detection-with-imageai-in-python/
 
  This project also includes a modified version of BlueDot by Martin O'Hanlon. You can find BlueDot here: https://github.com/martinohanlon/BlueDot
 
