@@ -93,21 +93,25 @@ class ControlActivity : AppCompatActivity() {
 
     fun onClickButtonStar(v: View) {
         Log.d(TAG, "onClickButtonStar")
+        v.playSoundEffect(android.view.SoundEffectConstants.CLICK)
         m_ControlViewModel?.doClickStar()
     }
 
-    fun onClickButtonOk(v: View?) {
+    fun onClickButtonOk(v: View) {
         Log.d(TAG, "onClickButtonOk")
+        v.playSoundEffect(android.view.SoundEffectConstants.CLICK)
         m_ControlViewModel?.doClickOk()
     }
 
     fun onClickButtonSharp(v: View) {
         Log.d(TAG, "onClickButtonSharp")
+        v.playSoundEffect(android.view.SoundEffectConstants.CLICK)
         m_ControlViewModel?.doClickSharp()
     }
 
     fun onClickTranslateSpeech(v: View) {
         Log.d(TAG, "onClickTranslateSpeech")
+        v.playSoundEffect(android.view.SoundEffectConstants.CLICK)
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
         try {
             startActivityForResult(intent, REQUEST_CODE)

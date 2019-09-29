@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/space1"
                 android:text="@string/refresh"
-                android:onClick="@{() -> btFragment.onClickRefresh()}"
+                android:onClick="@{(v) -> btFragment.onClickRefresh(v)}"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp" />
 
@@ -64,7 +64,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/space3"
-                android:onClick="@{() -> btFragment.onClickConnect()}"
+                android:onClick="@{(v) -> btFragment.onClickConnect(v)}"
                 android:text="@string/connect"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"

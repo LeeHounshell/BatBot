@@ -40,7 +40,7 @@
                 android:layout_marginEnd="16dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:onClick="@{() -> btViewModel.selectDevice(btDeviceModel)}"
+                android:onClick="@{(v) -> btViewModel.selectDevice(v, btDeviceModel)}"
                 android:checked="@={selected}"
                 android:text="@{Integer.toString(safeUnbox(selectionId))}"
                 android:textSize="20sp" />
@@ -50,7 +50,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="@{() -> btViewModel.selectDevice(btDeviceModel)}"
+            android:onClick="@{(v) -> btViewModel.selectDevice(v, btDeviceModel)}"
             android:orientation="vertical">
 
             <TextView

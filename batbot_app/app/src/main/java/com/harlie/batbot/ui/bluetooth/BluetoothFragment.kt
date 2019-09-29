@@ -83,14 +83,16 @@ class BluetoothFragment : Fragment() {
         })
     }
 
-    fun onClickRefresh() {
+    fun onClickRefresh(v: View) {
         Log.d(TAG, "onClickRefresh")
+        v.playSoundEffect(android.view.SoundEffectConstants.CLICK)
         m_BluetoothFragmentBinding.selected = false
         m_BluetoothViewModel.initializeDeviceList(context!!)
     }
 
-    fun onClickConnect() {
+    fun onClickConnect(v: View) {
         Log.d(TAG, "onClickConnect")
+        v.playSoundEffect(android.view.SoundEffectConstants.CLICK)
         // Cancel discovery because it otherwise slows down the connection.
         m_BluetoothViewModel.cancelDiscovery()
         gotoControlActivity(m_selectedDevice)

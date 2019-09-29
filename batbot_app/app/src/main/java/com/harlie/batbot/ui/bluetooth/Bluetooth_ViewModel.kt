@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -30,8 +31,9 @@ class Bluetooth_ViewModel : ViewModel() {
         return m_bluetoothDevicesList.value!!.get(selectionId)
     }
 
-    fun selectDevice(btDeviceModel: BluetoothDeviceModel) {
+    fun selectDevice(v: View, btDeviceModel: BluetoothDeviceModel) {
         Log.d(TAG, "selectDevice(name=" + btDeviceModel.bt_name + ", address=" + btDeviceModel.device.address)
+        v.playSoundEffect(android.view.SoundEffectConstants.CLICK)
         for (device in m_bluetoothDevicesList.value!!) {
             if (device != btDeviceModel) {
                 device.selectDevice(false)

@@ -425,6 +425,7 @@ class ControlFragment : Fragment() {
 
     fun onClickTextOutput() {
         Log.d(TAG, "onClickTextOutput")
+        textOutput.playSoundEffect(android.view.SoundEffectConstants.CLICK)
         m_robotCommand = RobotCommandModel(textOutput.text.toString(), "3")
         m_ControlViewModel?.processAndDecodeMessage(m_robotCommand!!)
     }
