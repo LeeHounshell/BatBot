@@ -210,7 +210,10 @@ def send_joystick_09_to_arduino(joystick):
 
 def move_arduino_using_joystick(direction):
     print("DBG: move_arduino_using_joystick=" + direction)
-    if direction == 'AHEAD':
+    if direction == 'STOP':
+        command_array = [allstop]
+        write_commands(command_array)
+    elif direction == 'AHEAD':
         command_array = [uparrow]
         write_commands(command_array)
     elif direction == 'BACK':
@@ -325,7 +328,7 @@ def process_blue_dot_slider(movementCommand):
         print("ERROR: process_blue_dot_slider: e=" + str(e))
     return str(slider)
 
-def process_blue_dot_joystick(movementCommand):
+def process_blue_dot_joystick(movementCommand, isRelease):
     movementData = movementCommand.split(',')
     global joy_direction
     global joystick
@@ -382,10 +385,14 @@ def process_blue_dot_joystick(movementCommand):
             joystick = int((joystick / JOY_MAX_VALUE) * 9)
             if joystick > 9:
                 joystick = 9
+
+            if isRelease:
+                joy_direction = 'STOP'
+
             print("DBG: calculated joystick=" + str(joystick))
             print("DBG: calculated joy_direction=" + joy_direction)
 
-            if joystick != prev_joystick:
+            if isRelease or joystick != prev_joystick:
                 prev_joystick = joystick
                 send_joystick_09_to_arduino(joystick)
                 move_arduino_using_joystick(joy_direction)
@@ -560,15 +567,15 @@ def data_received(commandsFromPhone):
             if not valid:
                 if (state == 'default'):
                     if data.startswith('2,'): # BlueDot onMove
-                        data = 'JOYSTICK: ' + process_blue_dot_joystick(data)
+                        data = 'JOYSTICK: ' + process_blue_dot_joystick(data, False)
                         result = result + read_all_data_from_arduino()
                         valid = True
                     elif data.startswith('1,'): # BlueDot onPress
-                        data = 'CLICK: ' + process_blue_dot_joystick(data)
+                        data = 'CLICK: ' + process_blue_dot_joystick(data, False)
                         result = result + read_all_data_from_arduino()
                         valid = True
                     elif data.startswith('0,'): # BlueDot onRelease
-                        data = 'RELEASE: ' + process_blue_dot_joystick(data)
+                        data = 'RELEASE: ' + process_blue_dot_joystick(data, True)
                         result = result + read_all_data_from_arduino()
                         valid = True
                 else:
