@@ -527,6 +527,28 @@ void set_servo_angle(int servoAngle) {
   println(toString(servoAngle), 0);
 }
 
+void show_lt_values(int force) {
+  // transmit line following sensor values
+  lt_r = LT_R;
+  if (force || lt_r != previous_lt_r) {
+    print("LT_R=", 1);
+    println(toString(lt_r), 0);
+    previous_lt_r = lt_r;
+  }
+  lt_m = LT_M;
+  if (force || lt_m != previous_lt_m) {
+    print("LT_M=", 1);
+    println(toString(lt_m), 0);
+    previous_lt_m = lt_m;
+  }
+  lt_l = LT_L;
+  if (force || lt_l != previous_lt_l) {
+    print("LT_L=", 1);
+    println(toString(lt_l), 0);
+    previous_lt_l = lt_l;
+  }
+}
+
 void transmit_sensor_data(int servoSpeed) {
   if (! initialized) {
     return;
@@ -573,25 +595,7 @@ void transmit_sensor_data(int servoSpeed) {
     previousDistanceAngle = cameraAngle;
   }
 
-  // transmit line following sensor values
-  lt_r = LT_R;
-  if (lt_r != previous_lt_r) {
-    print("LT_R=", 1);
-    println(toString(lt_r), 0);
-    previous_lt_r = lt_r;
-  }
-  lt_m = LT_M;
-  if (lt_m != previous_lt_m) {
-    print("LT_M=", 1);
-    println(toString(lt_m), 0);
-    previous_lt_m = lt_m;
-  }
-  lt_l = LT_L;
-  if (lt_l != previous_lt_l) {
-    print("LT_L=", 1);
-    println(toString(lt_l), 0);
-    previous_lt_l = lt_l;
-  }
+  show_lt_values(0);
 }
 
 boolean is_outside_delta(int distance1, int distance2, int theDelta) {
@@ -1003,6 +1007,7 @@ boolean function_sharp() {
     println("fn_sharp: 'following'", 1);
   }
   ++followState;
+  show_lt_values(1);
   switch (followState) {
     case 1: {
       if (LT_M) {
