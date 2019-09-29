@@ -200,54 +200,54 @@ int speed_delta() {
 }
 
 void forward(){
+  motion = "forward";
+  direction = UPARROW;
   analogWrite(ENA, DEFAULT_SPEED + speed_delta());
   analogWrite(ENB, DEFAULT_SPEED + speed_delta());
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
-  motion = "forward";
-  direction = UPARROW;
 }
 
 void back() {
+  motion = "back";
+  direction = DOWNARROW;
   analogWrite(ENA, DEFAULT_SPEED + speed_delta());
   analogWrite(ENB, DEFAULT_SPEED + speed_delta());
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
-  motion = "back";
-  direction = DOWNARROW;
 }
 
 void left() {
+  motion = "left";
+  direction = LEFTARROW;
   analogWrite(ENA, DEFAULT_SPEED + speed_delta());
   analogWrite(ENB, DEFAULT_SPEED + speed_delta());
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
-  motion = "left";
-  direction = LEFTARROW;
 }
 
 void right() {
+  motion = "right";
+  direction = RIGHTARROW;
   analogWrite(ENA, DEFAULT_SPEED + speed_delta());
   analogWrite(ENB, DEFAULT_SPEED + speed_delta());
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
-  motion = "right";
-  direction = RIGHTARROW;
 }
 
 void stop() {
-  digitalWrite(ENA, LOW);
-  digitalWrite(ENB, LOW);
   motion = "stopped";
   direction = ALLSTOP;
+  digitalWrite(ENA, LOW);
+  digitalWrite(ENB, LOW);
 }
 
 // ultrasonic distance measurement
@@ -787,7 +787,6 @@ boolean function_ok() {
   stop();
   state = "default";
   servoDelta = 0;
-  joystick = 0;
   return 1;
 }
 
@@ -905,7 +904,7 @@ boolean function_five() {
     servoDelta = 10;
     println("fn_five: 'map'", 1);
   }
-  // FIXME
+  // FIXME: communicate with the Nano to map everything
   return 1;
 }
 
@@ -1002,6 +1001,7 @@ boolean function_star() {
 }
 
 // run Elegoo line following modified for Serial interrupt
+// FIXME: stop() case must talk with Jetson Nano for instructions
 boolean function_sharp() {
   if (*state != 'f') {
     state = "following";
