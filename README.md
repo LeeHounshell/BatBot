@@ -15,5 +15,18 @@ an experimental AI vision robot
 
  The Elegoo Arduino Robot Car is programmed in 'C' and uses Serial over USB communication.  It acts like a 'slave' for the Jetson Nano, carrying out mostly low-level tasks and reporting back. The Arduino and Nano communicate via the Serial cable connecting them.
 
+
 ![screen](../master/screens/batbot.png)
+
+  Initial screen from companion Android app:
+
+![screen](../master/screens/BatBot_connect.jpg)
+
+  The app connected screen:
+
+![screen](../master/screens/BatBot_connectd.jpg)
+
+  An example voice command and response:
+
+![screen](../master/screens/BatBot_voice_command.jpg)
 
