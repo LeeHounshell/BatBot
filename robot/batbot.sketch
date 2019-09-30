@@ -103,6 +103,8 @@ unsigned int previous_lt_r, previous_lt_m, previous_lt_l;
 char direction                = ALLSTOP;
 char *state                   = "default";
 char *motion                  = "stopped";
+int ir_toggle_forward         = 0;
+int ir_toggle_backward        = 0;
 
 //----------------------------------------
 //-------------- DISTANCE ----------------
@@ -319,12 +321,26 @@ void loop() {
       cmd = 0;
       if (ir_value == IR_FORWARD) {
         raw_cmd = "--> IR_FORWARD";
-        cmd = UPARROW;
+        ir_toggle_forward = ! ir_toggle_forward;
+        if (ir_toggle_forward) {
+          ircMillis = 0L;
+          cmd = UPARROW;
+        }
+        else {
+          cmd = ALLSTOP;
+        }
         have_cmd = 1;
       }
       else if (ir_value == IR_BACK) {
         raw_cmd = "--> IR_BACK";
-        cmd = DOWNARROW;
+        ir_toggle_backward = ! ir_toggle_backward;
+        if (ir_toggle_forward) {
+          ircMillis = 0L;
+          cmd = DOWNARROW;
+        }
+        else {
+          cmd = ALLSTOP;
+        }
         have_cmd = 1;
       }
       else if (ir_value == IR_RIGHT) {
