@@ -22,7 +22,9 @@ camera_angle      = 90
 uparrow           = 'F' # Foward
 downarrow         = 'B' # Back
 rightarrow        = 'R' # Right
+rightspin         = 'I' # Spin Right
 leftarrow         = 'L' # Left
+leftspin          = 'J' # Spin Left
 
 lookright         = '1' # Function 1
 lookahead         = '2' # Function 2
@@ -69,6 +71,7 @@ def batbot_help():
     data = data + 'back, '
     data = data + 'right, '
     data = data + 'left, '
+    data = data + 'spin, '
     data = data + 'stop, '
     data = data + 'faster, '
     data = data + 'slower, '
@@ -444,7 +447,7 @@ def data_received(commandsFromPhone):
             printResult = True
             camera_angle = 90
             valid = True
-        elif 'look right' in data or 'turn right' in data:
+        elif 'look right' in data or 'focus right' in data:
             if camera_angle == 45:
                 command_array = [lookfullright]
                 result = result + execute_commands(command_array)
@@ -455,12 +458,7 @@ def data_received(commandsFromPhone):
                 camera_angle = 45
             printResult = True
             valid = True
-        elif 'right' in data:
-            command_array = [rightarrow]
-            result = result + execute_commands(command_array)
-            printResult = True
-            valid = True
-        elif 'look left' in data or 'turn left' in data:
+        elif 'look left' in data or 'focus left' in data:
             if camera_angle == 135:
                 command_array = [lookfullleft]
                 result = result + execute_commands(command_array)
@@ -469,6 +467,21 @@ def data_received(commandsFromPhone):
                 command_array = [lookleft]
                 result = result + execute_commands(command_array)
                 camera_angle = 135
+            printResult = True
+            valid = True
+        elif 'spin right' in data or 'spinrite' in data or 'spin around' in data:
+            command_array = [rightspin]
+            result = result + execute_commands(command_array)
+            printResult = True
+            valid = True
+        elif 'spin left' in data or 'turn around' in data:
+            command_array = [leftspin]
+            result = result + execute_commands(command_array)
+            printResult = True
+            valid = True
+        elif 'right' in data:
+            command_array = [rightarrow]
+            result = result + execute_commands(command_array)
             printResult = True
             valid = True
         elif 'left' in data:

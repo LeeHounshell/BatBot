@@ -6,6 +6,7 @@
 #include <Servo.h>
 #include "TimeLib.h"
 
+
 #define null 0
 
 //----------------------------------------
@@ -37,7 +38,9 @@
 #define UPARROW           70 // 'F'
 #define DOWNARROW         66 // 'B'
 #define RIGHTARROW        82 // 'R'
+#define RIGHTSPIN         73 // 'I'
 #define LEFTARROW         76 // 'L'
+#define LEFTSPIN          74 // 'J'
 #define ALLSTOP           72 // 'H'
 #define DO_FUNCTION_ONE   49 // '1'
 #define DO_FUNCTION_TWO   50 // '2'
@@ -165,9 +168,11 @@ int adjustTimeZone            = -(7 * 60 * 60);
 time_t nowMillis              = 0L;
 time_t prvMillis              = 0L;
 time_t senMillis              = 0L;
-time_t cmdMillis              = 0L;
 time_t srvMillis              = 0L;
 time_t joystick               = 0L;
+time_t cmdMillis              = 0L;
+
+unsigned int cmdMillisLoop    = 1;
 
 //----------------------------------------
 //--------------- COMMAND ----------------
@@ -297,17 +302,25 @@ void setup() {
 
 void loop() {
   nowMillis = millis();
+
   if (initialized) {
     if ((nowMillis - prvMillis) > 5000) {
       prvMillis = nowMillis;
       show_state();
     }
-    // the right/left commands only last a third of a second
+    // the go right/left commands only last a third of a second
+    // the spin right/left commands last longer
     if (cmdMillis != 0) {
       if (have_cmd && (nowMillis - cmdMillis) > RIGHT_LEFT_TIMEOUT) {
-        stop();
-        have_cmd = 0;
-        cmdMillis = 0L;
+        if (cmdMillisLoop > 1) {
+          --cmdMillisLoop;
+          cmdMillis = millis();
+        }
+        else {
+          stop();
+          have_cmd = 0;
+          cmdMillis = 0L;
+        }
       }
     }
   }
@@ -565,6 +578,27 @@ void show_lt_values() {
   }
 }
 
+void show_state() {
+  char *dir = "";
+  if (direction == ALLSTOP) {
+    dir = "STOP";
+  }
+  else if (direction == UPARROW) {
+    dir = "AHEAD";
+  }
+  else if (direction == DOWNARROW) {
+    dir = "BACK";
+  }
+  else if (direction == RIGHTARROW) {
+    dir = "RIGHT";
+  }
+  else if (direction == LEFTARROW) {
+    dir = "LEFT";
+  }
+  snprintf(status, sizeof(status), "State: %s %s, Joystick: %s %d", state, motion, dir, (int) joystick);
+  println(status, 1);
+}
+
 void transmit_sensor_data(int servoSpeed) {
   if (! initialized) {
     return;
@@ -703,9 +737,15 @@ boolean execute_command(int cmd) {
         case GAME_S:
           valid = function_down();
           break;
+        case LEFTSPIN:
+          valid = function_left_spin();
+          break;
         case LEFTARROW:
         case GAME_A:
           valid = function_left();
+          break;
+        case RIGHTSPIN:
+          valid = function_right_spin();
           break;
         case RIGHTARROW:
         case GAME_D:
@@ -761,34 +801,52 @@ boolean execute_command(int cmd) {
 // CUSTOM IR-REMOTE and SERIAL COMMANDS
 
 boolean function_set_time() {
-  println("fn_set_time: do set", 1);
+  println("$ set time", 1);
   // setup to interpret the next Serial input as date and time
   read_time_value = 1;
   return 1;
 }
 
 boolean function_set_joystick() {
-  //println("fn_set_joystick: do set", 1);
+  //println("$ set joystick", 1);
   read_joystick = 1;
   return 1;
 }
 
 boolean function_up() {
-  println("fn_up: go forward", 1);
+  println("$ go forward", 1);
   forward();
   return 1;
 }
 
+boolean function_left_spin() {
+  println("$ spin left", 1);
+  left();
+  cmdMillis = millis();
+  cmdMillisLoop = 9;
+  have_cmd = 1;
+  return 1;
+}
+
 boolean function_left() {
-  println("fn_left: go left", 1);
+  println("$ go left", 1);
   left();
   cmdMillis = millis();
   have_cmd = 1;
   return 1;
 }
 
+boolean function_right_spin() {
+  println("$ spin right", 1);
+  right();
+  cmdMillis = millis();
+  cmdMillisLoop = 9;
+  have_cmd = 1;
+  return 1;
+}
+
 boolean function_right() {
-  println("fn_right: go right", 1);
+  println("$ go right", 1);
   right();
   cmdMillis = millis();
   have_cmd = 1;
@@ -796,14 +854,14 @@ boolean function_right() {
 }
 
 boolean function_down() {
-  println("fn_down: go back", 1);
+  println("$ go back", 1);
   back();
   return 1;
 }
 
 // reset to defaults
 boolean function_ok() {
-  println("fn_ok: STOP", 1);
+  println("$ STOP", 1);
   stop();
   state = "default";
   servoDelta = 0;
@@ -812,55 +870,54 @@ boolean function_ok() {
 
 // look right
 boolean function_one() {
-  println("fn_one: look toward left", 1);
+  println("$ look toward left", 1);
   set_angle(55, servoDelta);
   return 1;
 }
 
 // look ahead
 boolean function_two() {
-  println("fn_two: look ahead", 1);
+  println("$ look ahead", 1);
   set_angle(90, servoDelta);
   return 1;
 }
 
 // look left
 boolean function_three() {
-  println("fn_three: look toward right", 1);
+  println("$ look toward right", 1);
   set_angle(125, servoDelta);
   return 1;
 }
 
 // look full right
 boolean function_four() {
-  println("fn_four: look full left", 1);
+  println("$ look full left", 1);
   set_angle(20, servoDelta);
   return 1;
 }
 
 // look full left
 boolean function_six() {
-  println("fn_six: look full right", 1);
+  println("$ look full right", 1);
   set_angle(160, servoDelta);
   return 1;
 }
 
 // go slower
 boolean function_seven() {
-  print(toString(joystick), 0);
   if (joystick > 0) {
      --joystick;
   }
   else {
     println("-limit", 1);
   }
-  print("fn_seven: (slower) joystick=", 1);
+  print("$ (slower) joystick=", 1);
   return 1;
 }
 
 // sensors: return all sensor and status data
 boolean function_eight() {
-  println("fn_eight: 'sensors'", 1);
+  println("$ 'sensors'", 1);
   print("Last Distance: ", 1);
   println(toString(distance), 0);
   print("Ahead Distance: ", 1);
@@ -883,27 +940,6 @@ boolean function_eight() {
   return 1;
 }
 
-void show_state() {
-  char *dir = "";
-  if (direction == ALLSTOP) {
-    dir = "STOP";
-  }
-  else if (direction == UPARROW) {
-    dir = "AHEAD";
-  }
-  else if (direction == DOWNARROW) {
-    dir = "BACK";
-  }
-  else if (direction == RIGHTARROW) {
-    dir = "RIGHT";
-  }
-  else if (direction == LEFTARROW) {
-    dir = "LEFT";
-  }
-  snprintf(status, sizeof(status), "State: %s %s, Joystick: %s %d", state, motion, dir, (int) joystick);
-  println(status, 1);
-}
-
 // go faster
 boolean function_nine() {
   if (joystick < 9) {
@@ -912,7 +948,7 @@ boolean function_nine() {
   else {
     println("+limit", 1);
   }
-  print("fn_nine: (faster) joystick=", 1);
+  print("$ (faster) joystick=", 1);
   print(toString(joystick), 0);
   return 1;
 }
@@ -922,7 +958,7 @@ boolean function_five() {
   if (*state != 'm') {
     state = "map";
     servoDelta = 10;
-    println("fn_five: 'map'", 1);
+    println("$ 'map'", 1);
   }
   // FIXME: communicate with the Nano to map everything
   return 1;
@@ -932,7 +968,7 @@ boolean function_five() {
 boolean function_zero() {
   if (*state != 's') {
     state = "security";
-    println("fn_zero: 'monitor'", 1);
+    println("$ 'monitor'", 1);
   }
   // FIXME
   return 1;
@@ -942,7 +978,7 @@ boolean function_zero() {
 boolean function_star() {
   if (*state != 'a') {
     state = "avoid";
-    println("fn_star: 'avoid'", 1);
+    println("$ 'avoid'", 1);
   }
   set_servo_angle(90);
   delay(500);
@@ -1025,7 +1061,7 @@ boolean function_star() {
 boolean function_sharp() {
   if (*state != 'f') {
     state = "following";
-    println("fn_sharp: 'following'", 1);
+    println("$ 'following'", 1);
   }
   ++followState;
   show_lt_values();
