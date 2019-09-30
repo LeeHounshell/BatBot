@@ -77,10 +77,11 @@ int Trig =         A5; // ultrasonic
 //----------------------------------------
 //--------------- TIMING -----------------
 
-#define cameraStart  90
-#define moveFast        500
-#define moveNormal      750
-#define moveSlow       1000
+#define RIGHT_LEFT_TIMEOUT  300
+#define cameraStart          90
+#define moveFast            500
+#define moveNormal          750
+#define moveSlow           1000
 
 //----------------------------------------
 //-------------- SENSORS -----------------
@@ -161,10 +162,10 @@ int initialized               = 0;
 // FIXME: still need to adjust for daylight savings time here
 int adjustTimeZone            = -(7 * 60 * 60);
 
-time_t curMillis              = 0L;
+time_t nowMillis              = 0L;
 time_t prvMillis              = 0L;
 time_t senMillis              = 0L;
-time_t ircMillis              = 0L;
+time_t cmdMillis              = 0L;
 time_t srvMillis              = 0L;
 time_t joystick               = 0L;
 
@@ -295,18 +296,18 @@ void setup() {
 }
 
 void loop() {
-  curMillis = millis();
+  nowMillis = millis();
   if (initialized) {
-    if ((curMillis - prvMillis) > 5000) {
-      prvMillis = curMillis;
+    if ((nowMillis - prvMillis) > 5000) {
+      prvMillis = nowMillis;
       show_state();
     }
-    // the IR button effects only last 1 second
-    if (ircMillis != 0) {
-      if (have_cmd && (curMillis - ircMillis) > 1000) {
+    // the right/left commands only last a third of a second
+    if (cmdMillis != 0) {
+      if (have_cmd && (nowMillis - cmdMillis) > RIGHT_LEFT_TIMEOUT) {
         stop();
         have_cmd = 0;
-        ircMillis = 0L;
+        cmdMillis = 0L;
       }
     }
   }
@@ -316,14 +317,12 @@ void loop() {
     ir_value = results.value;
     irrecv.resume();
     if (ir_value != -1) {
-      ircMillis = millis();
       raw_cmd = null;
       cmd = 0;
       if (ir_value == IR_FORWARD) {
         raw_cmd = "--> IR_FORWARD";
         ir_toggle_forward = ! ir_toggle_forward;
         if (ir_toggle_forward) {
-          ircMillis = 0L;
           cmd = UPARROW;
         }
         else {
@@ -335,7 +334,6 @@ void loop() {
         raw_cmd = "--> IR_BACK";
         ir_toggle_backward = ! ir_toggle_backward;
         if (ir_toggle_forward) {
-          ircMillis = 0L;
           cmd = DOWNARROW;
         }
         else {
@@ -782,12 +780,14 @@ boolean function_up() {
 boolean function_left() {
   println("fn_left: go left", 1);
   left();
+  cmdMillis = millis();
   return 1;
 }
 
 boolean function_right() {
   println("fn_right: go right", 1);
   right();
+  cmdMillis = millis();
   return 1;
 }
 
