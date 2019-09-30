@@ -783,6 +783,7 @@ boolean function_left() {
   println("fn_left: go left", 1);
   left();
   cmdMillis = millis();
+  have_cmd = 1;
   return 1;
 }
 
@@ -790,6 +791,7 @@ boolean function_right() {
   println("fn_right: go right", 1);
   right();
   cmdMillis = millis();
+  have_cmd = 1;
   return 1;
 }
 
