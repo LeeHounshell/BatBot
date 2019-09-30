@@ -550,7 +550,12 @@ def data_received(commandsFromPhone):
             printResult = True
             valid = True
         elif 'identify' in data: # FIXME: identify what robot is looking at
-            result = result + 'FIXME: learn to identify'
+            for line in run_command('./capture_and_identify.sh'):
+                try:
+                    text = line.decode('ascii')
+                    result = result + text
+                except Exception as e:
+                    print("ERROR: data_received: e=" + str(e))
             printResult = True
             valid = True
         elif 'learn' in data: # FIXME: teach item name
