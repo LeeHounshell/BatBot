@@ -17,6 +17,7 @@ class Control_ViewModel : ViewModel() {
     private var m_BluetoothChatService = BluetoothChatService()
 
     private lateinit var m_inputCommand: MutableLiveData<RobotCommandModel>
+    private lateinit var m_textOutputClicked: MutableLiveData<Boolean>
     private lateinit var m_starClicked: MutableLiveData<Boolean>
     private lateinit var m_okClicked: MutableLiveData<Boolean>
     private lateinit var m_sharpClicked: MutableLiveData<Boolean>
@@ -27,12 +28,14 @@ class Control_ViewModel : ViewModel() {
         Log.d(TAG, "initLiveData")
         // if bluetooth fails these need to be reset for the next activity
         m_inputCommand = MutableLiveData<RobotCommandModel>()
+        m_textOutputClicked = MutableLiveData<Boolean>()
         m_starClicked = MutableLiveData<Boolean>()
         m_okClicked = MutableLiveData<Boolean>()
         m_sharpClicked = MutableLiveData<Boolean>()
     }
 
     fun getInputCommand(): LiveData<RobotCommandModel> = m_inputCommand
+    fun getTextOutputClicked(): LiveData<Boolean> = m_textOutputClicked
     fun getStarClicked(): LiveData<Boolean> = m_starClicked
     fun getOkClicked(): LiveData<Boolean> = m_okClicked
     fun getSharpClicked(): LiveData<Boolean> = m_sharpClicked
@@ -50,6 +53,11 @@ class Control_ViewModel : ViewModel() {
         Log.d(TAG, "processAndDecodeMessage: " + robotCommand.robotCommand + ", priority=" + robotCommand.commandPriority)
         // FUTURE: pre-analyze the command using ANTLR?
         m_inputCommand.postValue(robotCommand)
+    }
+
+    fun doClickTextOutput() {
+        Log.d(TAG, "doClickTextOutput")
+        m_textOutputClicked.postValue(true)
     }
 
     fun doClickStar() {

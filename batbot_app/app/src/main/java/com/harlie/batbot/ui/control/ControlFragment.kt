@@ -77,7 +77,6 @@ class ControlFragment : Fragment() {
         )
         m_ControlFragBinding.robotCommand = m_robotCommand
         m_ControlFragBinding.robotConnection = m_robotConnection
-        m_ControlFragBinding.ctFragment = this
         m_ControlFragBinding.lifecycleOwner = viewLifecycleOwner
         m_ControlFragBinding.executePendingBindings()
 
@@ -104,6 +103,15 @@ class ControlFragment : Fragment() {
                 Log.d(TAG, "observe getInputCommand() ===> it.m_robotCommand=" + it.robotCommand)
                 m_robotCommand.robotCommand = it.robotCommand
                 m_robotCommand.commandPriority = it.commandPriority
+                send(m_robotCommand.robotCommand) // send command to the robot
+                m_ControlFragBinding.robotCommand?.notifyChange()
+            }
+        })
+
+        m_ControlViewModel!!.getTextOutputClicked().observe(this, Observer {
+            it?.let {
+                Log.d(TAG, "observe getTextOutputClicked() ===> " + it)
+                m_robotCommand.robotCommand = textOutput.text.toString()
                 send(m_robotCommand.robotCommand) // send command to the robot
                 m_ControlFragBinding.robotCommand?.notifyChange()
             }
@@ -421,13 +429,6 @@ class ControlFragment : Fragment() {
     private fun msg(message: String) {
         Log.d(TAG, "msg: " + message)
         status.text = message
-    }
-
-    fun onClickTextOutput() {
-        Log.d(TAG, "onClickTextOutput")
-        textOutput.playSoundEffect(android.view.SoundEffectConstants.CLICK)
-        m_robotCommand = RobotCommandModel(textOutput.text.toString(), "3")
-        m_ControlViewModel?.processAndDecodeMessage(m_robotCommand!!)
     }
 
     private fun disconnect() {

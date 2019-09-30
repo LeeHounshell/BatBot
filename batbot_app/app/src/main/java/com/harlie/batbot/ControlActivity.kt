@@ -91,6 +91,12 @@ class ControlActivity : AppCompatActivity() {
         super.onResume()
     }
 
+    fun onClickTextOutput(v: View) {
+        Log.d(TAG, "onClickTextOutput")
+        v.playSoundEffect(android.view.SoundEffectConstants.CLICK)
+        m_ControlViewModel?.doClickTextOutput()
+    }
+
     fun onClickButtonStar(v: View) {
         Log.d(TAG, "onClickButtonStar")
         v.playSoundEffect(android.view.SoundEffectConstants.CLICK)
