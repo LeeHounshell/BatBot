@@ -319,6 +319,8 @@ void loop() {
     if (ir_value != -1) {
       raw_cmd = null;
       cmd = 0;
+      //print("ir_value=", 1);
+      //println(toString(ir_value), 0);
       if (ir_value == IR_FORWARD) {
         raw_cmd = "--> IR_FORWARD";
         ir_toggle_forward = ! ir_toggle_forward;
@@ -333,7 +335,7 @@ void loop() {
       else if (ir_value == IR_BACK) {
         raw_cmd = "--> IR_BACK";
         ir_toggle_backward = ! ir_toggle_backward;
-        if (ir_toggle_forward) {
+        if (ir_toggle_backward) {
           cmd = DOWNARROW;
         }
         else {
