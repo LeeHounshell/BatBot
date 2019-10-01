@@ -17,34 +17,36 @@ port = '/dev/ttyACM0' # note I'm using Jetson Nano
 arduino = serial.Serial(port,9600,timeout=5)
 time.sleep(3) # wait for Arduino
 
+capture_image     = '/tmp/identify.jpg'
+resolution        = 'hd' # one of ['3k', 'hd', 'sd']
 camera_angle      = 90
 
-uparrow           = 'F' # Foward
-downarrow         = 'B' # Back
-rightarrow        = 'R' # Right
-rightspin         = 'I' # Spin Right
-leftarrow         = 'L' # Left
-leftspin          = 'J' # Spin Left
+uparrow           = 'F'  # Foward
+downarrow         = 'B'  # Back
+rightarrow        = 'R'  # Right
+rightspin         = 'I'  # Spin Right
+leftarrow         = 'L'  # Left
+leftspin          = 'J'  # Spin Left
 
-lookright         = '1' # Function 1
-lookahead         = '2' # Function 2
-lookleft          = '3' # Function 3
+lookright         = '1'  # Function 1
+lookahead         = '2'  # Function 2
+lookleft          = '3'  # Function 3
 
-lookfullright     = '4' # Function 4
-map_world         = '5' # Function 5
-lookfullleft      = '6' # Function 6
+lookfullright     = '4'  # Function 4
+map_world         = '5'  # Function 5
+lookfullleft      = '6'  # Function 6
 
-slower            = '7' # Function 7
-values            = '8' # Function 8
-faster            = '9' # Function 9
+slower            = '7'  # Function 7
+values            = '8'  # Function 8
+faster            = '9'  # Function 9
 
-monitor           = '0' # Function 0
+monitor           = '0'  # Function 0
 
-settime           = 'X' # Time
-setjoystick       = 'Y' # Joystick
-allstop           = 'H' # Halt
-run_star          = '*' # Star
-run_sharp         = '#' # Sharp
+settime           = 'X'  # Time
+setjoystick       = 'Y'  # Joystick
+allstop           = 'H'  # Halt
+run_star          = '*'  # Star
+run_sharp         = '#'  # Sharp
 
 SLD_MAX_VALUE     = 80.0
 JOY_MAX_VALUE     = 70.0
@@ -63,7 +65,7 @@ IPAddr = socket.gethostbyname(hostname)
 
 
 def batbot_help():
-    data = '\n--->: here are some key words i know:\n'
+    data = '\n! ---> some key words i know:\n! '
     data = data + 'look ahead, '
     data = data + 'look right, '
     data = data + 'look left, '
@@ -76,18 +78,19 @@ def batbot_help():
     data = data + 'faster, '
     data = data + 'slower, '
     data = data + 'follow, '
-    data = data + 'find, '
+    data = data + 'find [object], '
     data = data + 'avoid, '
-    data = data + 'values, '
     data = data + 'identify, '
     data = data + 'learn, '
     data = data + 'map, '
     data = data + 'monitor, '
+    data = data + 'high/medium/low resolution, '
     data = data + 'photo, '
+    data = data + 'sensor values, '
     data = data + 'fortune, '
-    data = data + 'name, '
     data = data + 'IP address, '
     data = data + 'ping, '
+    data = data + 'my name, '
     data = data + 'and help.\n\n'
     return data
 
@@ -166,8 +169,14 @@ def do_sharp():
     result = execute_commands(command_array)
     return result
 
-def run_command(command):
+def run_command(arg0, arg1 = '', arg2 = ''):
+    command = arg0
+    if len(arg1) > 0:
+        command = command + ' ' + arg1
+        if len(arg2) > 0:
+            command = command + ' ' + arg2
     p = subprocess.Popen(command,
+                         shell=True,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT)
     return iter(p.stdout.readline, b'')
@@ -232,17 +241,17 @@ def move_arduino_using_joystick(direction):
 def change_camera_angle_using_slider_value(slider, slider_direction):
     print("DBG: change_camera_angle_using_slider_value=" + str(slider) + ", direction=" + slider_direction)
     go_right = slider_direction == 'RIGHT'
-    if (slider == 0):
+    if slider == 0:
         pass
-    elif (slider == 1):
+    elif slider == 1:
         camera_angle = 90
         command_array = [lookahead]
         write_commands(command_array)
-    elif (slider == 2):
+    elif slider == 2:
         camera_angle = 90
         command_array = [lookahead]
         write_commands(command_array)
-    elif (slider == 3):
+    elif slider == 3:
         if go_right:
             camera_angle = 55
             command_array = [lookright]
@@ -250,7 +259,7 @@ def change_camera_angle_using_slider_value(slider, slider_direction):
             camera_angle = 125
             command_array = [lookleft]
         write_commands(command_array)
-    elif (slider == 4):
+    elif slider == 4:
         if go_right:
             camera_angle = 55
             command_array = [lookright]
@@ -258,7 +267,7 @@ def change_camera_angle_using_slider_value(slider, slider_direction):
             camera_angle = 125
             command_array = [lookleft]
         write_commands(command_array)
-    elif (slider == 5):
+    elif slider == 5:
         if go_right:
             camera_angle = 55
             command_array = [lookright]
@@ -266,7 +275,7 @@ def change_camera_angle_using_slider_value(slider, slider_direction):
             camera_angle = 125
             command_array = [lookleft]
         write_commands(command_array)
-    elif (slider == 6):
+    elif slider == 6:
         if go_right:
             camera_angle = 55
             command_array = [lookright]
@@ -274,7 +283,7 @@ def change_camera_angle_using_slider_value(slider, slider_direction):
             camera_angle = 125
             command_array = [lookleft]
         write_commands(command_array)
-    elif (slider == 7):
+    elif slider == 7:
         if go_right:
             camera_angle = 20
             command_array = [lookfullright]
@@ -282,7 +291,7 @@ def change_camera_angle_using_slider_value(slider, slider_direction):
             camera_angle = 160
             command_array = [lookfullleft]
         write_commands(command_array)
-    elif (slider == 8):
+    elif slider == 8:
         if go_right:
             camera_angle = 20
             command_array = [lookfullright]
@@ -290,7 +299,7 @@ def change_camera_angle_using_slider_value(slider, slider_direction):
             camera_angle = 160
             command_array = [lookfullleft]
         write_commands(command_array)
-    elif (slider == 9):
+    elif slider == 9:
         if go_right:
             camera_angle = 20
             command_array = [lookfullright]
@@ -404,8 +413,15 @@ def process_blue_dot_joystick(movementCommand, isRelease):
         print("ERROR: process_blue_dot_joystick: e=" + str(e))
     return str(joystick) + ' ' + joy_direction
 
+def command_contains(wordList, command):
+    for word in wordList:
+        if word not in command:
+            return False
+    return True
+
 # a primitive language parser
 def data_received(commandsFromPhone):
+    global resolution
     global camera_angle
     global state
     pokeLogs = (commandsFromPhone == ' ')
@@ -422,8 +438,8 @@ def data_received(commandsFromPhone):
             result = result + batbot_help()
             printResult = True
             valid = True
-        elif 'IP address' in data:
-            result = result + '\n! HOST=' + hostname + '\n! IP Address=' + IPAddr
+        elif command_contains(['IP', 'address'], data) or command_contains(['system', 'info'], data):
+            result = result + '\n! Hostname: ' + hostname + '\n! IP Address: ' + IPAddr
             printResult = True
             valid = True
         elif 'click: *' in data:
@@ -441,13 +457,13 @@ def data_received(commandsFromPhone):
             result = result + do_sharp()
             printResult = True
             valid = True
-        elif 'look ahead' in data:
+        elif command_contains(['look', 'ahead'], data):
             command_array = [lookahead]
             result = result + execute_commands(command_array)
             printResult = True
             camera_angle = 90
             valid = True
-        elif 'look right' in data or 'focus right' in data:
+        elif command_contains(['look', 'right'], data) or command_contains(['focus', 'right'], data):
             if camera_angle == 45:
                 command_array = [lookfullright]
                 result = result + execute_commands(command_array)
@@ -458,7 +474,7 @@ def data_received(commandsFromPhone):
                 camera_angle = 45
             printResult = True
             valid = True
-        elif 'look left' in data or 'focus left' in data:
+        elif command_contains(['look', 'left'], data) or command_contains(['focus', 'left'], data):
             if camera_angle == 135:
                 command_array = [lookfullleft]
                 result = result + execute_commands(command_array)
@@ -469,12 +485,12 @@ def data_received(commandsFromPhone):
                 camera_angle = 135
             printResult = True
             valid = True
-        elif 'spin right' in data or 'spinrite' in data or 'spin around' in data:
+        elif command_contains(['spin', 'right'], data) or command_contains(['spin', 'around'], data) or command_contains(['spinrite'], data):
             command_array = [rightspin]
             result = result + execute_commands(command_array)
             printResult = True
             valid = True
-        elif 'spin left' in data or 'turn around' in data:
+        elif command_contains(['spin', 'left'], data) or command_contains(['turn', 'around'], data):
             command_array = [leftspin]
             result = result + execute_commands(command_array)
             printResult = True
@@ -508,7 +524,7 @@ def data_received(commandsFromPhone):
             result = result + execute_commands(command_array)
             printResult = True
             valid = True
-        elif 'slower' in data or 'slow down' in data:
+        elif 'slower' in data or command_contains(['slow', 'down'], data):
             command_array = [slower]
             result = result + execute_commands(command_array)
             printResult = True
@@ -542,17 +558,38 @@ def data_received(commandsFromPhone):
             result = result + execute_commands(command_array)
             printResult = True
             valid = True
-        elif 'photo' in data or 'picture' in data: # FIXME: optional item
-            result = result + 'FIXME: take a picture'
-            printResult = True
-            valid = True
         elif 'find' in data or 'search' in data: # FIXME: next word is object
             result = result + 'FIXME: find some object'
             printResult = True
             valid = True
-        elif 'identify' in data: # FIXME: identify what robot is looking at
+        elif command_contains(['high', 'resolution'], data):
+            resolution = '3k'
+            result = '==> USE 3K IMAGES'
+            printResult = True
+            valid = True
+        elif command_contains(['medium', 'resolution'], data):
+            resolution = 'hd'
+            result = '==> USE HD IMAGES'
+            printResult = True
+            valid = True
+        elif command_contains(['low', 'resolution'], data):
+            resolution = 'sd'
+            result = '==> USE SD IMAGES'
+            printResult = True
+            valid = True
+        elif 'photo' in data or 'picture' in data: # FIXME: optional item
             result = result + '\n'
-            for line in run_command('./capture_and_identify.sh'):
+            for line in run_command('./capture.sh', capture_image, resolution):
+                try:
+                    text = line.decode('ascii')
+                    result = result + '! ' + text
+                except Exception as e:
+                    print("ERROR: data_received: e=" + str(e))
+            printResult = True
+            valid = True
+        elif 'identify' in data or command_contains(['what', 'looking'], data):
+            result = result + '\n'
+            for line in run_command('./capture_and_identify.sh', capture_image, resolution):
                 try:
                     text = line.decode('ascii')
                     result = result + '! ' + text
@@ -571,7 +608,11 @@ def data_received(commandsFromPhone):
             printResult = True
             valid = True
         elif 'name' in data:
-            result = result + 'i am ' + hostname + '. i live at ' + IPAddr
+            result = result + '\n! i am ' + hostname + '. i live at ' + IPAddr
+            printResult = True
+            valid = True
+        elif 'batbot' in data:
+            result = result + '\n! Hello.'
             printResult = True
             valid = True
         elif 'help' in data or 'commands' in data:
@@ -585,7 +626,7 @@ def data_received(commandsFromPhone):
 
             # don't echo back the movement commands
             if not valid:
-                if (state == 'default'):
+                if state == 'default':
                     if data.startswith('2,'): # BlueDot onMove
                         data = 'JOYSTICK: ' + process_blue_dot_joystick(data, False)
                         result = result + read_all_data_from_arduino()

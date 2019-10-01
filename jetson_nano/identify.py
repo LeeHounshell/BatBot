@@ -36,7 +36,7 @@ def predict(image_name) :
     for eachPrediction, eachProbability in new_predictions:
         results = results + \
             str(eachPrediction) + "=" + \
-            str(eachProbability) + "\n"
+            str(int(eachProbability * 100) / 100.0) + "\n"
     return results
 
 

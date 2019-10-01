@@ -20,7 +20,7 @@ def client(message):
     
     s.send(message.encode('utf-8'))
     data = s.recv(1024).decode('utf-8')
-    print('Received from server: ' + data)
+    print('I see: ' + data)
     s.close()
 
 
