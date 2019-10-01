@@ -2,6 +2,7 @@
 
 cd /home/lee
 sleep 30
+mount /dev/shm
 
 echo "wifi: set power_save off.."
 iw dev wlan0 set power_save off

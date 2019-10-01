@@ -89,6 +89,9 @@ int Trig =         A5; // ultrasonic
 //----------------------------------------
 //-------------- SENSORS -----------------
 
+#define UI_POPUP           "! "
+#define NO_UI_POPUP          ""
+
 //Line Tracking IO define
 #define LT_R !digitalRead(10)
 #define LT_M !digitalRead(4)
@@ -306,7 +309,7 @@ void loop() {
   if (initialized) {
     if ((nowMillis - prvMillis) > 5000) {
       prvMillis = nowMillis;
-      show_state();
+      show_state(NO_UI_POPUP);
     }
     // the go right/left commands only last a third of a second
     // the spin right/left commands last longer
@@ -539,6 +542,9 @@ void increment_angle() {
     if (cameraAngle > 160) {
       servoDelta = -servoDelta;
       cameraAngle = 160;
+      if (*state == 'm') { // 'map'
+        function_right();
+      }
     }
     if (cameraAngle < 20) {
       servoDelta = -servoDelta;
@@ -578,7 +584,7 @@ void show_lt_values() {
   }
 }
 
-void show_state() {
+void show_state(char *leadin) {
   char *dir = "";
   if (direction == ALLSTOP) {
     dir = "STOP";
@@ -595,8 +601,12 @@ void show_state() {
   else if (direction == LEFTARROW) {
     dir = "LEFT";
   }
-  snprintf(status, sizeof(status), "State: %s %s, Joystick: %s %d", state, motion, dir, (int) joystick);
-  println(status, 1);
+  char *split = ", ";
+  if (*leadin == '!') {
+    split = "\n! ";
+  }
+  snprintf(status, sizeof(status), "%sState: %s %s%sJoystick: %s %d", leadin, state, motion, split, dir, (int) joystick);
+  println(status, *leadin != '!');
 }
 
 void transmit_sensor_data(int servoSpeed) {
@@ -917,26 +927,26 @@ boolean function_seven() {
 
 // sensors: return all sensor and status data
 boolean function_eight() {
-  println("$ 'sensors'", 1);
-  print("Last Distance: ", 1);
+  println("$ 'sensors'", 0);
+  print("! Last Distance: ", 0);
   println(toString(distance), 0);
-  print("Ahead Distance: ", 1);
+  print("! Ahead Distance: ", 0);
   println(toString(aheadDistance), 0);
-  print("Left Distance: ", 1);
+  print("! Left Distance: ", 0);
   println(toString(leftDistance), 0);
-  print("Right Distance: ", 1);
+  print("! Right Distance: ", 0);
   println(toString(rightDistance), 0);
-  print("LT_R: ", 1);
+  print("! LT_R: ", 0);
   println(toString(lt_r), 0);
-  print("LT_M: ", 1);
+  print("! LT_M: ", 0);
   println(toString(lt_m), 0);
-  print("LT_L: ", 1);
+  print("! LT_L: ", 0);
   println(toString(lt_l), 0);
-  print("Throttle: ", 1);
+  print("! Throttle: ", 0);
   println(toString(DEFAULT_SPEED + speed_delta()), 0);
-  snprintf(camera, sizeof(camera), "Camera Angle: %d, Motion: %d ", cameraAngle, servoDelta);
-  println(camera, 1);
-  show_state();
+  snprintf(camera, sizeof(camera), "! Camera Angle: %d, Motion: %d ", cameraAngle, servoDelta);
+  println(camera, 0);
+  show_state(UI_POPUP);
   return 1;
 }
 
@@ -1025,6 +1035,7 @@ boolean function_star() {
         if (rightDistance > leftDistance) {
           right();
           if (Serial.available()) {
+            stop();
             return 1;
           }
           delay(360);
@@ -1032,6 +1043,7 @@ boolean function_star() {
         else if (rightDistance < leftDistance) {
           left();
           if (Serial.available()) {
+            stop();
             return 1;
           }
           delay(360);
@@ -1039,6 +1051,7 @@ boolean function_star() {
         else if ((rightDistance <= 20) || (leftDistance <= 20)) {
           back();
           if (Serial.available()) {
+            stop();
             return 1;
           }
           delay(170);

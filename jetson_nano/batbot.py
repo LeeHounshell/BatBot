@@ -423,7 +423,7 @@ def data_received(commandsFromPhone):
             printResult = True
             valid = True
         elif 'IP address' in data:
-            result = result + 'host=' + hostname + ', IP Address=' + IPAddr
+            result = result + '\n! HOST=' + hostname + '\n! IP Address=' + IPAddr
             printResult = True
             valid = True
         elif 'click: *' in data:
@@ -520,10 +520,11 @@ def data_received(commandsFromPhone):
             valid = True
         elif 'fortune' in data or 'joke' in data:
             # sudo apt-get install fortunes
+            result = result + '\n'
             for line in run_command('/usr/games/fortune'):
                 try:
                     text = line.decode('ascii')
-                    result = result + text
+                    result = result + '! ' + text
                 except Exception as e:
                     print("ERROR: data_received: e=" + str(e))
             printResult = True
@@ -550,10 +551,11 @@ def data_received(commandsFromPhone):
             printResult = True
             valid = True
         elif 'identify' in data: # FIXME: identify what robot is looking at
+            result = result + '\n'
             for line in run_command('./capture_and_identify.sh'):
                 try:
                     text = line.decode('ascii')
-                    result = result + text
+                    result = result + '! ' + text
                 except Exception as e:
                     print("ERROR: data_received: e=" + str(e))
             printResult = True
@@ -656,12 +658,6 @@ result = do_stop()
 result = read_all_data_from_arduino()
 #print(result)
 
-time.sleep(3)
-command_array = [values]
-result = execute_commands(command_array)
-#print("SENSOR VALUES: " + result)
-result = read_all_data_from_arduino()
-#print(result)
 
 while True:
     try:
