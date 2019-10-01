@@ -4,12 +4,14 @@ import android.util.Log
 
 
 public class LoggingTextTail {
-    val TAG = "LEE: <" + LoggingTextTail::class.java.getName() + ">";
+    val TAG = "LEE: <" + LoggingTextTail::class.java.getName() + ">"
 
     val MAX_LOG_LINES = 10
-    val MAX_LOG_DISPLAY_CONTENT_CHARS = 333;
+    val MAX_LOG_DISPLAY_CONTENT_CHARS = 333
 
     private var content = mutableListOf<String>()
+    private var message = mutableListOf<String>()
+    private var haveMessage = false
     private var m_lastLogReceiptTime = System.currentTimeMillis()
 
 
@@ -18,8 +20,21 @@ public class LoggingTextTail {
         val lines = log_text.lines()
         lines.forEach {
             if (it.trim().length > 0) {
+                var line = it
+                if (line[0] == '!') {
+                    line = line.substring(1)
+                    line.replace(' ', '\u0020', true)
+                    message.add(line + "\n")
+                    haveMessage = true
+                }
+                else {
+                    if (haveMessage) {
+                        sendMessage()
+                        haveMessage = false
+                    }
+                }
+                content.add(line + "\n")
                 m_lastLogReceiptTime = System.currentTimeMillis()
-                content.add(it + "\n")
             }
         }
     }
@@ -30,7 +45,7 @@ public class LoggingTextTail {
             val sb = StringBuffer()
             for (i in 0..content.size - 1) {
                 if (i >= MAX_LOG_LINES) {
-                    break;
+                    break
                 }
                 sb.append(content[i])
                 if (sb.length >= MAX_LOG_DISPLAY_CONTENT_CHARS) {
@@ -48,6 +63,17 @@ public class LoggingTextTail {
     fun lastLogTime(): Long {
         Log.d(TAG, "lastLogTime: " + m_lastLogReceiptTime)
         return m_lastLogReceiptTime
+    }
+
+    fun sendMessage() {
+        Log.d(TAG, "sendMessage")
+        val sb = StringBuffer()
+        for (i in 0..message.size - 1) {
+            sb.append(message[i])
+        }
+        val theMessageEvent = BluetoothMessageEvent(sb.toString())
+        theMessageEvent.post()
+        message = mutableListOf<String>()
     }
 
     fun clear() {

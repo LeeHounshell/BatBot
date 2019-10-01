@@ -10,7 +10,7 @@ import kotlin.properties.Delegates
 
 
 class BluetoothDeviceModel(_name: String, device: BluetoothDevice) : BaseObservable() {
-    val TAG = "LEE: <" + BluetoothDeviceModel::class.java.getName() + ">";
+    val TAG = "LEE: <" + BluetoothDeviceModel::class.java.getName() + ">"
 
     val device: BluetoothDevice
     lateinit var binding: BtItemListViewBinding

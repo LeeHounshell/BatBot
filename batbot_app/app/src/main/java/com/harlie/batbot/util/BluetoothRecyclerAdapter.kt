@@ -11,7 +11,7 @@ import com.harlie.batbot.ui.bluetooth.Bluetooth_ViewModel
 
 
 class BluetoothRecyclerAdapter(val bluetoothViewModel: Bluetooth_ViewModel) : RecyclerView.Adapter<BluetoothRecyclerAdapter.BtDeviceViewHolder>() {
-    val TAG = "LEE: <" + BluetoothRecyclerAdapter::class.java.getName() + ">";
+    val TAG = "LEE: <" + BluetoothRecyclerAdapter::class.java.getName() + ">"
 
     var m_deviceCache: List<BluetoothDeviceModel> = emptyList<BluetoothDeviceModel>() as List<BluetoothDeviceModel>
 

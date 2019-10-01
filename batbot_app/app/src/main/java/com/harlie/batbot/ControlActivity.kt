@@ -20,7 +20,7 @@ import java.util.*
 
 
 class ControlActivity : AppCompatActivity() {
-    val TAG = "LEE: <" + ControlActivity::class.java.getName() + ">";
+    val TAG = "LEE: <" + ControlActivity::class.java.getName() + ">"
 
     companion object {
         lateinit var    m_name: String // name of the batbot machine to connect to
@@ -122,7 +122,7 @@ class ControlActivity : AppCompatActivity() {
         try {
             startActivityForResult(intent, REQUEST_CODE)
         } catch (e: ActivityNotFoundException) {
-            Log.e(TAG, "problem requesting translation: " + e);
+            Log.e(TAG, "problem requesting translation: " + e)
         }
     }
 

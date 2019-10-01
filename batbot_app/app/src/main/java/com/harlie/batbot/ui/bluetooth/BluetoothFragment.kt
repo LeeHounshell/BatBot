@@ -25,7 +25,7 @@ import com.harlie.batbot.util.BluetoothRecyclerAdapter
 
 
 class BluetoothFragment : Fragment() {
-    val TAG = "LEE: <" + BluetoothFragment::class.java.getName() + ">";
+    val TAG = "LEE: <" + BluetoothFragment::class.java.getName() + ">"
 
     private lateinit var m_selectedDevice: BluetoothDeviceModel
     private lateinit var m_View: View
@@ -40,7 +40,7 @@ class BluetoothFragment : Fragment() {
         @Nullable container: ViewGroup?,
         @Nullable savedInstanceState: Bundle?
     ): View? {
-        Log.d(TAG, "onCreateView");
+        Log.d(TAG, "onCreateView")
         m_BluetoothFragmentBinding = DataBindingUtil.inflate(
             inflater, com.harlie.batbot.R.layout.bluetooth_fragment, container, false
         )
@@ -51,7 +51,7 @@ class BluetoothFragment : Fragment() {
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
-        Log.d(TAG, "onActivityCreated");
+        Log.d(TAG, "onActivityCreated")
         super.onActivityCreated(savedInstanceState)
         activity?.let {
             m_BluetoothViewModel = ViewModelProviders.of(it).get(Bluetooth_ViewModel::class.java)
@@ -106,12 +106,12 @@ class BluetoothFragment : Fragment() {
         controlIntent.putExtra(EXTRA_ADDRESS, btModel.device.address)
         controlIntent.putExtra(EXTRA_DEVICE, btModel.device)
         startActivity(controlIntent)
-        activity!!.overridePendingTransition(0, R.anim.fade_out);
-        activity!!.finish();
+        activity!!.overridePendingTransition(0, R.anim.fade_out)
+        activity!!.finish()
     }
 
     override fun onDestroy() {
-        Log.d(TAG, "onDestroy");
+        Log.d(TAG, "onDestroy")
         super.onDestroy()
     }
 

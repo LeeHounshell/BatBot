@@ -11,7 +11,7 @@ import com.harlie.batbot.service.BluetoothChatService
 
 
 class Control_ViewModel : ViewModel() {
-    val TAG = "LEE: <" + Control_ViewModel::class.java.getName() + ">";
+    val TAG = "LEE: <" + Control_ViewModel::class.java.getName() + ">"
 
     private var m_initialized = false
     private var m_BluetoothChatService = BluetoothChatService()

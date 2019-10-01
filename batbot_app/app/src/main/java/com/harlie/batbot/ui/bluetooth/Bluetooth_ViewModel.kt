@@ -13,7 +13,7 @@ import com.harlie.batbot.model.BluetoothDeviceModel
 
 
 class Bluetooth_ViewModel : ViewModel() {
-    val TAG = "LEE: <" + Bluetooth_ViewModel::class.java.getName() + ">";
+    val TAG = "LEE: <" + Bluetooth_ViewModel::class.java.getName() + ">"
 
     private val m_bluetoothDevicesList = MutableLiveData<MutableList<BluetoothDeviceModel>>()
     private val m_selectedDevice = MutableLiveData<BluetoothDeviceModel>()

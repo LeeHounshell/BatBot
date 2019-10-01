@@ -9,7 +9,7 @@ import kotlin.concurrent.schedule
 
 
 class SplashActivity : AppCompatActivity() {
-    val TAG = "LEE: <" + SplashActivity::class.java.getName() + ">";
+    val TAG = "LEE: <" + SplashActivity::class.java.getName() + ">"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
@@ -20,7 +20,7 @@ class SplashActivity : AppCompatActivity() {
             val blueIntent: Intent = Intent(this@SplashActivity, BluetoothActivity::class.java)
             blueIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             startActivity(blueIntent)
-            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
             finish()
         }
     }

@@ -7,7 +7,7 @@ import kotlin.properties.Delegates
 
 
 class RobotCommandModel(rc: String, cp: String) : BaseObservable() {
-    val TAG = "LEE: <" + RobotCommandModel::class.java.getName() + ">";
+    val TAG = "LEE: <" + RobotCommandModel::class.java.getName() + ">"
 
     @get:Bindable var robotCommand: String by Delegates.observable(rc)
     { prop, old, new ->
