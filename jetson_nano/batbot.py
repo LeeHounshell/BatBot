@@ -632,46 +632,52 @@ def data_received(commandsFromPhone):
             s.send(result)
         #--------------------------------------------
 
-
 def client_connect():
     print("*** BLUETOOTH CLIENT CONNECTED ***")
 
 def client_disconnect():
     print("*** BLUETOOTH CLIENT DISCONNECTED ***")
 
-try:
 
-    result = read_all_data_from_arduino()
-    #print(result)
+result = read_all_data_from_arduino()
+#print(result)
 
-    result = set_arduino_time()
-    #print("ARDUINO TIME: " + result)
-    result = read_all_data_from_arduino()
-    #print(result)
+result = set_arduino_time()
+#print("ARDUINO TIME: " + result)
+result = read_all_data_from_arduino()
+#print(result)
 
-    time.sleep(3)
-    result = read_all_data_from_arduino()
-    #print(result)
+time.sleep(3)
+result = read_all_data_from_arduino()
+#print(result)
 
-    result = do_stop()
-    #print(result)
-    result = read_all_data_from_arduino()
-    #print(result)
+result = do_stop()
+#print(result)
+result = read_all_data_from_arduino()
+#print(result)
 
-    time.sleep(3)
-    command_array = [values]
-    result = execute_commands(command_array)
-    #print("SENSOR VALUES: " + result)
-    result = read_all_data_from_arduino()
-    #print(result)
+time.sleep(3)
+command_array = [values]
+result = execute_commands(command_array)
+#print("SENSOR VALUES: " + result)
+result = read_all_data_from_arduino()
+#print(result)
 
-    s = BluetoothServer(data_received_callback = data_received,
-            when_client_connects=client_connect,
-            when_client_disconnects=client_disconnect)
-
-    print('---> waiting for connection <---')
-    pause()
-
-except Exception as ex:
-    print("PROGRAM ERROR: ex=" + str(ex))
-
+while True:
+    try:
+        print('===> CREATING BLUETOOTH SERVER <===')
+    
+        s = BluetoothServer(data_received_callback = data_received,
+                when_client_connects=client_connect,
+                when_client_disconnects=client_disconnect)
+    
+        print('---> waiting for connection <---')
+        pause()
+    
+    except ConnectionAbortedError as ex:
+        print("*** ERROR ***: got connection request for closed socket: ex=" + str(ex))
+    except OSError as ex:
+        print("*** ERROR ***: got mysterious OSError: ex=" + str(ex))
+    except Exception as ex:
+        print("*** PROGRAM ERROR ***: ex=" + str(ex))
+    

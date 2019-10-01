@@ -8,5 +8,5 @@ fi
 
 ./capture.sh ${image_name} 2> /dev/null
 
-python3 ./identify.py ${image_name} 2> /dev/null
+python3 ./request_identify.py ${image_name} 2> /dev/null
 
