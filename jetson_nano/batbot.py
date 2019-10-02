@@ -611,12 +611,16 @@ def data_received(commandsFromPhone):
             result = result + '\n! i am ' + hostname + '. i live at ' + IPAddr
             printResult = True
             valid = True
-        elif 'batbot' in data:
+        elif 'hello' in data or 'batbot' in data:
             result = result + '\n! Hello.'
             printResult = True
             valid = True
         elif 'help' in data or 'commands' in data:
             result = batbot_help()
+            printResult = True
+            valid = True
+        elif 'get' in data or 'make' in data:
+            result = result + '\n! Build me some hands.'
             printResult = True
             valid = True
 
