@@ -581,7 +581,8 @@ def data_received(commandsFromPhone):
             valid = True
         elif 'photo' in data or 'picture' in data: # FIXME: optional item
             result = result + '\n'
-            image_path = capture_image.format(++capture_count)
+            capture_count += 1
+            image_path = capture_image.format(capture_count)
             for line in run_command('./capture.sh', image_path, resolution):
                 try:
                     text = line.decode('ascii')
@@ -592,7 +593,8 @@ def data_received(commandsFromPhone):
             valid = True
         elif 'identify' in data or command_contains(['what', 'looking'], data):
             result = result + '\n'
-            image_path = capture_image.format(++capture_count)
+            capture_count += 1
+            image_path = capture_image.format(capture_count)
             for line in run_command('./capture_and_identify.sh', image_path, resolution):
                 try:
                     text = line.decode('ascii')
