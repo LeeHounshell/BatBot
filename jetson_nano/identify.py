@@ -29,14 +29,17 @@ prediction.loadModel()
 
 
 def predict(image_name) :
-    predictions, probabilities = prediction.predictImage(
-            os.path.join(execution_path, image_name), result_count=5 )
     results = ''
-    new_predictions = zip(predictions, probabilities)
-    for eachPrediction, eachProbability in new_predictions:
-        results = results + \
-            str(eachPrediction) + "=" + \
-            str(int(eachProbability * 100) / 100.0) + "\n"
+    try:
+        predictions, probabilities = prediction.predictImage(
+            os.path.join(execution_path, image_name), result_count=5 )
+        new_predictions = zip(predictions, probabilities)
+        for eachPrediction, eachProbability in new_predictions:
+            results = results + \
+                str(eachPrediction) + "=" + \
+                str(int(eachProbability * 100) / 100.0) + "\n"
+    except Exception as e:
+        results = "ERROR: " + str(e)
     return results
 
 
@@ -65,6 +68,6 @@ def server():
 
 if __name__ == '__main__':
     while True:
-        print("\n\n")
+        print("\n")
         server()
 
