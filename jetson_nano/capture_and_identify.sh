@@ -17,3 +17,6 @@ fi
 
 python3 ./request_identify.py ${image_name} 2> /dev/null
 
+echo
+echo "Location: ${image_name}"
+

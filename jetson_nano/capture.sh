@@ -23,3 +23,5 @@ else
     ./capture_sd.sh ${image_name} 2> /dev/null
 fi
 
+echo
+echo "Location: ${image_name}"

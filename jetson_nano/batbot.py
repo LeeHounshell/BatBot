@@ -17,7 +17,8 @@ port = '/dev/ttyACM0' # note I'm using Jetson Nano
 arduino = serial.Serial(port,9600,timeout=5)
 time.sleep(3) # wait for Arduino
 
-capture_image     = '/tmp/identify.jpg'
+capture_count     = 0
+capture_image     = '/tmp/capture{}.jpg'
 resolution        = 'hd' # one of ['3k', 'hd', 'sd']
 camera_angle      = 90
 
@@ -424,6 +425,7 @@ def data_received(commandsFromPhone):
     global resolution
     global camera_angle
     global state
+    global capture_count
     pokeLogs = (commandsFromPhone == ' ')
     commandList = commandsFromPhone.splitlines()
     for data in commandList:
@@ -579,7 +581,8 @@ def data_received(commandsFromPhone):
             valid = True
         elif 'photo' in data or 'picture' in data: # FIXME: optional item
             result = result + '\n'
-            for line in run_command('./capture.sh', capture_image, resolution):
+            image_path = capture_image.format(++capture_count)
+            for line in run_command('./capture.sh', image_path, resolution):
                 try:
                     text = line.decode('ascii')
                     result = result + '! ' + text
@@ -589,7 +592,8 @@ def data_received(commandsFromPhone):
             valid = True
         elif 'identify' in data or command_contains(['what', 'looking'], data):
             result = result + '\n'
-            for line in run_command('./capture_and_identify.sh', capture_image, resolution):
+            image_path = capture_image.format(++capture_count)
+            for line in run_command('./capture_and_identify.sh', image_path, resolution):
                 try:
                     text = line.decode('ascii')
                     result = result + '! ' + text
