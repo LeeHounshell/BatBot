@@ -24,4 +24,4 @@ else
 fi
 
 echo
-echo "Location: ${image_name}"
+echo "File: ${image_name}"
