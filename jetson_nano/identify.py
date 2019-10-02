@@ -14,17 +14,51 @@ import sys
 
 try:
     image_name = sys.argv[1]
+    if image_name == '--help':
+        print("Usage: " + sys.argv[0] + " [image_path] [algorithm]")
+        print("        algorithm values: ['SqueezeNet', 'DenseNet', 'IncepptionV3', 'ResNet']")
+        exit(0)
 except IndexError:
     image_name = '/tmp/capture.jpg'
 
+try:
+    algorithm = sys.argv[2]
+except IndexError:
+    algorithm = 'DenseNet'
+
+
 execution_path = os.getcwd()
-
 prediction = ImagePrediction()
-prediction.setModelTypeAsSqueezeNet()
 
-prediction.setModelPath(
+if algorithm == 'SqueezeNet':
+    print('===> SqueezeNet');
+    prediction.setModelTypeAsSqueezeNet()
+    prediction.setModelPath(
         os.path.join(execution_path,
             "models/squeezenet_weights_tf_dim_ordering_tf_kernels.h5"))
+
+elif algorithm == 'DenseNet':
+    print('===> DenseNet');
+    prediction.setModelTypeAsDenseNet()
+    prediction.setModelPath(
+        os.path.join(execution_path,
+            "models/DenseNet-BC-121-32.h5"))
+
+elif algorithm == 'InceptionV3':
+    print('===> InceptionV3');
+    prediction.setModelTypeAsInceptionV3()
+    prediction.setModelPath(
+        os.path.join(execution_path,
+            "models/inception_v3_weights_tf_dim_ordering_tf_kernels.h5"))
+
+else:
+    algorithm = 'ResNet'
+    print('===> ResNet');
+    prediction.setModelTypeAsResNet()
+    prediction.setModelPath(
+        os.path.join(execution_path,
+            "models/resnet50_weights_tf_dim_ordering_tf_kernels.h5"))
+
 prediction.loadModel()
 
 
