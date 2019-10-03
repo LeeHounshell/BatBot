@@ -25,3 +25,6 @@ fi
 
 echo
 echo "File: ${image_name}"
+image_size=`ls -l "${image_name}" | sed 's/  */:/g' | cut -f5 -d:`
+echo "Size: ${image_size}"
+

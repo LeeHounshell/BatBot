@@ -17,9 +17,13 @@ port = '/dev/ttyACM0' # note I'm using Jetson Nano
 arduino = serial.Serial(port,9600,timeout=5)
 time.sleep(3) # wait for Arduino
 
-capture_count     = 0
-capture_image     = '/tmp/capture{}.jpg'
 resolution        = 'hd' # one of ['3k', 'hd', 'sd']
+algorithmList     = ['SqueezeNet', 'DenseNet', 'InceptionV3', 'ResNet']
+algorithmIndex    = 1 # 'DenseNet' is default
+algorithmFixed    = False
+capture_image     = '/tmp/capture{}.jpg'
+capture_count     = 0
+
 camera_angle      = 90
 
 uparrow           = 'F'  # Foward
@@ -92,6 +96,8 @@ def batbot_help():
     data = data + 'IP address, '
     data = data + 'ping, '
     data = data + 'my name, '
+    data = data + 'algorithm, '
+    data = data + 'kill server, '
     data = data + 'and help.\n\n'
     return data
 
@@ -170,12 +176,14 @@ def do_sharp():
     result = execute_commands(command_array)
     return result
 
-def run_command(arg0, arg1 = '', arg2 = ''):
+def run_command(arg0, arg1 = '', arg2 = '', arg3 = ''):
     command = arg0
     if len(arg1) > 0:
         command = command + ' ' + arg1
         if len(arg2) > 0:
             command = command + ' ' + arg2
+            if len(arg3) > 0:
+                command = command + ' ' + arg3
     p = subprocess.Popen(command,
                          shell=True,
                          stdout=subprocess.PIPE,
@@ -414,6 +422,13 @@ def process_blue_dot_joystick(movementCommand, isRelease):
         print("ERROR: process_blue_dot_joystick: e=" + str(e))
     return str(joystick) + ' ' + joy_direction
 
+def show_algorithm_hint(result):
+    result = result + "\n! Say 'kill server' to do that."
+    result = result + '\n! once the \'identify\' server starts, '
+    result = result + '\n! the algorithm is fixed until restart.'
+    result = result + '\n! \n! The current algorithm is ' + algorithmList[algorithmIndex]
+    return result
+
 def command_contains(wordList, command):
     for word in wordList:
         if word not in command:
@@ -426,45 +441,56 @@ def data_received(commandsFromPhone):
     global camera_angle
     global state
     global capture_count
+    global algorithmIndex
+    global algorithmFixed
+
     pokeLogs = (commandsFromPhone == ' ')
     commandList = commandsFromPhone.splitlines()
     for data in commandList:
         result = read_data_from_arduino()
         printResult = False
         valid = False
+
         if pokeLogs:
             data = '' # don't echo the space used to poke the logs
             result = result + read_all_data_from_arduino()
             valid = True
+
         elif 'ping' in data:
             result = result + batbot_help()
             printResult = True
             valid = True
+
         elif command_contains(['IP', 'address'], data) or command_contains(['system', 'info'], data):
             result = result + '\n! Hostname: ' + hostname + '\n! IP Address: ' + IPAddr
             printResult = True
             valid = True
+
         elif 'click: *' in data:
             data = '*'
             result = result + do_star()
             printResult = True
             valid = True
+
         elif 'click: ok' in data:
             data = 'ok'
             result = result + do_stop()
             printResult = True
             valid = True
+
         elif 'click: #' in data:
             data = '#'
             result = result + do_sharp()
             printResult = True
             valid = True
+
         elif command_contains(['look', 'ahead'], data):
             command_array = [lookahead]
             result = result + execute_commands(command_array)
             printResult = True
             camera_angle = 90
             valid = True
+
         elif command_contains(['look', 'right'], data) or command_contains(['focus', 'right'], data):
             if camera_angle == 45:
                 command_array = [lookfullright]
@@ -476,6 +502,7 @@ def data_received(commandsFromPhone):
                 camera_angle = 45
             printResult = True
             valid = True
+
         elif command_contains(['look', 'left'], data) or command_contains(['focus', 'left'], data):
             if camera_angle == 135:
                 command_array = [lookfullleft]
@@ -487,55 +514,66 @@ def data_received(commandsFromPhone):
                 camera_angle = 135
             printResult = True
             valid = True
+
         elif command_contains(['spin', 'right'], data) or command_contains(['spin', 'around'], data) or command_contains(['spinrite'], data):
             command_array = [rightspin]
             result = result + execute_commands(command_array)
             printResult = True
             valid = True
+
         elif command_contains(['spin', 'left'], data) or command_contains(['turn', 'around'], data):
             command_array = [leftspin]
             result = result + execute_commands(command_array)
             printResult = True
             valid = True
+
         elif 'right' in data:
             command_array = [rightarrow]
             result = result + execute_commands(command_array)
             printResult = True
             valid = True
+
         elif 'left' in data:
             command_array = [leftarrow]
             result = result + execute_commands(command_array)
             printResult = True
             valid = True
+
         elif 'forward' in data or 'ahead' in data:
             command_array = [uparrow]
             result = result + execute_commands(command_array)
             printResult = True
             valid = True
+
         elif 'back' in data or 'reverse' in data:
             command_array = [downarrow]
             result = result + execute_commands(command_array)
             printResult = True
             valid = True
+
         elif 'stop' in data or 'halt' in data:
             result = result + do_stop()
             printResult = True
             valid = True
+
         elif 'faster' in data or 'speed up' in data:
             command_array = [faster]
             result = result + execute_commands(command_array)
             printResult = True
             valid = True
+
         elif 'slower' in data or command_contains(['slow', 'down'], data):
             command_array = [slower]
             result = result + execute_commands(command_array)
             printResult = True
             valid = True
+
         elif 'sensor' in data or 'value' in data:
             command_array = [values]
             result = result + execute_commands(command_array)
             printResult = True
             valid = True
+
         elif 'fortune' in data or 'joke' in data:
             # sudo apt-get install fortunes
             result = result + '\n'
@@ -547,38 +585,46 @@ def data_received(commandsFromPhone):
                     print("ERROR: data_received: e=" + str(e))
             printResult = True
             valid = True
+
         elif 'follow' in data: # FIXME: run Elegoo line following
             result = result + do_sharp()
             printResult = True
             valid = True
+
         elif 'avoid' in data: # FIXME: run Elegoo collision avoidance
             result = result + do_star()
             printResult = True
             valid = True
+
         elif 'monitor' in data or 'security' in data: # FIXME: security monitor
             command_array = [monitor]
             result = result + execute_commands(command_array)
             printResult = True
             valid = True
+
         elif 'find' in data or 'search' in data: # FIXME: next word is object
             result = result + 'FIXME: find some object'
             printResult = True
             valid = True
+
         elif command_contains(['high', 'resolution'], data):
             resolution = '3k'
             result = '==> USE 3K IMAGES'
             printResult = True
             valid = True
+
         elif command_contains(['medium', 'resolution'], data):
             resolution = 'hd'
             result = '==> USE HD IMAGES'
             printResult = True
             valid = True
+
         elif command_contains(['low', 'resolution'], data):
             resolution = 'sd'
             result = '==> USE SD IMAGES'
             printResult = True
             valid = True
+
         elif 'photo' in data or 'picture' in data: # FIXME: optional item
             result = result + '\n'
             capture_count += 1
@@ -591,11 +637,39 @@ def data_received(commandsFromPhone):
                     print("ERROR: data_received: e=" + str(e))
             printResult = True
             valid = True
-        elif 'identify' in data or command_contains(['what', 'looking'], data):
+        elif 'show algorithm' in data:
+            result = result + "\n! algorithm set to '" + algorithmList[algorithmIndex] + "'\n"
+            printResult = True
+            valid = True
+
+        elif command_contains(['previous', 'algorithm'], data):
+            if algorithmFixed:
+                result = show_algorithm_hint(result)
+            else:
+                algorithmIndex -= 1
+                if algorithmIndex <= -1:
+                    algorithmIndex = len(algorithmList) - 1
+                result = result + "\n! algorithm set to '" + algorithmList[algorithmIndex] + "'\n"
+            printResult = True
+            valid = True
+
+        elif 'algorithm' in data:
+            if algorithmFixed:
+                result = show_algorithm_hint(result)
+            else:
+                algorithmIndex += 1
+                if algorithmIndex >= len(algorithmList):
+                    algorithmIndex = 0
+                result = result + "\n! algorithm set to '" + algorithmList[algorithmIndex] + "'\n"
+            printResult = True
+            valid = True
+
+        elif 'identify' in data or command_contains(['what', 'looking'], data) or command_contains(['start', 'server'], data):
+            algorithmFixed = True
             result = result + '\n'
             capture_count += 1
             image_path = capture_image.format(capture_count)
-            for line in run_command('./capture_and_identify.sh', image_path, resolution):
+            for line in run_command('./capture_and_identify.sh', image_path, resolution, algorithmList[algorithmIndex]):
                 try:
                     text = line.decode('ascii')
                     result = result + '! ' + text
@@ -603,28 +677,46 @@ def data_received(commandsFromPhone):
                     print("ERROR: data_received: e=" + str(e))
             printResult = True
             valid = True
+
+        elif command_contains(['kill', 'server'], data):
+            algorithmFixed = False
+            result = result + '\n'
+            for line in run_command('./kill_identify.sh'):
+                try:
+                    text = line.decode('ascii')
+                    result = result + '! ' + text
+                except Exception as e:
+                    print("ERROR: data_received: e=" + str(e))
+            printResult = True
+            valid = True
+
         elif 'learn' in data: # FIXME: teach item name
             result = result + 'FIXME: learn about object'
             printResult = True
             valid = True
+
         elif 'map' in data: # FIXME: map the world
             state = 'map'
             command_array = [map_world]
             result = result + execute_commands(command_array)
             printResult = True
             valid = True
+
         elif 'name' in data:
             result = result + '\n! i am ' + hostname + '. i live at ' + IPAddr
             printResult = True
             valid = True
+
         elif 'hello' in data or 'batbot' in data:
             result = result + '\n! Hello.'
             printResult = True
             valid = True
+
         elif 'help' in data or 'commands' in data:
             result = batbot_help()
             printResult = True
             valid = True
+
         elif 'get' in data or 'make' in data:
             result = result + '\n! Build me some hands.'
             printResult = True
