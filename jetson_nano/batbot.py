@@ -437,13 +437,13 @@ def send_image_to_phone(filename):
     global sending_now
     sending_now = True
     s.send("~BEGIN CAPTURE~")
-    time.sleep(2) # wait for Android
+    time.sleep(1) # wait for Android
     image_data = open(filename, "rb").read()
-    print("\nIMAGE SIZE: " + str(len(image_data)))
+    print("IMAGE SIZE: " + str(len(image_data)))
     s._send_data(image_data)
     time.sleep(2) # wait for Android
     s.send("~END CAPTURE~")
-    time.sleep(3) # wait for Android
+    time.sleep(1) # wait for Android
     sending_now = False
 
 def command_contains(wordList, command):
@@ -471,9 +471,9 @@ def data_received(commandsFromPhone):
 
         if data.startswith(capture_command):
            filename = data[len(capture_command):]
-           print("\n*** SENDING IMAGE '" + filename + "' TO PHONE ***\n")
+           print("\n*** SENDING IMAGE '" + filename + "' TO PHONE ***")
            send_image_to_phone(filename)
-           print("\n*** IMAGE '" + filename + "' SENT TO PHONE ***\n")
+           print("*** IMAGE '" + filename + "' SENT TO PHONE ***\n")
            continue
 
         if data.startswith(delete_command):

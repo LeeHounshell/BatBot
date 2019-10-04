@@ -639,18 +639,18 @@ void transmit_sensor_data(int servoSpeed) {
 
     if (cameraAngle < 65) {
       leftDistance = distance;
-      print("Distance Left=", 1);
-      println(toString(leftDistance), 0);
+      snprintf(status, sizeof(status), "Distance Left=%d", leftDistance);
+      println(status, 1);
     }
     else if (cameraAngle > 115) {
       rightDistance = distance;
-      print("Distance Right=", 1);
-      println(toString(rightDistance), 0);
+      snprintf(status, sizeof(status), "Distance Right=%d", rightDistance);
+      println(status, 1);
     }
     else {
       aheadDistance = distance;
-      print("Distance Ahead=", 1);
-      println(toString(aheadDistance), 0);
+      snprintf(status, sizeof(status), "Distance Ahead=%d", aheadDistance);
+      println(status, 1);
     }
     previousDistance = distance;
     previousDistanceAngle = cameraAngle;
