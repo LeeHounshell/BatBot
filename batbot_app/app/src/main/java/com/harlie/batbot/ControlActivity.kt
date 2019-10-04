@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.util.Log
@@ -29,6 +30,7 @@ class ControlActivity : AppCompatActivity() {
         val             EXTRA_NAME   : String = "Device_name"
         val             EXTRA_ADDRESS: String = "Device_address"
         val             EXTRA_DEVICE: String = "Device_data"
+        val             STORAGE_PERMISSION_REQUEST = 100
     }
 
     private val REQUEST_CODE = 100
@@ -136,6 +138,21 @@ class ControlActivity : AppCompatActivity() {
                     Log.d(TAG, "===> got speech translation result=" + result[0])
                     m_robotCommand = RobotCommandModel(result[0], "3")
                     m_ControlViewModel?.processAndDecodeMessage(m_robotCommand!!)
+                }
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        Log.d(TAG, "onRequestPermissionsResult: requestCode=" + requestCode + ", grantResults[0]=" + grantResults[0])
+        when (requestCode) {
+            STORAGE_PERMISSION_REQUEST -> {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "===> PERMISSION GRANTED")
+                    m_ControlFragment!!.saveImage()
+                }
+                else {
+                    Log.w(TAG, "===> PERMISSION NOT GRANTED")
                 }
             }
         }

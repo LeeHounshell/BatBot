@@ -74,7 +74,7 @@ public class BluetoothChatService {
     }
 
     private void notifyStateChange(int whatChanged, int theState, Bundle extra) {
-        Log.d(TAG, "notifyStateChange: whatChanged=" + whatChanged + ", theState=" + theState);
+        //Log.d(TAG, "notifyStateChange: whatChanged=" + whatChanged + ", theState=" + theState);
         switch (whatChanged) {
 
             case Constants.MESSAGE_STATE_CHANGE:
@@ -101,7 +101,7 @@ public class BluetoothChatService {
                 int bytesSent = extra.getInt(Constants.SIZE);
                 // construct a string from the buffer
                 String writeMessage = new String(writeBuf);
-                Log.d(TAG, "--> SENT: " + writeMessage);
+                //Log.d(TAG, "--> SENT: " + writeMessage);
                 break;
 
             case Constants.MESSAGE_READ:
@@ -110,7 +110,7 @@ public class BluetoothChatService {
                 // construct a string from the valid bytes in the buffer
                 String buffer = new String(readBuf, 0, bytesRead);
                 // message received
-                Log.d(TAG, "--> READ: size=" + bytesRead + ", buffer=" + buffer);
+                //Log.d(TAG, "--> READ: size=" + bytesRead + ", buffer=" + buffer);
                 if (buffer.contains("~BEGIN CAPTURE~")) {
                     Log.d(TAG, "--> mCapturingImageNow = true;");
                     mCapturingImageNow = true;
@@ -156,7 +156,7 @@ public class BluetoothChatService {
 
     private synchronized void notifyBluetoothStatus(String status) {
         mState = getState();
-        Log.d(TAG, "notifyBluetoothStatus: " + mNewState + " -> " + mState); // really old state here
+        //Log.d(TAG, "notifyBluetoothStatus: " + mNewState + " -> " + mState); // really old state here
         mNewState = mState;
         Bundle bundle = new Bundle();
         bundle.putString(Constants.DATA, status);
@@ -172,7 +172,7 @@ public class BluetoothChatService {
     }
 
     public synchronized void send(String message) {
-        Log.d(TAG, "===> send: message=" + message);
+        //Log.d(TAG, "===> send: message=" + message);
         // Check that we're actually connected before trying anything
         if (getState() != BluetoothChatService.STATE_CONNECTED) {
             Log.e(TAG, "===> UNABLE TO SEND message - NOT CONNECTED <===");
@@ -183,7 +183,7 @@ public class BluetoothChatService {
         else {
             // Check that there's something to send
             if (message.length() > 0) {
-                Log.d(TAG, "write(message.getBytes())");
+                //Log.d(TAG, "write(message.getBytes())");
                 // Get the message bytes and tell the BluetoothChatService to write
                 byte[] bytearray = message.getBytes();
                 write(bytearray);
@@ -196,7 +196,7 @@ public class BluetoothChatService {
      * Return the current connection state.
      */
     public synchronized int getState() {
-        Log.d(TAG, "getState");
+        //Log.d(TAG, "getState");
         return mState;
     }
 
@@ -348,7 +348,7 @@ public class BluetoothChatService {
      * @see ConnectedThread#write(byte[])
      */
     public void write(byte[] out) {
-        Log.d(TAG, "write: out=" + out);
+        //Log.d(TAG, "write: out=" + out);
         // Create temporary object
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
@@ -616,20 +616,17 @@ public class BluetoothChatService {
                     if (! mCapturingImageNow) {
                         byte[] buffer = new byte[1024];
                         // Read from the InputStream
-                        Log.d(TAG, "reading log messages..");
+                        //Log.d(TAG, "reading log messages..");
                         int bytes = mmInStream.read(buffer);
-                        Log.d(TAG, "read " + bytes + " bytes.");
+                        //Log.d(TAG, "read " + bytes + " bytes.");
                         if (bytes > 0) {
-                            Log.d(TAG, "send the message data");
+                            //Log.d(TAG, "send the message data");
                             // Send the message data bytes
                             Bundle bundle = new Bundle();
                             bundle.putByteArray(Constants.DATA, buffer);
                             bundle.putInt(Constants.SIZE, bytes);
-                            Log.d(TAG, "notifyStateChange(Constants.MESSAGE_READ, mState, bundle);");
+                            //Log.d(TAG, "notifyStateChange(Constants.MESSAGE_READ, mState, bundle);");
                             notifyStateChange(Constants.MESSAGE_READ, mState, bundle);
-                        }
-                        else {
-                            Log.d(TAG, "no data!");
                         }
                     }
                     else {
@@ -645,7 +642,7 @@ public class BluetoothChatService {
                         Log.d(TAG, "read " + bytes + " bytes.");
                         if (bytes > 0) {
                             String readData = new String(buffer, 0, bytes);
-                            Log.d(TAG, "---------> IMAGE_DATA: " + readData);
+                            //Log.d(TAG, "---------> IMAGE_DATA: " + readData);
                             if (readData.contains("~END CAPTURE~")) {
                                 Log.d(TAG, "==> FOUND ~END CAPTURE~");
                                 successfulImageCapture();
@@ -655,7 +652,7 @@ public class BluetoothChatService {
                                 Log.d(TAG, "initializing image capture from buffer");
                                 mImageCapture = buffer;
                             } else {
-                                Log.d(TAG, "combining byte arrays of sizes " + mImageCapture.length + " and " + bytes);
+                                //Log.d(TAG, "combining byte arrays of sizes " + mImageCapture.length + " and " + bytes);
                                 byte[] combined = new byte[mImageCapture.length + bytes];
                                 System.arraycopy(mImageCapture, 0, combined, 0, mImageCapture.length);
                                 System.arraycopy(buffer, 0, combined, mImageCapture.length, bytes);
@@ -665,8 +662,6 @@ public class BluetoothChatService {
                                 Log.d(TAG, "==> EXACT MATCH mImageCapture.length=" + mImageCapture.length + ", expected length=" + mBluetoothCaptureImageEvent.getSize());
                                 successfulImageCapture();
                             }
-                        } else {
-                            Log.d(TAG, "no image data!");
                         }
                     }
 
@@ -684,7 +679,7 @@ public class BluetoothChatService {
          * @param buffer The bytes to write
          */
         public void write(byte[] buffer) {
-            Log.d(TAG, "write: buffer=" + buffer);
+            //Log.d(TAG, "write: buffer=" + buffer);
             try {
                 mmOutStream.write(buffer);
                 // Share the sent message back to the UI Activity

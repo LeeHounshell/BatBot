@@ -2,24 +2,35 @@ package com.harlie.batbot.ui.control
 
 import android.app.Dialog
 import android.bluetooth.BluetoothDevice
+import android.content.ContentValues
 import android.content.Context.LAYOUT_INFLATER_SERVICE
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.Nullable
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ObservableBoolean
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.harlie.batbot.BluetoothActivity
+import com.harlie.batbot.ControlActivity.Companion.STORAGE_PERMISSION_REQUEST
+import com.harlie.batbot.Manifest
 import com.harlie.batbot.R
 import com.harlie.batbot.databinding.ControlFragmentBinding
 import com.harlie.batbot.model.RobotCommandModel
@@ -30,6 +41,10 @@ import kotlinx.android.synthetic.main.control_fragment.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
 
@@ -72,6 +87,8 @@ class ControlFragment : Fragment() {
     private var m_last_x: Double = 0.0
     private var m_last_y: Double = 0.0
 
+    private var m_captureImage: ImageView? = null
+    private var m_captureFilename: TextView? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -152,12 +169,14 @@ class ControlFragment : Fragment() {
                 activity!!.runOnUiThread {
                     m_settingsDialog = Dialog(context!!)
                     m_settingsDialog!!.window?.requestFeature(Window.FEATURE_NO_TITLE)
-                    m_settingsDialog!!.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                    val inflater: LayoutInflater = activity!!.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater;
+                    m_settingsDialog!!.getWindow().setBackgroundDrawableResource(android.R.color.transparent)
+                    val inflater: LayoutInflater = activity!!.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
                     val view = inflater.inflate(R.layout.capture_image, null)
                     m_settingsDialog!!.setContentView(view)
-                    val captureImage = view.findViewById<ImageView>(R.id.capture_image)
-                    captureImage.setImageBitmap(it.bitMap)
+                    m_captureImage = view.findViewById<ImageView>(R.id.capture_image) as ImageView
+                    m_captureImage!!.setImageBitmap(it.bitMap)
+                    m_captureFilename = view.findViewById<TextView>(R.id.capture_filename) as TextView
+                    m_captureFilename!!.text = it.name // trick to pass filename data for a 'Save' click
                     m_settingsDialog!!.show()
                 }
                 Log.d(TAG, "restarting the fixed-rate Timer")
@@ -170,15 +189,65 @@ class ControlFragment : Fragment() {
         connect()
     }
 
+    fun addImageToGallery(filePath: String) {
+        Log.d(TAG, "addImageToGallery")
+        val values: ContentValues = ContentValues()
+        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(MediaStore.MediaColumns.DATA, filePath);
+        context!!.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+    }
+
+    private fun saveImageToInternalStorage(drawable: BitmapDrawable, fileName: String) : Uri {
+        Log.d(TAG, "saveImageToInternalStorage: fileName=" + fileName)
+        //val bitmap: Bitmap = draw.getBitmap() as Bitmap
+        val bitmap = (drawable as BitmapDrawable).bitmap
+
+        val sdCard: File = Environment.getExternalStorageDirectory();
+        val dir = File(sdCard.getAbsolutePath() + "/BatBot_images");
+        dir.mkdirs();
+
+        val imageFile = File(dir, fileName)
+        try {
+            val stream: OutputStream = FileOutputStream(imageFile)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            stream.flush()
+            stream.close()
+            Log.d(TAG, "SUCCESS: saved image to " + imageFile.absolutePath)
+        } catch (e: IOException){ // Catch the exception
+            Log.d(TAG, "ERROR: unable to save image, e=" + e)
+        }
+        val fullPath = Uri.parse(imageFile.absolutePath)
+        addImageToGallery(fullPath.path)
+        return fullPath
+    }
+
+    fun saveImage() {
+        Log.d(TAG, "saveImage")
+        val bitmapDrawable: BitmapDrawable = m_captureImage!!.getDrawable() as BitmapDrawable
+        var nanoFilename: String = m_captureFilename!!.text.toString().substringAfterLast("/")
+        nanoFilename = nanoFilename.substring(0, nanoFilename.lastIndexOf('.'))
+        val fileName: String = String.format("%s_%d.jpg", nanoFilename, System.currentTimeMillis())
+        val uri = saveImageToInternalStorage(bitmapDrawable, fileName)
+        Log.d(TAG, "SAVED IMAGE TO " + uri.path)
+    }
+
     fun onClickSaveImage() {
         Log.d(TAG, "onClickSaveImage")
-        // FIXME
+        val currentStoragePermission = ActivityCompat.checkSelfPermission(context!!, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        if (currentStoragePermission != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "onClickSaveImage: requestPermissions")
+            requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), STORAGE_PERMISSION_REQUEST)
+        }
+        else {
+            Log.d(TAG, "onClickSaveImage: have permissions")
+            saveImage()
+        }
         m_settingsDialog!!.dismiss()
     }
 
     fun onClickDismissImage() {
         Log.d(TAG, "onClickDismissImage")
-        // FIXME
         m_settingsDialog!!.dismiss()
     }
 
@@ -191,7 +260,7 @@ class ControlFragment : Fragment() {
             if (m_timer_ok) {
                 m_fixedTimerLoopCount += 1
                 if ((m_fixedTimerLoopCount % 20) == 0) { // flush every 2 seconds
-                    Log.d(TAG, "runFixedRateTimer: FLUSH LOG")
+                    //Log.d(TAG, "runFixedRateTimer: FLUSH LOG")
                     send(" ")
                 }
                 activity!!.runOnUiThread {
@@ -226,7 +295,7 @@ class ControlFragment : Fragment() {
 
     @Subscribe(threadMode = ThreadMode.MAIN) // from notify
     fun onBluetoothStateChangeEvent(bt_event: BluetoothStateChangeEvent) {
-        Log.d(TAG, "onBluetoothStateChangeEvent: theState=" + bt_event.theState + ", whatChanged=" + bt_event.whatChanged)
+        //Log.d(TAG, "onBluetoothStateChangeEvent: theState=" + bt_event.theState + ", whatChanged=" + bt_event.whatChanged)
         when(bt_event.whatChanged) {
 
             Constants.MESSAGE_STATE_CHANGE -> {
@@ -248,7 +317,7 @@ class ControlFragment : Fragment() {
                 val bytesSent = bt_event.extra.getInt(Constants.SIZE)
                 // construct a string from the buffer
                 val writeMessage = String(writeBuf)
-                Log.d(TAG, "--> SENT $bytesSent BYTES: $writeMessage")
+                //Log.d(TAG, "--> SENT $bytesSent BYTES: $writeMessage")
             }
 
             Constants.MESSAGE_READ -> {
@@ -257,7 +326,7 @@ class ControlFragment : Fragment() {
                 // construct a string from the valid bytes in the buffer
                 val readData = String(readBuf, 0, bytesRead)
                 // message received
-                Log.d(TAG, "--> READ $bytesRead BYTES: $readData")
+                //Log.d(TAG, "--> READ $bytesRead BYTES: $readData")
                 m_logging.append(readData)
                 if (readData.length > 0) {
                     logging.text = m_logging.content()
@@ -278,7 +347,7 @@ class ControlFragment : Fragment() {
             }
 
             Constants.IMAGE_READ -> {
-                Log.d(TAG, "===> IMAGE_READ <===");
+                Log.d(TAG, "===> IMAGE_READ <===")
             }
 
             Constants.MESSAGE_DEVICE_NAME -> {
@@ -333,7 +402,7 @@ class ControlFragment : Fragment() {
 
     @Subscribe(threadMode = ThreadMode.MAIN) // from notify
     fun onBluetoothStatusEvent(bt_status_event: BluetoothStatusEvent) {
-        Log.d(TAG, "onBluetoothStatusEvent: message=" + bt_status_event.message)
+        //Log.d(TAG, "onBluetoothStatusEvent: message=" + bt_status_event.message)
         msg(bt_status_event.message)
         if (bt_status_event.message.equals(Constants.DISCONNECT)) {
             weHaveAProblem(Constants.DISCONNECT)
@@ -351,7 +420,7 @@ class ControlFragment : Fragment() {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onBluetoothMessageEvent(bt_message_event: BluetoothMessageEvent) {
-        Log.d(TAG, "onBluetoothMessageEvent: message=" + bt_message_event.message)
+        //Log.d(TAG, "onBluetoothMessageEvent: message=" + bt_message_event.message)
         val builder = AlertDialog.Builder(context!!)
         with(builder)
         {
@@ -523,7 +592,7 @@ class ControlFragment : Fragment() {
     }
 
     fun send(message: String) {
-        Log.d(TAG, "send: " + message)
+        //Log.d(TAG, "send: " + message)
         var msg_tail = ""
         if (message.length == 0) {
             // so we send at least one character to kick-start reading the log data.

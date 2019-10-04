@@ -9,7 +9,7 @@ class BluetoothStateChangeEvent(val whatChanged: Int, val theState: Int, val ext
     private val TAG = "LEE: <" + BluetoothStateChangeEvent::class.java!!.getSimpleName() + ">"
 
     fun post() {
-        Log.d(TAG, "post: whatChanged=" + whatChanged + ", theState=" + theState)
+        //Log.d(TAG, "post: whatChanged=" + whatChanged + ", theState=" + theState)
         EventBus.getDefault().post(this)
     }
 }

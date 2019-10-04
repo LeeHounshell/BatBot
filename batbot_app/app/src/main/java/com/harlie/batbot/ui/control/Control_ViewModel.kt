@@ -89,7 +89,7 @@ class Control_ViewModel : ViewModel() {
     }
 
     fun send(message: String) {
-        Log.d(TAG, "send: '" + message + "'")
+        //Log.d(TAG, "send: '" + message + "'")
         m_BluetoothChatService.send(message)
     }
 
