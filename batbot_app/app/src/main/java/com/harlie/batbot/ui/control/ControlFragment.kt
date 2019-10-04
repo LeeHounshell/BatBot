@@ -61,8 +61,8 @@ class ControlFragment : Fragment() {
 
     val MAX_WAIT_LOG_DATA = 30000
     val BLUEDOT_SAMPLE_RATE_MILLIS = 333
-    val IMAGE_FILE_HEADER = " File: /"
-    val IMAGE_SIZE_HEADER = " Size: /"
+    val IMAGE_FILE_HEADER = "File: /"
+    val IMAGE_SIZE_HEADER = "Size: /"
 
     val m_robotConnection = ObservableBoolean(false)
 
@@ -423,12 +423,12 @@ class ControlFragment : Fragment() {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onBluetoothMessageEvent(bt_message_event: BluetoothMessageEvent) {
-        //Log.d(TAG, "onBluetoothMessageEvent: message=" + bt_message_event.message)
+        Log.d(TAG, "onBluetoothMessageEvent: message=" + bt_message_event.message)
         val builder = AlertDialog.Builder(context!!)
         with(builder)
         {
             setTitle(getString(R.string.message))
-            if (bt_message_event.message.split('\n')[0].startsWith(IMAGE_FILE_HEADER)) {
+            if (bt_message_event.message.split('\n')[0].trim().startsWith(IMAGE_FILE_HEADER)) {
                 Log.d(TAG, "ask to view the image")
                 setMessage(bt_message_event.message + "\n\nView this Image?")
                 builder.setPositiveButton("YES") {dialog, which ->
@@ -452,15 +452,16 @@ class ControlFragment : Fragment() {
     }
 
     private fun removeUnusedImage(btMessageEvent: BluetoothMessageEvent) {
-        val image_file = btMessageEvent.message.split('\n')[0].substring(IMAGE_FILE_HEADER.length - 1)
+        val image_file = btMessageEvent.message.split('\n')[0].trim().substring(IMAGE_FILE_HEADER.length - 1)
         Log.d(TAG, "removeUnusedImage: " + image_file)
         send("\n@DELETE " + image_file)
     }
 
     private fun uploadImageFor(btMessageEvent: BluetoothMessageEvent) {
+        Log.d(TAG, "uploadImageFor")
         try {
-            val image_file = btMessageEvent.message.split('\n')[0].substring(IMAGE_FILE_HEADER.length - 1)
-            val image_size = btMessageEvent.message.split('\n')[1].substring(IMAGE_SIZE_HEADER.length - 1).toInt()
+            val image_file = btMessageEvent.message.split('\n')[0].trim().substring(IMAGE_FILE_HEADER.length - 1)
+            val image_size = btMessageEvent.message.split('\n')[1].trim().substring(IMAGE_SIZE_HEADER.length - 1).toInt()
             Log.d(TAG, "uploadImageFor: " + image_file + ", size: " + image_size)
             // FIXME: disable controls while upload in progress
             m_timer_ok = false // STOP THE fixedRateTimer - it will be restarted after the image arrives
