@@ -197,10 +197,11 @@ boolean good = 0;
 int servoSpeed = moveSlow;
 int sensorSpeed = moveNormal;
 
-char buffer[42];
-char camera[42];
-char status[64];
-char number[16];
+// these might be a little fat
+char buffer[50];
+char camera[50];
+char status[99];
+char number[20];
 
 //========================================
 
