@@ -645,19 +645,19 @@ def data_received(commandsFromPhone):
 
         elif command_contains(['high', 'resolution'], data):
             resolution = '3k'
-            result = '==> USE 3K IMAGES'
+            result = result + '\n! ==> USE 3K IMAGES'
             printResult = True
             valid = True
 
         elif command_contains(['medium', 'resolution'], data):
             resolution = 'hd'
-            result = '==> USE HD IMAGES'
+            result = result + '\n! ==> USE HD IMAGES'
             printResult = True
             valid = True
 
         elif command_contains(['low', 'resolution'], data):
             resolution = 'sd'
-            result = '==> USE SD IMAGES'
+            result = result + '\n! ==> USE SD IMAGES'
             printResult = True
             valid = True
 
@@ -680,7 +680,7 @@ def data_received(commandsFromPhone):
 
         elif command_contains(['previous', 'algorithm'], data):
             if algorithmFixed:
-                result = show_algorithm_hint(result)
+                result = result + show_algorithm_hint(result)
             else:
                 algorithmIndex -= 1
                 if algorithmIndex <= -1:
@@ -691,7 +691,7 @@ def data_received(commandsFromPhone):
 
         elif 'algorithm' in data:
             if algorithmFixed:
-                result = show_algorithm_hint(result)
+                result = result + show_algorithm_hint(result)
             else:
                 algorithmIndex += 1
                 if algorithmIndex >= len(algorithmList):
