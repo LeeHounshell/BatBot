@@ -16,7 +16,7 @@ public class LoggingTextTail {
 
 
     fun append(log_text: String) {
-        Log.d(TAG, "append: " + log_text)
+        //Log.d(TAG, "append: " + log_text)
         val lines = log_text.lines()
         lines.forEach {
             if (it.trim().length > 0) {
@@ -41,6 +41,7 @@ public class LoggingTextTail {
 
     // each time this is called, the first line gets deleted, until MAX_LOG_LINES remain
     fun content(): String {
+        //Log.d(TAG, "content")
         if (content.size > 0) {
             val sb = StringBuffer()
             for (i in 0..content.size - 1) {
@@ -61,7 +62,7 @@ public class LoggingTextTail {
     }
 
     fun lastLogTime(): Long {
-        Log.d(TAG, "lastLogTime: " + m_lastLogReceiptTime)
+        //Log.d(TAG, "lastLogTime: " + m_lastLogReceiptTime)
         return m_lastLogReceiptTime
     }
 

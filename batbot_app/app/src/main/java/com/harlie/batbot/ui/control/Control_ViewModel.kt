@@ -8,6 +8,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.harlie.batbot.model.RobotCommandModel
 import com.harlie.batbot.service.BluetoothChatService
+import com.harlie.batbot.util.BluetoothCaptureImageEvent
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 
 class Control_ViewModel : ViewModel() {
@@ -21,6 +25,7 @@ class Control_ViewModel : ViewModel() {
     private lateinit var m_starClicked: MutableLiveData<Boolean>
     private lateinit var m_okClicked: MutableLiveData<Boolean>
     private lateinit var m_sharpClicked: MutableLiveData<Boolean>
+    private lateinit var m_captureImageEvent: MutableLiveData<BluetoothCaptureImageEvent>
     private lateinit var m_bluetoothAdapter: BluetoothAdapter
 
 
@@ -32,6 +37,7 @@ class Control_ViewModel : ViewModel() {
         m_starClicked = MutableLiveData<Boolean>()
         m_okClicked = MutableLiveData<Boolean>()
         m_sharpClicked = MutableLiveData<Boolean>()
+        m_captureImageEvent = MutableLiveData<BluetoothCaptureImageEvent>()
     }
 
     fun getInputCommand(): LiveData<RobotCommandModel> = m_inputCommand
@@ -39,10 +45,12 @@ class Control_ViewModel : ViewModel() {
     fun getStarClicked(): LiveData<Boolean> = m_starClicked
     fun getOkClicked(): LiveData<Boolean> = m_okClicked
     fun getSharpClicked(): LiveData<Boolean> = m_sharpClicked
+    fun getCaptureImage(): LiveData<BluetoothCaptureImageEvent> = m_captureImageEvent
 
     fun initialize(): BluetoothAdapter {
         if (! m_initialized) {
             Log.d(TAG, "initialize")
+            EventBus.getDefault().register(this)
             m_bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
             m_initialized = true
         }
@@ -90,4 +98,21 @@ class Control_ViewModel : ViewModel() {
         m_BluetoothChatService.stop()
     }
 
+    fun uploadImage(imageFile: String, imageSize: Int) {
+        Log.d(TAG, "uploadImage")
+        m_BluetoothChatService.uploadImage(imageFile, imageSize)
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onBluetoothMessageEvent(bt_image_event: BluetoothCaptureImageEvent) {
+        Log.d(TAG, "onBluetoothMessageEvent")
+        m_BluetoothChatService.setCapturingImage(false)
+        m_captureImageEvent.setValue(bt_image_event)
+    }
+
+    override fun onCleared() {
+        Log.d(TAG, "onCleared")
+        EventBus.getDefault().unregister(this)
+        super.onCleared()
+    }
 }

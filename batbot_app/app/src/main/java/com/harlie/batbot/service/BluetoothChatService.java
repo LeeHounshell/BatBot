@@ -1,6 +1,6 @@
 // adapted from code by: Martin O'Hanlon
 // from: https://github.com/martinohanlon/BlueDot/blob/master/clients/android/app/src/main/java/com/stuffaboutcode/bluedot/BluetoothChatService.java
-// this code is changed to use Green Robot events instead of Handler
+// this code is changed to use Green Robot events instead of Handler and to upload images
 //
 // Thanks Martin!  your BlueDot rocks!!   github.com/martinohanlon/BlueDot
 
@@ -13,8 +13,11 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.harlie.batbot.util.BluetoothCaptureImageEvent;
 import com.harlie.batbot.util.BluetoothStateChangeEvent;
 import com.harlie.batbot.util.BluetoothStatusEvent;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,6 +52,11 @@ public class BluetoothChatService {
     private int mNewState;
     private int mCount = 0;
 
+    private volatile Boolean mCapturingImage = false;
+    private volatile Boolean mCapturingImageNow = false;
+    private BluetoothCaptureImageEvent mBluetoothCaptureImageEvent = null;
+    private byte[] mImageCapture = null;
+
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing
     public static final int STATE_LISTEN = 1;     // now listening for incoming connections
@@ -68,6 +76,7 @@ public class BluetoothChatService {
     private void notifyStateChange(int whatChanged, int theState, Bundle extra) {
         Log.d(TAG, "notifyStateChange: whatChanged=" + whatChanged + ", theState=" + theState);
         switch (whatChanged) {
+
             case Constants.MESSAGE_STATE_CHANGE:
                 switch (theState) {
                     case BluetoothChatService.STATE_CONNECTED:
@@ -86,6 +95,7 @@ public class BluetoothChatService {
                         break;
                 }
                 break;
+
             case Constants.MESSAGE_WRITE: // NOTE: message already sent, just a notify here
                 byte[] writeBuf = (byte[]) extra.getByteArray(Constants.DATA);
                 int bytesSent = extra.getInt(Constants.SIZE);
@@ -93,28 +103,49 @@ public class BluetoothChatService {
                 String writeMessage = new String(writeBuf);
                 Log.d(TAG, "--> SENT: " + writeMessage);
                 break;
+
             case Constants.MESSAGE_READ:
                 byte[] readBuf = (byte[]) extra.getByteArray(Constants.DATA);
                 int bytesRead = extra.getInt(Constants.SIZE);
                 // construct a string from the valid bytes in the buffer
-                String readData = new String(readBuf, 0, bytesRead);
+                String buffer = new String(readBuf, 0, bytesRead);
                 // message received
-                Log.d(TAG, "--> READ: " + readData);
+                Log.d(TAG, "--> READ: size=" + bytesRead + ", buffer=" + buffer);
+                if (buffer.contains("~BEGIN CAPTURE~")) {
+                    Log.d(TAG, "--> mCapturingImageNow = true;");
+                    mCapturingImageNow = true;
+                }
                 break;
+
+            case Constants.IMAGE_READ:
+                byte[] imageBuf = (byte[]) extra.getByteArray(Constants.DATA);
+                int imageBytesRead = extra.getInt(Constants.SIZE);
+                if (mCapturingImage && mBluetoothCaptureImageEvent.getSize() <= imageBytesRead) {
+                    Log.d(TAG, "--> CAPTURED THE IMAGE !!! size=" + imageBytesRead);
+                    if (mBluetoothCaptureImageEvent.parseImage(imageBuf, imageBytesRead)) {
+                        Log.d(TAG, "--> posting captured image");
+                        mBluetoothCaptureImageEvent.post();
+                    }
+                }
+                break;
+
             case Constants.MESSAGE_DEVICE_NAME:
                 // save the connected device's name
                 String connectedDeviceName = extra.getString(Constants.DEVICE_NAME);
                 Log.d(TAG, "===> connectedDeviceName=" + connectedDeviceName);
                 sendProtocolVersion();
                 break;
+
             case Constants.MESSAGE_TOAST:
                 String message = extra.getString(Constants.TOAST);
                 Log.d(TAG, "===> TOAST message=" + message);
                 break;
         }
 
-        BluetoothStateChangeEvent bt_event = new BluetoothStateChangeEvent(whatChanged, theState, extra);
-        bt_event.post();
+        if (! mCapturingImage) {
+            BluetoothStateChangeEvent bt_event = new BluetoothStateChangeEvent(whatChanged, theState, extra);
+            bt_event.post();
+        }
     }
 
     private void sendProtocolVersion() {
@@ -358,6 +389,17 @@ public class BluetoothChatService {
         notifyBluetoothStatus(Constants.CONNECTION_LOST);
     }
 
+    /**
+     * Read the incoming .jpg image
+     * @param imageFile
+     * @param imageSize
+     * @return
+     */
+    @NotNull
+    public void uploadImage(@NotNull String imageFile, int imageSize) {
+        mBluetoothCaptureImageEvent = new BluetoothCaptureImageEvent(imageFile, imageSize);
+        mCapturingImage = true;
+    }
 
     /**
      * This thread runs while listening for incoming connections. It behaves
@@ -550,20 +592,83 @@ public class BluetoothChatService {
             mState = STATE_CONNECTED;
         }
 
+        public void successfulImageCapture() {
+            Log.d(TAG, "===> IMAGE SUCCESSFULLY CAPTURED! <===");
+            Log.d(TAG, "===> IMAGE SIZE=" + mImageCapture.length + " <===");
+
+            // Send the image data bytes
+            Bundle bundle = new Bundle();
+            bundle.putByteArray(Constants.DATA, mImageCapture);
+            bundle.putInt(Constants.SIZE, mImageCapture.length);
+            Log.d(TAG, "notifyStateChange(Constants.IMAGE_READ, mState, bundle); size=" + mImageCapture.length);
+            notifyStateChange(Constants.IMAGE_READ, mState, bundle);
+
+            mCapturingImageNow = false;
+            mImageCapture = null;
+        }
+
         public void run() {
             Log.i(TAG, "run: BEGIN mConnectedThread");
 
             // Keep listening to the InputStream while connected
             while (mState == STATE_CONNECTED) {
                 try {
-                    byte[] buffer = new byte[1024];
-                    // Read from the InputStream
-                    int bytes = mmInStream.read(buffer);
-                    // Send the obtained bytes to the UI Activity
-                    Bundle bundle = new Bundle();
-                    bundle.putByteArray(Constants.DATA, buffer);
-                    bundle.putInt(Constants.SIZE, bytes);
-                    notifyStateChange(Constants.MESSAGE_READ, mState, bundle);
+                    if (! mCapturingImageNow) {
+                        byte[] buffer = new byte[1024];
+                        // Read from the InputStream
+                        Log.d(TAG, "reading log messages..");
+                        int bytes = mmInStream.read(buffer);
+                        Log.d(TAG, "read " + bytes + " bytes.");
+                        if (bytes > 0) {
+                            Log.d(TAG, "send the message data");
+                            // Send the message data bytes
+                            Bundle bundle = new Bundle();
+                            bundle.putByteArray(Constants.DATA, buffer);
+                            bundle.putInt(Constants.SIZE, bytes);
+                            Log.d(TAG, "notifyStateChange(Constants.MESSAGE_READ, mState, bundle);");
+                            notifyStateChange(Constants.MESSAGE_READ, mState, bundle);
+                        }
+                        else {
+                            Log.d(TAG, "no data!");
+                        }
+                    }
+                    else {
+                        int bufcount = 1024;
+                        if (mImageCapture != null && mImageCapture.length + 1024 > mBluetoothCaptureImageEvent.getSize()) {
+                            bufcount = mBluetoothCaptureImageEvent.getSize() - mImageCapture.length;
+                            Log.d(TAG, "===> only " + bufcount + " bytes remain to be read!");
+                        }
+                        byte[] buffer = new byte[bufcount];
+                        // Read the entire image from the InputStream
+                        Log.d(TAG, "reading image data..");
+                        int bytes = mmInStream.read(buffer);
+                        Log.d(TAG, "read " + bytes + " bytes.");
+                        if (bytes > 0) {
+                            String readData = new String(buffer, 0, bytes);
+                            Log.d(TAG, "---------> IMAGE_DATA: " + readData);
+                            if (readData.contains("~END CAPTURE~")) {
+                                Log.d(TAG, "==> FOUND ~END CAPTURE~");
+                                successfulImageCapture();
+                                continue;
+                            }
+                            if (mImageCapture == null) {
+                                Log.d(TAG, "initializing image capture from buffer");
+                                mImageCapture = buffer;
+                            } else {
+                                Log.d(TAG, "combining byte arrays of sizes " + mImageCapture.length + " and " + bytes);
+                                byte[] combined = new byte[mImageCapture.length + bytes];
+                                System.arraycopy(mImageCapture, 0, combined, 0, mImageCapture.length);
+                                System.arraycopy(buffer, 0, combined, mImageCapture.length, bytes);
+                                mImageCapture = combined;
+                            }
+                            if (mImageCapture.length == mBluetoothCaptureImageEvent.getSize()) {
+                                Log.d(TAG, "==> EXACT MATCH mImageCapture.length=" + mImageCapture.length + ", expected length=" + mBluetoothCaptureImageEvent.getSize());
+                                successfulImageCapture();
+                            }
+                        } else {
+                            Log.d(TAG, "no image data!");
+                        }
+                    }
 
                 } catch (IOException e) {
                     Log.e(TAG, "server connection lost", e);
@@ -600,6 +705,11 @@ public class BluetoothChatService {
                 Log.e(TAG, "close() of connect socket failed", e);
             }
         }
+    }
+
+    public void setCapturingImage(Boolean isCapturing) {
+        Log.d(TAG, "setCapturingImage");
+        mCapturingImage = isCapturing;
     }
 }
 

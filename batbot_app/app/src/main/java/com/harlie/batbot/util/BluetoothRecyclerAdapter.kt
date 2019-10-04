@@ -3,10 +3,10 @@ package com.harlie.batbot.util
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
-import com.harlie.batbot.model.BluetoothDeviceModel
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.RecyclerView
 import com.harlie.batbot.databinding.BtItemListViewBinding
+import com.harlie.batbot.model.BluetoothDeviceModel
 import com.harlie.batbot.ui.bluetooth.Bluetooth_ViewModel
 
 

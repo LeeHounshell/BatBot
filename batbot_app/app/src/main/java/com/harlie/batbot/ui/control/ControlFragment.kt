@@ -1,38 +1,41 @@
 package com.harlie.batbot.ui.control
 
+import android.app.Dialog
+import android.bluetooth.BluetoothDevice
+import android.content.Context.LAYOUT_INFLATER_SERVICE
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import android.widget.ImageView
+import android.widget.Toast
+import androidx.annotation.Nullable
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.ObservableBoolean
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.harlie.batbot.model.RobotCommandModel
-import androidx.annotation.Nullable
+import com.harlie.batbot.BluetoothActivity
+import com.harlie.batbot.R
 import com.harlie.batbot.databinding.ControlFragmentBinding
+import com.harlie.batbot.model.RobotCommandModel
 import com.harlie.batbot.service.BluetoothChatService
-import android.bluetooth.BluetoothDevice
-import android.content.DialogInterface
-import android.content.Intent
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import com.harlie.batbot.service.Constants
+import com.harlie.batbot.util.*
 import kotlinx.android.synthetic.main.control_fragment.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import androidx.databinding.ObservableBoolean
-import androidx.fragment.app.Fragment
-import com.harlie.batbot.BluetoothActivity
-import com.harlie.batbot.R
-import com.harlie.batbot.util.*
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
 
 
 class ControlFragment : Fragment() {
-    val TAG = "LEE: <" + ControlFragment::class.java.getName() + ">"
+    val TAG = "LEE: <" + ControlFragment::class.java.name + ">"
 
     companion object {
         val instance = ControlFragment()
@@ -43,8 +46,11 @@ class ControlFragment : Fragment() {
 
     val MAX_WAIT_LOG_DATA = 30000
     val BLUEDOT_SAMPLE_RATE_MILLIS = 333
+    val IMAGE_FILE_HEADER = " File: /"
+    val IMAGE_SIZE_HEADER = " Size: /"
 
     val m_robotConnection = ObservableBoolean(false)
+
     private var m_robotCommand = RobotCommandModel("", "")
     private var m_logging = LoggingTextTail()
     private var m_timer_ok = false
@@ -56,6 +62,7 @@ class ControlFragment : Fragment() {
     private lateinit var m_ControlFragBinding : ControlFragmentBinding
     private var m_ControlViewModel: Control_ViewModel? = null
     private lateinit var m_fixedTimer: Timer
+    private var m_settingsDialog: Dialog? = null
 
     private var m_name: String? = null
     private var m_address: String? = null
@@ -80,7 +87,7 @@ class ControlFragment : Fragment() {
         m_ControlFragBinding.lifecycleOwner = viewLifecycleOwner
         m_ControlFragBinding.executePendingBindings()
 
-        val view = m_ControlFragBinding.getRoot()
+        val view = m_ControlFragBinding.root
         return view
     }
 
@@ -133,13 +140,45 @@ class ControlFragment : Fragment() {
 
         m_ControlViewModel!!.getSharpClicked().observe(this, Observer {
             it?.let {
-                Log.d(TAG, "obsere getSharpClicked()===> # clicked=" + it)
+                Log.d(TAG, "observe getSharpClicked()===> # clicked=" + it)
                 send("click: #")
+            }
+        })
+
+        m_ControlViewModel!!.getCaptureImage().observe(this, Observer {
+            it?.let {
+                Log.d(TAG, "observe getCaptureImage()===> " + it)
+                // display image popup
+                activity!!.runOnUiThread {
+                    m_settingsDialog = Dialog(context!!)
+                    m_settingsDialog!!.window?.requestFeature(Window.FEATURE_NO_TITLE)
+                    val inflater: LayoutInflater = activity!!.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater;
+                    val view = inflater.inflate(R.layout.capture_image, null)
+                    m_settingsDialog!!.setContentView(view)
+                    val captureImage = view.findViewById<ImageView>(R.id.capture_image)
+                    captureImage.setImageBitmap(it.bitMap)
+                    m_settingsDialog!!.show()
+                }
+                Log.d(TAG, "restarting the fixed-rate Timer")
+                m_timer_ok = true
+                runFixedRateTimer()
             }
         })
 
         disableButtons()
         connect()
+    }
+
+    fun onClickSaveImage() {
+        Log.d(TAG, "onClickSaveImage")
+        // FIXME
+        m_settingsDialog!!.dismiss()
+    }
+
+    fun onClickDismissImage() {
+        Log.d(TAG, "onClickDismissImage")
+        // FIXME
+        m_settingsDialog!!.dismiss()
     }
 
     fun runFixedRateTimer() {
@@ -175,12 +214,12 @@ class ControlFragment : Fragment() {
         Log.d(TAG, "onStart")
         super.onStart()
         EventBus.getDefault().register(this)
+        m_timer_ok = true
     }
 
     override fun onResume() {
         Log.d(TAG, "onStart")
         super.onResume()
-        m_timer_ok = true
         runFixedRateTimer()
     }
 
@@ -188,6 +227,7 @@ class ControlFragment : Fragment() {
     fun onBluetoothStateChangeEvent(bt_event: BluetoothStateChangeEvent) {
         Log.d(TAG, "onBluetoothStateChangeEvent: theState=" + bt_event.theState + ", whatChanged=" + bt_event.whatChanged)
         when(bt_event.whatChanged) {
+
             Constants.MESSAGE_STATE_CHANGE -> {
                 when (bt_event.theState) {
                     BluetoothChatService.STATE_CONNECTING -> {
@@ -201,6 +241,7 @@ class ControlFragment : Fragment() {
                     }
                 }
             }
+
             Constants.MESSAGE_WRITE -> {
                 val writeBuf = bt_event.extra.getByteArray(Constants.DATA) as ByteArray
                 val bytesSent = bt_event.extra.getInt(Constants.SIZE)
@@ -208,6 +249,7 @@ class ControlFragment : Fragment() {
                 val writeMessage = String(writeBuf)
                 Log.d(TAG, "--> SENT $bytesSent BYTES: $writeMessage")
             }
+
             Constants.MESSAGE_READ -> {
                 val readBuf = bt_event.extra.getByteArray(Constants.DATA) as ByteArray
                 val bytesRead = bt_event.extra.getInt(Constants.SIZE)
@@ -233,6 +275,11 @@ class ControlFragment : Fragment() {
                     }
                 }
             }
+
+            Constants.IMAGE_READ -> {
+                Log.d(TAG, "===> IMAGE_READ <===");
+            }
+
             Constants.MESSAGE_DEVICE_NAME -> {
                 // save the connected device's name
                 val connectedDeviceName = bt_event.extra.getString(Constants.DEVICE_NAME)
@@ -240,6 +287,7 @@ class ControlFragment : Fragment() {
                 enableButtons()
                 m_ControlViewModel?.doClickOk()
             }
+
             Constants.MESSAGE_TOAST -> {
                 val message = bt_event.extra.getString(Constants.TOAST)
                 Log.d(TAG, "===> TOAST message=" + message!!)
@@ -306,13 +354,53 @@ class ControlFragment : Fragment() {
         val builder = AlertDialog.Builder(context!!)
         with(builder)
         {
-            setTitle("Message from BatBot")
-            setMessage(bt_message_event.message)
-            // Set a positive button and its click listener on alert dialog
-            builder.setPositiveButton("OK") {dialog, which ->
-                Log.d(TAG, "-click-")
+            setTitle(getString(R.string.message))
+            if (bt_message_event.message.split('\n')[0].startsWith(IMAGE_FILE_HEADER)) {
+                Log.d(TAG, "ask to view the image")
+                setMessage(bt_message_event.message + "\n\nView this Image?")
+                builder.setPositiveButton("YES") {dialog, which ->
+                    Log.d(TAG, "--> click 'YES'")
+                    uploadImageFor(bt_message_event)
+                }
+                builder.setNeutralButton("NO") { dialog, which ->
+                    Log.d(TAG, "--> click 'NO'")
+                    removeUnusedImage(bt_message_event)
+                }
+            }
+            else {
+                setMessage(bt_message_event.message)
+                // Set a positive button and its click listener on alert dialog
+                builder.setPositiveButton("OK") {dialog, which ->
+                    Log.d(TAG, "--> click 'OK'")
+                }
             }
             show()
+        }
+    }
+
+    private fun removeUnusedImage(btMessageEvent: BluetoothMessageEvent) {
+        val image_file = btMessageEvent.message.split('\n')[0].substring(IMAGE_FILE_HEADER.length - 1)
+        Log.d(TAG, "removeUnusedImage: " + image_file)
+        send("\n@DELETE " + image_file)
+    }
+
+    private fun uploadImageFor(btMessageEvent: BluetoothMessageEvent) {
+        try {
+            val image_file = btMessageEvent.message.split('\n')[0].substring(IMAGE_FILE_HEADER.length - 1)
+            val image_size = btMessageEvent.message.split('\n')[1].substring(IMAGE_SIZE_HEADER.length - 1).toInt()
+            Log.d(TAG, "uploadImageFor: " + image_file + ", size: " + image_size)
+            // FIXME: disable controls while upload in progress
+            m_timer_ok = false // STOP THE fixedRateTimer - it will be restarted after the image arrives
+            m_ControlViewModel!!.uploadImage(image_file, image_size)
+            send("\n@UPLOAD " + image_file + '\n')
+        }
+        catch (e: Exception) {
+            Log.e(TAG, "uploadImageFor: " + btMessageEvent + " FAILED!")
+            activity?.runOnUiThread(java.lang.Runnable {
+                Toast.makeText(context,  "IMAGE UPLOAD FAILED!", Toast.LENGTH_LONG).show()
+            })
+            m_timer_ok = true
+            runFixedRateTimer()
         }
     }
 
@@ -344,72 +432,74 @@ class ControlFragment : Fragment() {
 
             // Attempt to connect to the device
             msg("connecting..")
-
             m_ControlViewModel!!.connect(m_device!!, true)
 
             msg("please wait..")
-
             // Once connected setup the listener
-            bluedot_matrix.setOnUseListener(object : DynamicMatrix.DynamicMatrixListener {
-                override fun onPress(
-                    cell: DynamicMatrix.MatrixCell,
-                    pointerId: Int,
-                    actual_x: Float,
-                    actual_y: Float
-                ) {
-                    Log.d(TAG, "onPress: actual_x=" + actual_x + ", actual_y=" + actual_y)
-                    val x = calcX(cell, actual_x)
-                    val y = calcY(cell, actual_y)
-                    m_ControlFragBinding.bluedotMatrix.onPress(actual_x, actual_y)
-                    send(buildMessage("1", x, y))
-                    m_last_x = x
-                    m_last_y = y
-                    m_joystickTime = System.currentTimeMillis()
-                }
-
-                // throttle onMove to avoid flooding the Arduino with commands
-                override fun onMove(
-                    cell: DynamicMatrix.MatrixCell,
-                    pointerId: Int,
-                    actual_x: Float,
-                    actual_y: Float
-                ) {
-                    val now = System.currentTimeMillis()
-                    if ((now - m_joystickTime) > BLUEDOT_SAMPLE_RATE_MILLIS) {
-                        Log.d(TAG, "onMove: actual_x=" + actual_x + ", actual_y=" + actual_y)
-                        val x = calcX(cell, actual_x)
-                        val y = calcY(cell, actual_y)
-                        if (x != m_last_x || y != m_last_y) {
-                            send(buildMessage("2", x, y))
-                            m_ControlFragBinding.bluedotMatrix.onMove(actual_x, actual_y)
-                            m_last_x = x
-                            m_last_y = y
-                        }
-                        m_joystickTime = System.currentTimeMillis()
-                    }
-                    else {
-                        Log.d(TAG, "onMove: IGNORED")
-                        m_ControlFragBinding.bluedotMatrix.onMove(actual_x, actual_y)
-                    }
-                }
-
-                override fun onRelease(
-                    cell: DynamicMatrix.MatrixCell,
-                    pointerId: Int,
-                    actual_x: Float,
-                    actual_y: Float
-                ) {
-                    Log.d(TAG, "onRelease: actual_x=" + actual_x + ", actual_y=" + actual_y)
-                    val x = calcX(cell, actual_x)
-                    val y = calcY(cell, actual_y)
-                    send(buildMessage("0", x, y))
-                    m_ControlFragBinding.bluedotMatrix.onRelease(actual_x, actual_y)
-                    m_last_x = x
-                    m_last_y = y
-                    m_joystickTime = System.currentTimeMillis()
-                }
-            })
+            setControlListener()
         }
+    }
+
+    private fun setControlListener() {
+        Log.d(TAG, "setControlListener")
+        bluedot_matrix.setOnUseListener(object : DynamicMatrix.DynamicMatrixListener {
+            override fun onPress(
+                cell: DynamicMatrix.MatrixCell,
+                pointerId: Int,
+                actual_x: Float,
+                actual_y: Float
+            ) {
+                Log.d(TAG, "onPress: actual_x=" + actual_x + ", actual_y=" + actual_y)
+                val x = calcX(cell, actual_x)
+                val y = calcY(cell, actual_y)
+                m_ControlFragBinding.bluedotMatrix.onPress(actual_x, actual_y)
+                send(buildMessage("1", x, y))
+                m_last_x = x
+                m_last_y = y
+                m_joystickTime = System.currentTimeMillis()
+            }
+
+            // throttle onMove to avoid flooding the Arduino with commands
+            override fun onMove(
+                cell: DynamicMatrix.MatrixCell,
+                pointerId: Int,
+                actual_x: Float,
+                actual_y: Float
+            ) {
+                val now = System.currentTimeMillis()
+                if ((now - m_joystickTime) > BLUEDOT_SAMPLE_RATE_MILLIS) {
+                    Log.d(TAG, "onMove: actual_x=" + actual_x + ", actual_y=" + actual_y)
+                    val x = calcX(cell, actual_x)
+                    val y = calcY(cell, actual_y)
+                    if (x != m_last_x || y != m_last_y) {
+                        send(buildMessage("2", x, y))
+                        m_ControlFragBinding.bluedotMatrix.onMove(actual_x, actual_y)
+                        m_last_x = x
+                        m_last_y = y
+                    }
+                    m_joystickTime = System.currentTimeMillis()
+                } else {
+                    Log.d(TAG, "onMove: IGNORED")
+                    m_ControlFragBinding.bluedotMatrix.onMove(actual_x, actual_y)
+                }
+            }
+
+            override fun onRelease(
+                cell: DynamicMatrix.MatrixCell,
+                pointerId: Int,
+                actual_x: Float,
+                actual_y: Float
+            ) {
+                Log.d(TAG, "onRelease: actual_x=" + actual_x + ", actual_y=" + actual_y)
+                val x = calcX(cell, actual_x)
+                val y = calcY(cell, actual_y)
+                send(buildMessage("0", x, y))
+                m_ControlFragBinding.bluedotMatrix.onRelease(actual_x, actual_y)
+                m_last_x = x
+                m_last_y = y
+                m_joystickTime = System.currentTimeMillis()
+            }
+        })
     }
 
     private fun calcX(cell: DynamicMatrix.MatrixCell, actual_x: Float): Double {
@@ -456,7 +546,7 @@ class ControlFragment : Fragment() {
         Log.d(TAG, "gotoBluetoothActivity")
         m_timer_ok = false
         val controlIntent: Intent = Intent(activity, BluetoothActivity::class.java)
-        controlIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        controlIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(controlIntent)
         activity!!.overridePendingTransition(0, R.anim.fade_out)
         activity!!.finish()
@@ -465,6 +555,7 @@ class ControlFragment : Fragment() {
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
         disconnect()
+        m_timer_ok = false
         if (::m_fixedTimer.isInitialized) {
             m_fixedTimer.cancel()
         }

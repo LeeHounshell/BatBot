@@ -159,4 +159,15 @@ class ControlActivity : AppCompatActivity() {
         m_ControlFragment = null
         m_ControlViewModel = null
     }
+
+    fun onClickSaveImage(view: View) {
+        Log.d(TAG, "onClickSaveImage")
+        m_ControlFragment!!.onClickSaveImage()
+    }
+
+    fun onClickDismissImage(view: View) {
+        Log.d(TAG, "onClickDismissImage")
+        m_ControlFragment!!.onClickDismissImage()
+    }
+
 }

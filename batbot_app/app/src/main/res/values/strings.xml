@@ -10,4 +10,7 @@
     <string name="type">Type:</string>
     <string name="id_list">ID List:</string>
     <string name="status">Status</string>
+    <string name="message">Message from BatBot</string>
+    <string name="save">Save</string>
+    <string name="ok">Ok</string>
 </resources>

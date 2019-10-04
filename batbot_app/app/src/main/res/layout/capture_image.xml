@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/capture_image"
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:src="@drawable/batbot">
+    </ImageView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        >
+
+        <Button
+            style="@style/ButtonStyle"
+            android:id="@+id/image_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_background"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:onClick="onClickSaveImage"
+            android:text="@string/save"
+            android:layout_weight="1"
+            />
+
+        <Button
+            style="@style/ButtonStyle"
+            android:id="@+id/image_dismiss"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_background"
+            android:layout_marginEnd="8dp"
+            android:onClick="onClickDismissImage"
+            android:text="@string/ok"
+            android:layout_weight="1"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>
