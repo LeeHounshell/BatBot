@@ -19,7 +19,6 @@ then
     algorithm="DenseNet"
 fi
 
-echo
 if pgrep -x "identify.py" > /dev/null
 then
     ./capture.sh ${image_name} ${resolution}
