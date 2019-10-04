@@ -70,6 +70,7 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
     val IMAGE_SIZE_HEADER = "Size: /"
 
     val m_robotConnection = ObservableBoolean(false)
+    val m_downloadingNow  = ObservableBoolean(false)
 
     private var m_robotCommand = RobotCommandModel("", "")
     private var m_logging = LoggingTextTail()
@@ -106,6 +107,7 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
         )
         m_ControlFragBinding.robotCommand = m_robotCommand
         m_ControlFragBinding.robotConnection = m_robotConnection
+        m_ControlFragBinding.downloadingNow = m_downloadingNow
         m_ControlFragBinding.lifecycleOwner = viewLifecycleOwner
         m_ControlFragBinding.executePendingBindings()
 
@@ -387,6 +389,18 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
         m_robotConnection.set(true)
     }
 
+    private fun downloadingNow() {
+        Log.d(TAG, "downloadingNow")
+        textOutput.visibility = View.INVISIBLE
+        m_downloadingNow.set(true)
+    }
+
+    private fun downloadComplete() {
+        Log.d(TAG, "downloadComplete")
+        m_downloadingNow.set(false)
+        textOutput.visibility = View.VISIBLE
+    }
+
     fun clearTextViews() {
         Log.d(TAG, "initializeTextViews")
         if (textOutput != null) {
@@ -462,14 +476,12 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
         if ((imageDownloadProgress_event.progress == 0)
         || (imageDownloadProgress_event.progress == imageDownloadProgress_event.max)) {
             Log.d(TAG, "hide number_progress_bar and restore textOutput")
-            textOutput.visibility = View.VISIBLE
-            number_progress_bar.visibility = View.GONE
+            downloadComplete()
         }
         else {
             number_progress_bar.max = imageDownloadProgress_event.max
-            textOutput.visibility = View.INVISIBLE
-            number_progress_bar.visibility = View.VISIBLE
             number_progress_bar.progress = imageDownloadProgress_event.progress
+            downloadingNow()
         }
     }
 
@@ -534,7 +546,7 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
             msg("connecting..")
             m_ControlViewModel!!.connect(m_device!!, true)
 
-            msg("please wait..")
+            msg(resources.getString(R.string.please_wait))
             // Once connected setup the listener
             setControlListener()
         }

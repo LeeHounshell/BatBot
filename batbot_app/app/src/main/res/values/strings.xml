@@ -13,4 +13,5 @@
     <string name="message">Message from BatBot</string>
     <string name="save">Save</string>
     <string name="delete">Delete</string>
+    <string name="please_wait">please wait..</string>
 </resources>

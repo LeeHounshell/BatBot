@@ -10,195 +10,225 @@
             name="robotConnection"
             type="androidx.databinding.ObservableBoolean" />
         <variable
+            name="downloadingNow"
+            type="androidx.databinding.ObservableBoolean" />
+        <variable
             name="robotCommand"
             type="com.harlie.batbot.model.RobotCommandModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <FrameLayout
+        android:id="@+id/controlFrame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/colorBackground"
-        tools:context=".ControlFragment">
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/guideline1"
+        app:layout_constraintBottom_toTopOf="@+id/guideline2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
 
-        <TextView
-            android:id="@+id/status"
-            android:layout_width="wrap_content"
-            android:layout_height="17dp"
-            android:text="@string/status"
-            android:textColor="@color/yellow"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="16dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:layout_marginStart="8dp" />
-
-        <com.harlie.batbot.util.DynamicMatrix
-            android:id="@+id/bluedot_matrix"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_margin="8dp"
-            android:background="@drawable/bat_blue_dot"
-            app:cols="1"
-            app:rows="1"
-            app:layout_constraintTop_toBottomOf="@+id/status"
-            app:layout_constraintBottom_toTopOf="@+id/guideline1"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@+id/bluedot_matrix"
-            app:layout_constraintBottom_toTopOf="@+id/textOutputFrame"
-            app:layout_constraintGuide_percent="0.45"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
-
-        <FrameLayout
-            android:id="@+id/textOutputFrame"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/guideline1"
-            app:layout_constraintBottom_toTopOf="@+id/guideline2"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent">
+            android:layout_height="match_parent"
+            android:background="@color/colorBackground"
+            tools:context=".ControlFragment">
 
             <TextView
-                style="@style/ButtonStyle"
-                android:id="@+id/textOutput"
-                android:text="@={robotCommand.robotCommand}"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:onClick="onClickTextOutput"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackground"
-                android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}" />
+                android:id="@+id/status"
+                android:layout_width="wrap_content"
+                android:layout_height="17dp"
+                android:text="@string/status"
+                android:textColor="@color/yellow"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="16dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:layout_marginStart="8dp" />
 
-            <com.daimajia.numberprogressbar.NumberProgressBar
-                android:id="@+id/number_progress_bar"
+            <com.harlie.batbot.util.DynamicMatrix
+                android:id="@+id/bluedot_matrix"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_margin="8dp"
+                android:enabled="@{downloadingNow ? false : true}"
+                android:background="@drawable/bat_blue_dot"
+                app:cols="1"
+                app:rows="1"
+                app:layout_constraintTop_toBottomOf="@+id/status"
+                app:layout_constraintBottom_toTopOf="@+id/guideline1"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone"/>
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@+id/bluedot_matrix"
+                app:layout_constraintBottom_toTopOf="@+id/textOutputFrame"
+                app:layout_constraintGuide_percent="0.45"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
 
-        </FrameLayout>
+            <FrameLayout
+                android:id="@+id/textOutputFrame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/guideline1"
+                app:layout_constraintBottom_toTopOf="@+id/guideline2"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent">
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@+id/textOutputFrame"
-            app:layout_constraintBottom_toTopOf="@+id/logging"
-            app:layout_constraintGuide_percent="0.55"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+                <TextView
+                    style="@style/ButtonStyle"
+                    android:id="@+id/textOutput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@={robotCommand.robotCommand}"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:onClick="onClickTextOutput"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground"
+                    android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}" />
 
-        <TextView
-            android:id="@+id/logging"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:textColor="@color/darkgrey"
-            android:textSize="12sp"
-            android:layout_marginTop="15dp"
-            app:layout_constraintTop_toBottomOf="@+id/guideline2"
-            app:layout_constraintBottom_toTopOf="@+id/guideline3"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}" />
+                <com.daimajia.numberprogressbar.NumberProgressBar
+                    android:id="@+id/number_progress_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="@{downloadingNow ? View.VISIBLE : View.GONE}"/>
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@+id/logging"
-            app:layout_constraintBottom_toTopOf="@+id/controlButtons"
-            app:layout_constraintGuide_percent="0.82"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            </FrameLayout>
 
-        <LinearLayout
-            android:id="@+id/controlButtons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@+id/guideline3"
-            app:layout_constraintBottom_toTopOf="@+id/startSpeaking"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            android:weightSum="3" >
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@+id/textOutputFrame"
+                app:layout_constraintBottom_toTopOf="@+id/logging"
+                app:layout_constraintGuide_percent="0.55"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <TextView
+                android:id="@+id/logging"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:textColor="@color/darkgrey"
+                android:textSize="12sp"
+                android:layout_marginTop="15dp"
+                app:layout_constraintTop_toBottomOf="@+id/guideline2"
+                app:layout_constraintBottom_toTopOf="@+id/guideline3"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@+id/logging"
+                app:layout_constraintBottom_toTopOf="@+id/controlButtons"
+                app:layout_constraintGuide_percent="0.82"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/controlButtons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@+id/guideline3"
+                app:layout_constraintBottom_toTopOf="@+id/startSpeaking"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:weightSum="3" >
+
+                <Button
+                    style="@style/ButtonStyle"
+                    android:id="@+id/button_star"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_background"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:onClick="onClickButtonStar"
+                    android:text="@string/command_star"
+                    android:layout_weight="1"
+                    android:enabled="@{downloadingNow ? false : true}"
+                    android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}" />
+
+                <Button
+                    style="@style/ButtonStyle"
+                    android:id="@+id/button_ok"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_background"
+                    android:layout_marginEnd="8dp"
+                    android:onClick="onClickButtonOk"
+                    android:text="@string/command_ok"
+                    android:layout_weight="1"
+                    android:enabled="@{downloadingNow ? false : true}"
+                    android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}" />
+
+                <Button
+                    style="@style/ButtonStyle"
+                    android:id="@+id/button_sharp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_background"
+                    android:layout_marginEnd="8dp"
+                    android:onClick="onClickButtonSharp"
+                    android:text="@string/command_sharp"
+                    android:layout_weight="1"
+                    android:enabled="@{downloadingNow ? false : true}"
+                    android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}" />
+
+            </LinearLayout>
 
             <Button
                 style="@style/ButtonStyle"
-                android:id="@+id/button_star"
-                android:layout_width="wrap_content"
+                android:id="@+id/startSpeaking"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:background="@drawable/button_background"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:onClick="onClickButtonStar"
-                android:text="@string/command_star"
-                android:layout_weight="1"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="8dp"
+                android:onClick="onClickTranslateSpeech"
+                android:text="@string/command_batbot"
+                app:layout_constraintTop_toBottomOf="@+id/controlButtons"
+                app:layout_constraintBottom_toTopOf="@+id/guideline4"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:enabled="@{downloadingNow ? false : true}"
                 android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}" />
 
-            <Button
-                style="@style/ButtonStyle"
-                android:id="@+id/button_ok"
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_background"
-                android:layout_marginEnd="8dp"
-                android:onClick="onClickButtonOk"
-                android:text="@string/command_ok"
-                android:layout_weight="1"
-                android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}" />
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@+id/startSpeaking"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintGuide_percent="0.98"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
 
-            <Button
-                style="@style/ButtonStyle"
-                android:id="@+id/button_sharp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/button_background"
-                android:layout_marginEnd="8dp"
-                android:onClick="onClickButtonSharp"
-                android:text="@string/command_sharp"
-                android:layout_weight="1"
-                android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}" />
-
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <Button
-            style="@style/ButtonStyle"
-            android:id="@+id/startSpeaking"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_background"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            android:onClick="onClickTranslateSpeech"
-            android:text="@string/command_batbot"
-            app:layout_constraintTop_toBottomOf="@+id/controlButtons"
-            app:layout_constraintBottom_toTopOf="@+id/guideline4"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            android:visibility="@{robotConnection ? View.VISIBLE : View.INVISIBLE}" />
+            android:id="@+id/block_controls"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/halfTransparent"
+            android:contentDescription="@string/please_wait"
+            android:enabled="false"
+            android:visibility="@{downloadingNow ? View.VISIBLE : View.GONE}"/>
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@+id/startSpeaking"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintGuide_percent="0.98"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
 
 </layout>
