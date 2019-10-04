@@ -645,19 +645,19 @@ def data_received(commandsFromPhone):
 
         elif command_contains(['high', 'resolution'], data):
             resolution = '3k'
-            result = result + '\n! ==> USE 3K IMAGES'
+            result = result + '\n! ==> Use 3K Images'
             printResult = True
             valid = True
 
         elif command_contains(['medium', 'resolution'], data):
             resolution = 'hd'
-            result = result + '\n! ==> USE HD IMAGES'
+            result = result + '\n! ==> Use HD Images'
             printResult = True
             valid = True
 
         elif command_contains(['low', 'resolution'], data):
             resolution = 'sd'
-            result = result + '\n! ==> USE SD IMAGES'
+            result = result + '\n! ==> Use SD Images'
             printResult = True
             valid = True
 
