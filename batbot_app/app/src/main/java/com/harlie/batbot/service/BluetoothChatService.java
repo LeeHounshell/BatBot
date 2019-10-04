@@ -13,9 +13,10 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.harlie.batbot.util.BluetoothCaptureImageEvent;
-import com.harlie.batbot.util.BluetoothStateChangeEvent;
-import com.harlie.batbot.util.BluetoothStatusEvent;
+import com.harlie.batbot.event.BluetoothCaptureImageEvent;
+import com.harlie.batbot.event.BluetoothStateChangeEvent;
+import com.harlie.batbot.event.BluetoothStatusEvent;
+import com.harlie.batbot.event.ImageDownloadProgressBarEvent;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -596,6 +597,9 @@ public class BluetoothChatService {
             Log.d(TAG, "===> IMAGE SUCCESSFULLY CAPTURED! <===");
             Log.d(TAG, "===> IMAGE SIZE=" + mImageCapture.length + " <===");
 
+            ImageDownloadProgressBarEvent progressBarEvent = new ImageDownloadProgressBarEvent(mBluetoothCaptureImageEvent.getSize(), mBluetoothCaptureImageEvent.getSize());
+            progressBarEvent.post();
+
             // Send the image data bytes
             Bundle bundle = new Bundle();
             bundle.putByteArray(Constants.DATA, mImageCapture);
@@ -662,6 +666,12 @@ public class BluetoothChatService {
                                 Log.d(TAG, "==> EXACT MATCH mImageCapture.length=" + mImageCapture.length + ", expected length=" + mBluetoothCaptureImageEvent.getSize());
                                 successfulImageCapture();
                             }
+                            int progress = 0;
+                            if (mImageCapture != null) {
+                                progress = mImageCapture.length;
+                            }
+                            ImageDownloadProgressBarEvent progressBarEvent = new ImageDownloadProgressBarEvent(progress, mBluetoothCaptureImageEvent.getSize());
+                            progressBarEvent.post();
                         }
                     }
 

@@ -1,6 +1,7 @@
 package com.harlie.batbot.util
 
 import android.util.Log
+import com.harlie.batbot.event.BluetoothMessageEvent
 
 
 public class LoggingTextTail {

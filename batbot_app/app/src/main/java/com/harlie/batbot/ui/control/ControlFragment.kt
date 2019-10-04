@@ -28,11 +28,16 @@ import androidx.databinding.ObservableBoolean
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.daimajia.numberprogressbar.OnProgressBarListener
 import com.harlie.batbot.BluetoothActivity
 import com.harlie.batbot.ControlActivity.Companion.STORAGE_PERMISSION_REQUEST
 import com.harlie.batbot.Manifest
 import com.harlie.batbot.R
 import com.harlie.batbot.databinding.ControlFragmentBinding
+import com.harlie.batbot.event.BluetoothMessageEvent
+import com.harlie.batbot.event.BluetoothStateChangeEvent
+import com.harlie.batbot.event.BluetoothStatusEvent
+import com.harlie.batbot.event.ImageDownloadProgressBarEvent
 import com.harlie.batbot.model.RobotCommandModel
 import com.harlie.batbot.service.BluetoothChatService
 import com.harlie.batbot.service.Constants
@@ -49,7 +54,7 @@ import java.util.*
 import kotlin.concurrent.fixedRateTimer
 
 
-class ControlFragment : Fragment() {
+class ControlFragment : Fragment(), OnProgressBarListener  {
     val TAG = "LEE: <" + ControlFragment::class.java.name + ">"
 
     companion object {
@@ -449,6 +454,27 @@ class ControlFragment : Fragment() {
             }
             show()
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onProgressBarEvent(imageDownloadProgress_event: ImageDownloadProgressBarEvent) {
+        Log.d(TAG, "onProgressBarEvent: progress=" + imageDownloadProgress_event.progress)
+        if ((imageDownloadProgress_event.progress == 0)
+        || (imageDownloadProgress_event.progress == imageDownloadProgress_event.max)) {
+            Log.d(TAG, "hide number_progress_bar and restore textOutput")
+            textOutput.visibility = View.VISIBLE
+            number_progress_bar.visibility = View.GONE
+        }
+        else {
+            number_progress_bar.max = imageDownloadProgress_event.max
+            textOutput.visibility = View.INVISIBLE
+            number_progress_bar.visibility = View.VISIBLE
+            number_progress_bar.progress = imageDownloadProgress_event.progress
+        }
+    }
+
+    override fun onProgressChange(current: Int, max: Int) {
+        Log.d(TAG, "onProgressChange: current=" + current + ", max=" + max)
     }
 
     private fun removeUnusedImage(btMessageEvent: BluetoothMessageEvent) {

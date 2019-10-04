@@ -1,7 +1,6 @@
-package com.harlie.batbot.util
+package com.harlie.batbot.event
 
 import android.os.Bundle
-import android.util.Log
 import org.greenrobot.eventbus.EventBus
 
 

@@ -8,7 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.harlie.batbot.model.RobotCommandModel
 import com.harlie.batbot.service.BluetoothChatService
-import com.harlie.batbot.util.BluetoothCaptureImageEvent
+import com.harlie.batbot.event.BluetoothCaptureImageEvent
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode

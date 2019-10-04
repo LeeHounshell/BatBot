@@ -8,9 +8,11 @@
 
     <ImageView
         android:id="@+id/capture_image"
-        android:layout_width="wrap_content" 
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
         android:src="@drawable/batbot">
     </ImageView>
 
