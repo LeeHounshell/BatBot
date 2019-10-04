@@ -221,6 +221,9 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
             stream.flush()
             stream.close()
             Log.d(TAG, "SUCCESS: saved image to " + imageFile.absolutePath)
+            activity?.runOnUiThread(java.lang.Runnable {
+                Toast.makeText(context,  "IMAGE SAVED", Toast.LENGTH_LONG).show()
+            })
         } catch (e: IOException){ // Catch the exception
             Log.d(TAG, "ERROR: unable to save image, e=" + e)
         }
@@ -257,8 +260,11 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
         Log.d(TAG, "onClickDismissImage")
         var nanoFilename: String = m_captureFilename!!.text.toString()
         Log.d(TAG, "removeUnusedImage: " + nanoFilename)
-        send("\n@DELETE " + nanoFilename)
         m_settingsDialog!!.dismiss()
+        send("\n@DELETE " + nanoFilename)
+        activity?.runOnUiThread(java.lang.Runnable {
+            Toast.makeText(context,  "IMAGE DELETED", Toast.LENGTH_LONG).show()
+        })
     }
 
     fun runFixedRateTimer() {
@@ -399,6 +405,9 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
         Log.d(TAG, "downloadComplete")
         m_downloadingNow.set(false)
         textOutput.visibility = View.VISIBLE
+        activity?.runOnUiThread(java.lang.Runnable {
+            Toast.makeText(context,  "IMAGE DOWNLOADED", Toast.LENGTH_LONG).show()
+        })
     }
 
     fun clearTextViews() {
@@ -493,6 +502,9 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
         val image_file = btMessageEvent.message.split('\n')[0].trim().substring(IMAGE_FILE_HEADER.length - 1)
         Log.d(TAG, "removeUnusedImage: " + image_file)
         send("\n@DELETE " + image_file)
+        activity?.runOnUiThread(java.lang.Runnable {
+            Toast.makeText(context,  "IMAGE DELETED", Toast.LENGTH_LONG).show()
+        })
     }
 
     private fun uploadImageFor(btMessageEvent: BluetoothMessageEvent) {
