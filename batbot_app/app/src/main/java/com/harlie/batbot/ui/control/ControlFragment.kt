@@ -152,6 +152,7 @@ class ControlFragment : Fragment() {
                 activity!!.runOnUiThread {
                     m_settingsDialog = Dialog(context!!)
                     m_settingsDialog!!.window?.requestFeature(Window.FEATURE_NO_TITLE)
+                    m_settingsDialog!!.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
                     val inflater: LayoutInflater = activity!!.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater;
                     val view = inflater.inflate(R.layout.capture_image, null)
                     m_settingsDialog!!.setContentView(view)

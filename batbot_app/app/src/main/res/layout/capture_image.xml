@@ -18,8 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="2"
-        >
+        android:weightSum="2">
 
         <Button
             style="@style/ButtonStyle"
@@ -31,8 +30,7 @@
             android:layout_marginEnd="8dp"
             android:onClick="onClickSaveImage"
             android:text="@string/save"
-            android:layout_weight="1"
-            />
+            android:layout_weight="1" />
 
         <Button
             style="@style/ButtonStyle"
@@ -42,9 +40,8 @@
             android:background="@drawable/button_background"
             android:layout_marginEnd="8dp"
             android:onClick="onClickDismissImage"
-            android:text="@string/ok"
-            android:layout_weight="1"
-            />
+            android:text="@string/delete"
+            android:layout_weight="1" />
 
     </LinearLayout>
 
