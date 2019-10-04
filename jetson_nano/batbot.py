@@ -433,16 +433,16 @@ def show_algorithm_hint(result):
     result = result + '\n! \n! The current algorithm is ' + algorithmList[algorithmIndex]
     return result
 
-def send_image_to_phone(filename):
+def send_image_to_phone(filename, begin_header, end_header):
     global sending_now
     sending_now = True
-    s.send("~BEGIN CAPTURE~")
+    s.send(begin_header)
     time.sleep(1) # wait for Android
     image_data = open(filename, "rb").read()
     print("IMAGE SIZE: " + str(len(image_data)))
     s._send_data(image_data)
     time.sleep(2) # wait for Android
-    s.send("~END CAPTURE~")
+    s.send(end_header)
     time.sleep(1) # wait for Android
     sending_now = False
 
@@ -472,7 +472,7 @@ def data_received(commandsFromPhone):
         if data.startswith(capture_command):
            filename = data[len(capture_command):]
            print("\n*** SENDING IMAGE '" + filename + "' TO PHONE ***")
-           send_image_to_phone(filename)
+           send_image_to_phone(filename, "~BEGIN CAPTURE~", "~END CAPTURE~")
            print("*** IMAGE '" + filename + "' SENT TO PHONE ***\n")
            continue
 
