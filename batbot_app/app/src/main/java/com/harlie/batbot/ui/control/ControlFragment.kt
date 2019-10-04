@@ -501,7 +501,7 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
             val image_file = btMessageEvent.message.split('\n')[0].trim().substring(IMAGE_FILE_HEADER.length - 1)
             val image_size = btMessageEvent.message.split('\n')[1].trim().substring(IMAGE_SIZE_HEADER.length - 1).toInt()
             Log.d(TAG, "uploadImageFor: " + image_file + ", size: " + image_size)
-            // FIXME: disable controls while upload in progress
+            downloadingNow()
             m_timer_ok = false // STOP THE fixedRateTimer - it will be restarted after the image arrives
             m_ControlViewModel!!.uploadImage(image_file, image_size)
             send("\n@UPLOAD " + image_file + '\n')
