@@ -9,6 +9,7 @@ import socket
 import struct
 import subprocess
 import time
+import os
 
 
 #The following line is for serial over GPIO
@@ -21,8 +22,11 @@ resolution        = 'hd' # one of ['3k', 'hd', 'sd']
 algorithmList     = ['SqueezeNet', 'DenseNet', 'InceptionV3', 'ResNet']
 algorithmIndex    = 1 # 'DenseNet' is default
 algorithmFixed    = False
+capture_command   = '@UPLOAD '
+delete_command    = '@DELETE '
 capture_image     = '/tmp/capture{}.jpg'
 capture_count     = 0
+sending_now       = False
 
 camera_angle      = 90
 
@@ -429,6 +433,19 @@ def show_algorithm_hint(result):
     result = result + '\n! \n! The current algorithm is ' + algorithmList[algorithmIndex]
     return result
 
+def send_image_to_phone(filename):
+    global sending_now
+    sending_now = True
+    s.send("~BEGIN CAPTURE~")
+    time.sleep(2) # wait for Android
+    image_data = open(filename, "rb").read()
+    print("\nIMAGE SIZE: " + str(len(image_data)))
+    s._send_data(image_data)
+    time.sleep(2) # wait for Android
+    s.send("~END CAPTURE~")
+    time.sleep(3) # wait for Android
+    sending_now = False
+
 def command_contains(wordList, command):
     for word in wordList:
         if word not in command:
@@ -444,12 +461,31 @@ def data_received(commandsFromPhone):
     global algorithmIndex
     global algorithmFixed
 
+    if sending_now:
+        print("\n===> FIXME: data_received while sending_now: " + commandsFromPhone)
+        return
+
     pokeLogs = (commandsFromPhone == ' ')
     commandList = commandsFromPhone.splitlines()
     for data in commandList:
-        result = read_data_from_arduino()
+
+        if data.startswith(capture_command):
+           filename = data[len(capture_command):]
+           print("\n*** SENDING IMAGE '" + filename + "' TO PHONE ***\n")
+           send_image_to_phone(filename)
+           print("\n*** IMAGE '" + filename + "' SENT TO PHONE ***\n")
+           continue
+
+        if data.startswith(delete_command):
+           filename = data[len(delete_command):]
+           if filename.startswith('/tmp/'):
+               print("\n*** REQUEST DELETE IMAGE '" + filename + "' ***\n")
+               os.remove(filename)
+           continue
+
         printResult = False
         valid = False
+        result = read_data_from_arduino()
 
         if pokeLogs:
             data = '' # don't echo the space used to poke the logs
@@ -586,12 +622,12 @@ def data_received(commandsFromPhone):
             printResult = True
             valid = True
 
-        elif 'follow' in data: # FIXME: run Elegoo line following
+        elif 'follow' in data: # enable simple Elegoo line following
             result = result + do_sharp()
             printResult = True
             valid = True
 
-        elif 'avoid' in data: # FIXME: run Elegoo collision avoidance
+        elif 'avoid' in data: # enable simple Elegoo collision avoidance 
             result = result + do_star()
             printResult = True
             valid = True
@@ -602,7 +638,7 @@ def data_received(commandsFromPhone):
             printResult = True
             valid = True
 
-        elif 'find' in data or 'search' in data: # FIXME: next word is object
+        elif 'find' in data or 'search' in data or 'locate' in data: # FIXME: next word is object to locate
             result = result + 'FIXME: find some object'
             printResult = True
             valid = True
@@ -625,7 +661,7 @@ def data_received(commandsFromPhone):
             printResult = True
             valid = True
 
-        elif 'photo' in data or 'picture' in data: # FIXME: optional item
+        elif 'photo' in data or 'picture' in data or command_contains(['capture', 'image'], data):
             result = result + '\n'
             capture_count += 1
             image_path = capture_image.format(capture_count)
@@ -756,13 +792,13 @@ def data_received(commandsFromPhone):
                         valid = True
 
             if valid:
-                data = '--> ' + data.upper()
+                data = '--> ' + data
             else:
                 # ignore bluedot numbers here
                 if data[0].isdigit() or data[0] in ['-', ',', '.']:
                     data = ''
                 else:
-                    data = '??? ' + data.upper()
+                    data = '??? ' + data
             print(data)
 
         else:
