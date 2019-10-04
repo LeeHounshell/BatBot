@@ -27,10 +27,10 @@ then
 else
     echo "starting the 'identify' server.."
     echo "algorithm set to: ${algorithm}"
-    echo "please wait 1 minute."
+    echo "please wait 1 minute.."
     echo
-    echo "then retry."
-    echo "the first request will be slow."
-    echo "after that it speeds up."
+    echo "..and then retry.."
+    echo "the first request will be *very* slow."
+    echo "after that, it speeds up greatly."
     nohup ./identify.py ${algorithm} > /dev/null 2>&1 &
 fi
