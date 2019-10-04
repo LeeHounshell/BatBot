@@ -248,6 +248,9 @@ class ControlFragment : Fragment() {
 
     fun onClickDismissImage() {
         Log.d(TAG, "onClickDismissImage")
+        var nanoFilename: String = m_captureFilename!!.text.toString()
+        Log.d(TAG, "removeUnusedImage: " + nanoFilename)
+        send("\n@DELETE " + nanoFilename)
         m_settingsDialog!!.dismiss()
     }
 
