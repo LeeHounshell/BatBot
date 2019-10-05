@@ -19,6 +19,12 @@ then
     algorithm="DenseNet"
 fi
 
+#
+# Note: be careful editing this file. side-effects can happen:
+# The first output lines must be from the 'capture.sh' command below.
+# If not, the Android app currently won't find the IMAGE_FILE_HEADER
+#
+
 if pgrep -x "identify.py" > /dev/null
 then
     ./capture.sh ${image_name} ${resolution}
