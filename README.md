@@ -3,13 +3,13 @@ an experimental AI vision robot
 
 # BatBot
 
- This is a powerful AI research robot created from commodity parts. No soldering required. Lower half is an Elegoo Robot Car v3.0. Upper half is a Jetson Nano. An Android app controls it with Spoken English over Bluetooth. Robot has a camera, ultrasonic sensors and a 40 pin GPIO available. AI vision pattern recognition software in the Jetson Nano controls the robot's behavior. High-level spoken commands like 'FIND AND PHOTOGRAPH SOME-OBJECT' or 'IDENTIFY THAT OBJECT' instruct the robot to find and photograph and identify objects. Low-level spoken commands like 'WHAT IS YOUR IP-ADDRESS?' or 'GO FORWARD' or 'MOVE THE CAMERA LEFT' will obtain information and/or control the robot directly.
+ This is a powerful AI research robot created from commodity parts. No soldering required. Lower half is an Elegoo Robot Car v3.0. Upper half is a Jetson Nano. An Android app controls it with Spoken English over Bluetooth. Robot has a camera, ultrasonic sensors and a 40 pin GPIO available. AI vision pattern recognition software in the Jetson Nano controls the robot's behavior. High-level spoken commands like 'WHAT ARE YOU LOOKING AT?' instruct the robot photograph and identify objects. Low-level spoken commands like 'WHAT IS YOUR IP-ADDRESS?' or 'GO FORWARD' or 'LOOK TO THE LEFT' will obtain information and/or control the robot directly. Commands like 'FIND SOME-OBJECT' will have the robot move about while looking for a specified thing. You can teach BatBot about new objects just by using voice commands from the Android app.
 
  The companion Android app is a MVVM pattern written in Kotlin and Java. It uses the Bluetooth/BlueDot work by Martin O'Hanlon for joystick controls and for communication to/from the Jetson Nano.
 
- The Jetson Nano is programmed with Python and uses the BlueDot Bluetooth library, the PySerial library, the ImageAI library and dependencies. The Nano runs the AI visual pattern recognition and behavior control software and uses 'ImageAI' to tie it together. That lets you easily change the deep learninging approach being tested.  There is no need for a LCD display to report an IP address; the Bluetooth companion app using speech recognition magic will show the Nano's IP.
+ The Jetson Nano is programmed with Python and uses the BlueDot Bluetooth library, the PySerial library, the ImageAI library and numerous dependencies. The Nano runs the AI visual pattern recognition and behavior control software. It uses 'ImageAI' to process image content. This design lets you easily change the deep learninging approach being tested. There is no need for a LCD display to report an IP address; the Bluetooth companion app using speech recognition magic will show the Nano's IP on request.
 
- This project uses 'ImageAI' and includes the pre-trained 'yolo-tiny.h5' from the 'ImageAI' project.  See https://github.com/OlafenwaMoses/ImageAI and https://stackabuse.com/object-detection-with-imageai-in-python/
+ This project uses 'ImageAI' and includes four pre-trained models from the 'ImageAI' project.  See https://github.com/OlafenwaMoses/ImageAI and https://stackabuse.com/object-detection-with-imageai-in-python/
 
  This project also includes a modified version of BlueDot by Martin O'Hanlon. You can find BlueDot here: https://github.com/martinohanlon/BlueDot
 
@@ -18,11 +18,14 @@ an experimental AI vision robot
 
 ## The BatBot
 
+This robot was built using the Elegoo Robot Car v3.0 as the main base; then
+piling on top of that the Jetson Nano (inside a case), a Samsung 500 Gig SSD, a phone-battery power supply and the camera, attached to the ultrasonic sensor. The figure-head is from a PEZ dispenser. No soldering is required to build this project. No 3D printing is required either. All parts can be ordered from Amazon or found in your local hardware store.
+
+The README.md in the 'robot' folder of this project lists the parts needed to make this.
+See https://www.elegoo.com/product/arduinocarv3-0/ for the Elegoo Car details.
+
 ![screen](../master/screens/batbot.png)
 
-## Initial screen from companion Android app:
-
-![screen](../master/screens/BatBot_connect.jpg)
 
 ## The app connected screen:
 
@@ -37,16 +40,19 @@ Under that notice is the main user interface, consisting of a bat-image robot co
 
 The large oval bat image functions as a virtual joystick.  If you press it, a blue circle appears under your finger, and a larger circular boundry area also displays. The finger tracking image moves as you move your finger, within boundry limits. The log area shows the last 7 lines or so of log data from the Jetson Nano. Log data includes voice commands, status, state, joystick movement, clicks and more. Displayed data currently scrolls offscreen as new log data arrives.
 
+![screen](../master/screens/BatBot_connect.jpg)
 ![screen](../master/screens/BatBot_connected.jpg)
 
-## An example voice command and response:
+
+## example voice command and response:
 
 Here the command 'What is your IP address?' was spoken. The recognized spoken text appears under the joystick and above the logs section, in white bold text. That text also acts as a 'repeat' button for the last voice command. Results also display in Popup windows.
 
 ![screen](../master/screens/BatBot_voice_command.jpg)
 ![screen](../master/screens/BatBot_IP_address.jpg)
 
-## An example of AI image recognition and training
+
+## example of AI image recognition and training
 
 These screens show what might happen when you ask 'what are you looking at?'
 Initially the 'identify' server is not running, and must be started.
