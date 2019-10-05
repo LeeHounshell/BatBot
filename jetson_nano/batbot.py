@@ -18,7 +18,11 @@ port = '/dev/ttyACM0' # note I'm using Jetson Nano
 arduino = serial.Serial(port,9600,timeout=5)
 time.sleep(3) # wait for Arduino
 
-resolution        = 'hd' # one of ['3k', 'hd', 'sd']
+K3_RESOLUTION     = '3k'
+HD_RESOLUTION     = 'hd'
+SD_RESOLUTION     = 'sd'
+
+resolution        = HD_RESOLUTION # one of [K3_RESOLUTION, HD_RESOLUTION, SD_RESOLUTION]
 algorithmList     = ['SqueezeNet', 'DenseNet', 'InceptionV3', 'ResNet']
 algorithmIndex    = 1 # 'DenseNet' is default
 algorithmFixed    = False
@@ -643,25 +647,56 @@ def data_received(commandsFromPhone):
             printResult = True
             valid = True
 
-        elif command_contains(['high', 'resolution'], data):
-            resolution = '3k'
-            result = result + '\n! ==> Use 3K Images'
+        elif command_contains(['increase', 'resolution'], data) or command_contains(['higher', 'resolution'], data):
+            if resolution == HD_RESOLUTION:
+                resolution = K3_RESOLUTION
+                result = result + '\n! ==> Use 3K Images\n! 3264 by 2464 pixels'
+            elif resolution == SD_RESOLUTION:
+                resolution = HD_RESOLUTION
+                result = result + '\n! ==> Use HD Images\n! 1920 by 1024 pixels'
+            else:
+                result = result + '\n! already using the highest resolution.'
+                result = result + '\n! ==> Use 3K Images\n! 3264 by 2464 pixels'
             printResult = True
             valid = True
 
-        elif command_contains(['medium', 'resolution'], data):
-            resolution = 'hd'
-            result = result + '\n! ==> Use HD Images'
+        elif command_contains(['decrease', 'resolution'], data) or command_contains(['lower', 'resolution'], data):
+            if resolution == HD_RESOLUTION:
+                resolution = SD_RESOLUTION
+                result = result + '\n! ==> Use SD Images\n! 960 by 616 pixels'
+            elif resolution == K3_RESOLUTION:
+                resolution = HD_RESOLUTION
+                result = result + '\n! ==> Use HD Images\n! 1920 by 1024 pixels'
+            else:
+                result = result + '\n! already using the lowest resolution.'
+                result = result + '\n! ==> Use SD Images\n! 960 by 616 pixels'
             printResult = True
             valid = True
 
-        elif command_contains(['low', 'resolution'], data):
-            resolution = 'sd'
-            result = result + '\n! ==> Use SD Images'
+        elif command_contains(['high', 'resolution'], data) or command_contains(['3K', 'resolution'], data):
+            resolution = K3_RESOLUTION
+            result = result + '\n! ==> Use 3K Images\n! 3264 by 2464 pixels'
             printResult = True
             valid = True
 
-        elif 'photo' in data or 'picture' in data or command_contains(['capture', 'image'], data):
+        elif command_contains(['medium', 'resolution'], data) or command_contains(['normal', 'resolution'], data):
+            resolution = HD_RESOLUTION
+            result = result + '\n! ==> Use HD Images\n! 1920 by 1024 pixels'
+            printResult = True
+            valid = True
+
+        elif command_contains(['low', 'resolution'], data) or command_contains(['standard', 'resolution'], data):
+            resolution = SD_RESOLUTION
+            result = result + '\n! ==> Use SD Images\n! 960 by 616 pixels'
+            printResult = True
+            valid = True
+
+        elif 'resolution' in data:
+            result = result + '\n! ==> the resolution is set at ' + resolution
+            printResult = True
+            valid = True
+
+        elif 'photo' in data or 'download' in data or 'picture' in data or command_contains(['capture', 'image'], data):
             result = result + '\n'
             capture_count += 1
             image_path = capture_image.format(capture_count)
@@ -689,7 +724,7 @@ def data_received(commandsFromPhone):
             printResult = True
             valid = True
 
-        elif 'algorithm' in data:
+        elif command_contains(['next', 'algorithm'], data):
             if algorithmFixed:
                 result = result + show_algorithm_hint(result)
             else:
@@ -697,6 +732,11 @@ def data_received(commandsFromPhone):
                 if algorithmIndex >= len(algorithmList):
                     algorithmIndex = 0
                 result = result + "\n! algorithm set to '" + algorithmList[algorithmIndex] + "'\n"
+            printResult = True
+            valid = True
+
+        elif 'algorithm' in data:
+            result = result + '\n! ==> the algorithm is set to ' + algorithmList[algorithmIndex]
             printResult = True
             valid = True
 
