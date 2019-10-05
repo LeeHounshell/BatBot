@@ -44,4 +44,50 @@ The large oval bat image functions as a virtual joystick.  If you press it, a bl
 Here the command 'What is your IP address?' was spoken. The recognized spoken text appears under the joystick and above the logs section, in white bold text. That text also acts as a 'repeat' button for the last voice command. Results also display in Popup windows.
 
 ![screen](../master/screens/BatBot_voice_command.jpg)
+![screen](../master/screens/BatBot_IP_address.jpg)
+
+## An example of AI image recognition and training
+
+These screens show what might happen when you ask 'what are you looking at?'
+Initially the 'identify' server is not running, and must be started.
+Note the 'identify' server does not start until the first image identification request.
+Then the 'identify' server will startup with a specified AI 'algorithm' (model).
+The model can be changed using just voice commands.
+
+![screen](../master/screens/BatBot_identify.jpg)
+![screen](../master/screens/BatBot_start_server.jpg)
+
+Now that the server is running, we can ask 'what are you looking at?'
+A photo is taken and analyzed. The app shows analysis text right away.
+If View is selected, the image will download via Bluetooth, and
+then display in a popup alongside the analysis result.
+
+![screen](../master/screens/BatBot_identify_results.jpg)
+![screen](../master/screens/BatBot_transfer_image.jpg)
+![screen](../master/screens/BatBot_identify_results_image.jpg)
+
+You can train BatBot if the analysis is incorrect. Saved images go to the Gallery.
+
+![screen](../master/screens/BatBot_identify_results_train.jpg)
+![screen](../master/screens/BatBot_identify_results_learn.jpg)
+
+## query BatBot for sensor values
+
+What happens when you ask BatBot to 'show sensor values.':
+
+![screen](../master/screens/BatBot_show_sensors.jpg)
+![screen](../master/screens/BatBot_sensor_values.jpg)
+
+## query BatBot camera resolution
+
+What happens when you ask BatBot to 'show camera resolution.':
+
+![screen](../master/screens/BatBot_show_resolution.jpg)
+![screen](../master/screens/BatBot_resolution.jpg)
+
+## query BatBot AI model algorithm
+
+![screen](../master/screens/BatBot_ask_AI_algorithm.jpg)
+![screen](../master/screens/BatBot_AI_algorithm.jpg)
+
 
