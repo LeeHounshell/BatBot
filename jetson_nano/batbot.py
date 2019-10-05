@@ -435,7 +435,7 @@ def process_blue_dot_joystick(movementCommand, isRelease):
 def show_algorithm_hint(result):
     result = result + "\n! Say 'kill server' to do that."
     result = result + '\n! once the \'identify\' server starts, '
-    result = result + '\n! the algorithm is fixed until restart.'
+    result = result + '\n! the AI algorithm is fixed until restart.'
     result = result + '\n! \n! The current algorithm is ' + algorithmList[algorithmIndex]
     return result
 
@@ -695,6 +695,10 @@ def data_received(commandsFromPhone):
 
         elif 'resolution' in data:
             result = result + '\n! ==> the resolution is set at ' + resolution
+            result = result + "\n! \n! resolutions I know about:"
+            result = result + "\n! \n! HD (default) at 1920x1024"
+            result = result + "\n! \n! SD at 960x616"
+            result = result + "\n! \n! 3K at 3264x2464"
             printResult = True
             valid = True
 
@@ -711,7 +715,10 @@ def data_received(commandsFromPhone):
             printResult = True
             valid = True
         elif 'show algorithm' in data:
-            result = result + "\n! algorithm set to '" + algorithmList[algorithmIndex] + "'\n"
+            result = result + "\n! AI algorithm set to '" + algorithmList[algorithmIndex] + "'\n"
+            result = result + "\n! \n! AI algorithms I know about:"
+            for potential_algorithm in algorithmList:
+                result = result + "\n! " + potential_algorithm
             printResult = True
             valid = True
 
@@ -722,7 +729,7 @@ def data_received(commandsFromPhone):
                 algorithmIndex -= 1
                 if algorithmIndex <= -1:
                     algorithmIndex = len(algorithmList) - 1
-                result = result + "\n! algorithm set to '" + algorithmList[algorithmIndex] + "'\n"
+                result = result + "\n! AI algorithm set to '" + algorithmList[algorithmIndex] + "'\n"
             printResult = True
             valid = True
 
@@ -733,12 +740,15 @@ def data_received(commandsFromPhone):
                 algorithmIndex += 1
                 if algorithmIndex >= len(algorithmList):
                     algorithmIndex = 0
-                result = result + "\n! algorithm set to '" + algorithmList[algorithmIndex] + "'\n"
+                result = result + "\n! AI algorithm set to '" + algorithmList[algorithmIndex] + "'\n"
             printResult = True
             valid = True
 
         elif 'algorithm' in data:
-            result = result + '\n! ==> the algorithm is set to ' + algorithmList[algorithmIndex]
+            result = result + '\n! ==> the AI algorithm is set to ' + algorithmList[algorithmIndex]
+            result = result + "\n! \n! AI algorithms I know about:"
+            for potential_algorithm in algorithmList:
+                result = result + "\n! " + potential_algorithm
             printResult = True
             valid = True
 
