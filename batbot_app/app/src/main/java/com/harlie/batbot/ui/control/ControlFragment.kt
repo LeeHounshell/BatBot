@@ -68,6 +68,7 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
     val BLUEDOT_SAMPLE_RATE_MILLIS = 333
     val IMAGE_FILE_HEADER = "File: /"
     val IMAGE_SIZE_HEADER = "Size: /"
+    val I_SEE_SOMETHING   = "I see: "
 
     val m_robotConnection = ObservableBoolean(false)
     val m_downloadingNow  = ObservableBoolean(false)
@@ -94,7 +95,9 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
     private var m_last_y: Double = 0.0
 
     private var m_captureImage: ImageView? = null
+    private var m_captureImageInfo: TextView? = null
     private var m_captureFilename: TextView? = null
+    private var m_captureIdentifyText: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -174,17 +177,37 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
                 Log.d(TAG, "observe getCaptureImage()===> " + it)
                 // display image popup
                 activity!!.runOnUiThread {
-                    m_settingsDialog = Dialog(context!!)
+                    Log.d(TAG, "create IMAGE POPUP Dialog")
+                    m_settingsDialog = Dialog(context!!, R.style.Theme_Dialog)
                     m_settingsDialog!!.window?.requestFeature(Window.FEATURE_NO_TITLE)
                     m_settingsDialog!!.getWindow().setBackgroundDrawableResource(android.R.color.transparent)
                     val inflater: LayoutInflater = activity!!.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                    val view = inflater.inflate(R.layout.capture_image, null)
-                    m_settingsDialog!!.setContentView(view)
+                    val lines = m_captureIdentifyText!!.split('\n')
+                    Log.d(TAG, "number of lines in text is " + lines.count())
+                    val isSimpleCapture: Boolean = lines.count() <= 3
+                    var view: View? = null
+                    if (isSimpleCapture) {
+                        Log.d(TAG, "inflate R.layout.capture_image")
+                        view = inflater.inflate(R.layout.capture_image, null)
+                        m_settingsDialog!!.setContentView(view)
+                        m_captureImageInfo = null
+                    }
+                    else { // we are identifying the content of an image
+                        Log.d(TAG, "inflate R.layout.capture_and_train_image")
+                        view = inflater.inflate(R.layout.capture_and_train_image, null)
+                        m_settingsDialog!!.setContentView(view)
+                        m_captureImageInfo = view.findViewById<TextView>(R.id.capture_info) as TextView
+                        m_captureImageInfo!!.text = m_captureIdentifyText
+                    }
                     m_captureImage = view.findViewById<ImageView>(R.id.capture_image) as ImageView
                     m_captureImage!!.setImageBitmap(it.bitMap)
                     m_captureFilename = view.findViewById<TextView>(R.id.capture_filename) as TextView
                     m_captureFilename!!.text = it.name // trick to pass filename data for a 'Save' click
-                    m_settingsDialog!!.show()
+                    m_captureFilename!!.visibility = View.GONE
+                    m_settingsDialog!!.setCancelable(true)
+                    m_settingsDialog!!.setCanceledOnTouchOutside(true)
+                    Log.d(TAG, "display POPUP IMAGE Dialog")
+                    m_settingsDialog!!.show() // POPUP IMAGE DIALOG
                 }
                 Log.d(TAG, "restarting the fixed-rate Timer")
                 m_timer_ok = true
@@ -199,10 +222,10 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
     fun addImageToGallery(filePath: String) {
         Log.d(TAG, "addImageToGallery")
         val values: ContentValues = ContentValues()
-        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        values.put(MediaStore.MediaColumns.DATA, filePath);
-        context!!.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis())
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        values.put(MediaStore.MediaColumns.DATA, filePath)
+        context!!.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
     }
 
     private fun saveImageToInternalStorage(drawable: BitmapDrawable, fileName: String) : Uri {
@@ -210,9 +233,9 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
         //val bitmap: Bitmap = draw.getBitmap() as Bitmap
         val bitmap = (drawable as BitmapDrawable).bitmap
 
-        val sdCard: File = Environment.getExternalStorageDirectory();
-        val dir = File(sdCard.getAbsolutePath() + "/BatBot_images");
-        dir.mkdirs();
+        val sdCard: File = Environment.getExternalStorageDirectory()
+        val dir = File(sdCard.getAbsolutePath() + "/BatBot_images")
+        dir.mkdirs()
 
         val imageFile = File(dir, fileName)
         try {
@@ -256,11 +279,18 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
         m_settingsDialog!!.dismiss()
     }
 
+    fun train() {
+        Log.d(TAG, "train: m_captureIdentifyText=" + m_captureIdentifyText)
+        m_settingsDialog!!.dismiss()
+        var nanoFilename: String = m_captureFilename!!.text.toString()
+        Log.d(TAG, "train: " + nanoFilename)
+    }
+
     fun onClickDismissImage() {
         Log.d(TAG, "onClickDismissImage")
+        m_settingsDialog!!.dismiss()
         var nanoFilename: String = m_captureFilename!!.text.toString()
         Log.d(TAG, "removeUnusedImage: " + nanoFilename)
-        m_settingsDialog!!.dismiss()
         send("\n@DELETE " + nanoFilename)
         activity?.runOnUiThread(java.lang.Runnable {
             Toast.makeText(context,  "IMAGE DELETED", Toast.LENGTH_LONG).show()
@@ -397,14 +427,12 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
 
     private fun downloadingNow() {
         Log.d(TAG, "downloadingNow")
-        textOutput.visibility = View.INVISIBLE
         m_downloadingNow.set(true)
     }
 
     private fun downloadComplete() {
         Log.d(TAG, "downloadComplete")
         m_downloadingNow.set(false)
-        textOutput.visibility = View.VISIBLE
         activity?.runOnUiThread(java.lang.Runnable {
             Toast.makeText(context,  "IMAGE DOWNLOADED", Toast.LENGTH_LONG).show()
         })
@@ -459,13 +487,27 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
             if (bt_message_event.message.split('\n')[0].trim().startsWith(IMAGE_FILE_HEADER)) {
                 Log.d(TAG, "ask to view the image")
                 setMessage(bt_message_event.message + "\n\nView this Image?")
-                builder.setPositiveButton("YES") {dialog, which ->
-                    Log.d(TAG, "--> click 'YES'")
+                builder.setPositiveButton("VIEW") {dialog, which ->
+                    Log.d(TAG, "--> click 'VIEW'")
+                    textOutput.visibility = View.INVISIBLE
                     uploadImageFor(bt_message_event)
                 }
-                builder.setNeutralButton("NO") { dialog, which ->
-                    Log.d(TAG, "--> click 'NO'")
+                builder.setNeutralButton("DELETE") { dialog, which ->
+                    Log.d(TAG, "--> click 'DELETE'")
                     removeUnusedImage(bt_message_event)
+                }
+                try {
+                    if (bt_message_event.message.split('\n')[2].trim().startsWith(I_SEE_SOMETHING)) {
+                        setMessage(bt_message_event.message + "\n\nTrain or View this Image?")
+                        builder.setNegativeButton("TRAIN") { dialog, which ->
+                            Log.d(TAG, "--> click 'TRAIN'")
+                            m_captureIdentifyText = bt_message_event.message
+                            train()
+                        }
+                    }
+                }
+                catch (e: IndexOutOfBoundsException) {
+                    // ignore it
                 }
             }
             else {
@@ -475,7 +517,9 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
                     Log.d(TAG, "--> click 'OK'")
                 }
             }
-            show()
+            setCancelable(true)
+            Log.d(TAG, "display POPUP TEXT Dialog")
+            show() // POPUP TEXT DIALOG
         }
     }
 
@@ -486,6 +530,7 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
         || (imageDownloadProgress_event.progress == imageDownloadProgress_event.max)) {
             Log.d(TAG, "hide number_progress_bar and restore textOutput")
             downloadComplete()
+            textOutput.visibility = View.VISIBLE
         }
         else {
             number_progress_bar.max = imageDownloadProgress_event.max
@@ -510,6 +555,7 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
     private fun uploadImageFor(btMessageEvent: BluetoothMessageEvent) {
         Log.d(TAG, "uploadImageFor")
         try {
+            m_captureIdentifyText = btMessageEvent.message
             val image_file = btMessageEvent.message.split('\n')[0].trim().substring(IMAGE_FILE_HEADER.length - 1)
             val image_size = btMessageEvent.message.split('\n')[1].trim().substring(IMAGE_SIZE_HEADER.length - 1).toInt()
             Log.d(TAG, "uploadImageFor: " + image_file + ", size: " + image_size)

@@ -182,6 +182,11 @@ class ControlActivity : AppCompatActivity() {
         m_ControlFragment!!.onClickSaveImage()
     }
 
+    fun onClickTrainImage(view: View) {
+        Log.d(TAG, "onClickTrainImage")
+        m_ControlFragment!!.train()
+    }
+
     fun onClickDismissImage(view: View) {
         Log.d(TAG, "onClickDismissImage")
         m_ControlFragment!!.onClickDismissImage()
