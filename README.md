@@ -26,13 +26,22 @@ an experimental AI vision robot
 
 ## The app connected screen:
 
+When the Android app first connects, a 'help' popup displays with command hints.
+Under that notice is the main user interface, consisting of a bat-image robot controller, and 5 buttons.  The buttons work as follows:
+
+ - [*] set the operating mode to 'collision avoidance'.
+ - [ok] stop the robot and change the operating mode to 'normal'.
+ - [#] set the operating mode to 'line following'.
+ - [Speak a Command or Help] use Google Voice Recognition to enter a robot command.
+ - [voice command text] the white voice recognition text is also a 'repeat command' button.
+
 The large oval bat image functions as a virtual joystick.  If you press it, a blue circle appears under your finger, and a larger circular boundry area also displays. The finger tracking image moves as you move your finger, within boundry limits. The log area shows the last 7 lines or so of log data from the Jetson Nano. Log data includes voice commands, status, state, joystick movement, clicks and more. Displayed data currently scrolls offscreen as new log data arrives.
 
 ![screen](../master/screens/BatBot_connected.jpg)
 
 ## An example voice command and response:
 
-Here the command 'Show sensor values' was spoken. The recognized spoken text appears under the joystick and above the logs section, in white bold text. That text also acts as a 'repeat' button, so just click it to repeat your last voice command. You can see results of voice command execution in the log section and in the robot's behavior.
+Here the command 'What is your IP address?' was spoken. The recognized spoken text appears under the joystick and above the logs section, in white bold text. That text also acts as a 'repeat' button for the last voice command. Results also display in Popup windows.
 
 ![screen](../master/screens/BatBot_voice_command.jpg)
 
