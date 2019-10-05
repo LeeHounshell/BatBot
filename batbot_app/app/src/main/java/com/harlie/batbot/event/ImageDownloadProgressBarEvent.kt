@@ -1,3 +1,5 @@
+// Copyright (c) 2019, Lee Hounshell. All rights reserved.
+
 package com.harlie.batbot.event
 
 import android.util.Log

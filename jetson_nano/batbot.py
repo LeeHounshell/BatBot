@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+# Copyright (c) 2019, Lee Hounshell. All rights reserved.
+
 from bluedot.btcomm import BluetoothServer
 from datetime import datetime
 from signal import pause

@@ -1,3 +1,5 @@
+// Copyright (c) 2019, Lee Hounshell. All rights reserved.
+
 package com.harlie.batbot.model
 
 import androidx.databinding.BaseObservable

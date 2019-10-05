@@ -229,6 +229,16 @@
             android:enabled="false"
             android:visibility="@{downloadingNow ? View.VISIBLE : View.GONE}"/>
 
+        <TextView
+            style="@style/TextStyle"
+            android:id="@+id/copyright"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:text="@string/copyright"
+            android:layout_marginTop="15dp"
+            android:visibility="gone" />
+
     </FrameLayout>
 
 </layout>
