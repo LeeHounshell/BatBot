@@ -19,6 +19,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -278,19 +279,39 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
             Log.d(TAG, "onClickSaveImage: have permissions")
             saveImage()
         }
-        m_settingsDialog!!.dismiss()
+        m_settingsDialog?.dismiss()
     }
 
     fun train() {
         Log.d(TAG, "train: m_captureIdentifyText=" + m_captureIdentifyText)
-        m_settingsDialog!!.dismiss()
-        var nanoFilename: String = m_captureFilename!!.text.toString()
+        val nanoFilename = m_captureIdentifyText!!.split('\n')[0].trim().substring(IMAGE_FILE_HEADER.length - 1)
         Log.d(TAG, "train: " + nanoFilename)
+        val builder = AlertDialog.Builder(context!!)
+        val inflater = layoutInflater
+        builder.setTitle("Help Train BatBot")
+        val dialogLayout = inflater.inflate(R.layout.correct_image_name, null)
+        val editText: EditText = dialogLayout.findViewById<EditText>(R.id.correct_name)
+        builder.setView(dialogLayout)
+        builder.setPositiveButton(resources.getString(R.string.ok)) {
+                dialog, which ->
+            val text = editText.text.toString()
+            Log.d(TAG, "CLICK: OK, text=" + text)
+            dialog.dismiss()
+            m_settingsDialog?.dismiss()
+            send("\n@TRAIN '" + nanoFilename + "' learn='" + text + "'")
+        }
+        builder.setNegativeButton(resources.getString(R.string.cancel)) {
+                dialog, which ->
+            Log.d(TAG, "CLICK: Cancel")
+            dialog.dismiss()
+            m_settingsDialog?.dismiss()
+        }
+        builder.show()
     }
 
     fun onClickDismissImage() {
         Log.d(TAG, "onClickDismissImage")
-        m_settingsDialog!!.dismiss()
+        m_settingsDialog?.dismiss()
         var nanoFilename: String = m_captureFilename!!.text.toString()
         Log.d(TAG, "removeUnusedImage: " + nanoFilename)
         send("\n@DELETE " + nanoFilename)

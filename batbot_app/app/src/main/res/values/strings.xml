@@ -12,9 +12,12 @@
     <string name="id_list">ID List:</string>
     <string name="status">Status</string>
     <string name="message">Message from BatBot</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="train">Train</string>
     <string name="delete">Delete</string>
     <string name="please_wait">please wait..</string>
     <string name="captured_image">captured image</string>
+    <string name="correct_name">Correct Image Identification</string>
 </resources>
