@@ -4,4 +4,5 @@
 cd /home/lee
 sudo -P -u lee nohup /bin/bash -c /home/lee/start-synergy.sh &
 sudo -P -u root nohup /bin/bash -c /home/lee/start-bluetooth.sh &
+sudo -P -u root nohup /bin/bash -c /home/lee/start-batbot.sh &
 
