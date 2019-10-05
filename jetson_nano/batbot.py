@@ -696,9 +696,9 @@ def data_received(commandsFromPhone):
         elif 'resolution' in data:
             result = result + '\n! ==> the resolution is set at ' + resolution
             result = result + "\n! \n! resolutions I know about:"
-            result = result + "\n! \n! HD (default) at 1920x1024"
-            result = result + "\n! \n! SD at 960x616"
-            result = result + "\n! \n! 3K at 3264x2464"
+            result = result + "\n! HD (default) at 1920x1024"
+            result = result + "\n! SD at 960x616"
+            result = result + "\n! 3K at 3264x2464"
             printResult = True
             valid = True
 
