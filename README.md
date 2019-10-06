@@ -24,6 +24,76 @@ See https://www.elegoo.com/product/arduinocarv3-0/ for the Elegoo Car details.
 ![screen](../master/screens/batbot.png)
 
 
+## spoken commands
+
+Because keywords are used and the language domain is small, There exists a lot of freedom in phrasing spoken commands to BatBot. Here are some examples to try:
+
+ping the batbot.
+what is your IP address?
+show system info.
+look straight ahead.
+look to the right.
+focus right.
+look left.
+focus to the left.
+spin right.
+spin around.
+spin to the left.
+turn around.
+go right.
+drive left.
+forward.
+go straight ahead.
+go back.
+reverse direction.
+stop now.
+halt, robot.
+go faster.
+speed up.
+go slower.
+slower, please.
+slow down.
+show sensor values.
+tell my fortune.
+tell a really good joke.
+follow the line.
+avoid collisions.
+begin monitor mode.
+set security mode.
+find OBJECT.
+search for OBJECT.
+locate OBJECT.
+increase camera resolution.
+use higher resolution.
+decrease resolution.
+set a lower resolution.
+high resolution.
+3K resolution.
+use medium resolution.
+set normal resolution.
+low resolution.
+use standard resolution.
+show me the resolution.
+get a photo.
+take a picture.
+capture an image.
+show the algorithm setting.
+set previous algorithm.
+use the next algorithm.
+what algorthims do you know?
+identify that thing.
+what are your looking at?
+start the server.
+kill the server.
+learn OBJECT-NAME.
+set map mode.
+what is your name?
+hello, BabBot.
+help!
+get me a beer.
+make some coffee.
+
+
 ## connecting to the robot
 
 The Android app starts with a selection screen for the BatBot Bluetooth connection.  When the app first connects, a 'help' popup displays with command hints.
