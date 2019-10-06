@@ -9,7 +9,9 @@ an experimental AI vision robot
 
  The Jetson Nano is programmed with Python and also uses the BlueDot Bluetooth library. Additionally it uses PySerial, ImageAI and numerous dependency libraries. The Jetson Nano runs AI visual pattern recognition and behavior control software. It uses 'ImageAI' to process image content. Included are four pre-trained models from the 'ImageAI' project. See https://github.com/OlafenwaMoses/ImageAI and https://stackabuse.com/object-detection-with-imageai-in-python/  The layered design of this robot's functions lets you easily change the learning approach being used/tested.
 
- The Elegoo Arduino Robot Car is programmed in 'C' and uses Serial over USB communication.  It acts like a 'slave' for the Jetson Nano, carrying out mostly low-level tasks and reporting back. The Arduino and Nano communicate via the Serial cable connecting them. Note that when any object gets closer than 10cm to the distance sensor, the robot automatically stops, to try and prevent damage.
+ The Elegoo Arduino Robot Car is programmed in 'C' and uses Serial over USB communication.  It acts like a 'slave' for the Jetson Nano, carrying out mostly low-level tasks and reporting back. The Arduino and Nano communicate via the Serial cable connecting them.
+
+ Note that when any object gets closer than 10cm to the distance sensor, the robot automatically stops and changes to 'default' mode. The idea is to try and prevent damage.
 
 
 ## The BatBot
@@ -43,11 +45,11 @@ The Android app starts with a selection screen for the BatBot Bluetooth connecti
 The *, ok and # buttons work the same as matching buttons on the IR remote control.
 Note that all IR buttons are mapped to appropriate robot functionality.
 
-The large oval bat image functions as a virtual joystick.  If you press it, a small blue circle appears and tracks under your finger -- inside a larger circular boundry that also displays. By moving your finger up and down the robot will move forward and backward. The further your finger from the joystick's center, the faster the robot goes. If you move your finger right and left, the robot turns right or left. Again the further your finger is from the joystick center, the faster it goes. If the robot is put into another 'mode' of operation, for example 'line following mode' or 'collision avoidance mode' then the joystick only tracks horizontally and functions to change the camera orientation. This is because those operation modes are robot directed. Press the 'ok' button to stop the robot.
+The large oval bat image functions as a virtual joystick.  If you press it, a small blue circle appears and tracks under your finger -- inside a larger circular boundry that also displays. By moving your finger up and down the robot will move forward and backward. The further your finger from the joystick's center, the faster the robot goes. If you move your finger right and left, the robot turns right or left. Again the further your finger is from the joystick center, the faster it goes. If the robot is put into another 'mode' of operation, for example 'line following mode' or 'collision avoidance mode' or 'surveillance mode' or 'map mode' then the joystick only tracks horizontally to change the camera orientation. This is because those operation modes are robot directed. Press the 'ok' button to stop the robot and return to 'default' mode.
 
 The log area shows the last 7 lines or so of log data from the Jetson Nano. Log data includes voice commands, status, state, joystick movement, clicks and more. Displayed data currently scrolls offscreen as new log data arrives.
 
-Here the command 'What is your IP address?' was spoken. The recognized spoken text appears under the joystick and above the logs section, in white bold text, and in a popup window. This eliminates need for a LCD display on the robot. Translated text also acts as a 'repeat' button for the command.
+Here the command 'What is your IP address?' was spoken. The recognized spoken text appears under the joystick and above the logs section, in white bold text, and in a popup window. Using Bluetooth eliminates need for a LCD display on the robot. Translated text also acts as a 'repeat' button for the command.
 
 ![screen](../master/screens/BatBot_voice_command.jpg)
 ![screen](../master/screens/BatBot_IP_address.jpg)
@@ -57,12 +59,12 @@ Here the command 'What is your IP address?' was spoken. The recognized spoken te
 
 The following screens show what might happen if you ask 'what are you looking at?'
 
-Initially the 'identify' server is not running, and must be started. Note the 'identify' server does not start until the first image identification request. Then the 'identify' server will startup with a specified AI 'algorithm' (model). The model can be changed using voice commands.
+BatBot's Jetson Nano runs a separate 'identity' server that determines image content on request.  Initially the 'identify' server is not running, but it will start after the first image identification request. The 'identify' server starts with a specified AI 'algorithm' (model). The chosen AI model is changed using voice commands like 'next/previous algorithm' and 'kill server' when the 'identity' server is already running but you want to change the ImageAI model used..
 
 ![screen](../master/screens/BatBot_identify.jpg)
 ![screen](../master/screens/BatBot_start_server.jpg)
 
-..1 minute later.. Now that the server is running, we can ask 'what are you looking at?' again. A photo is taken and analyzed. The app shows photo analysis text right away, but asks if you want to download the image.  If 'View' is selected, the image will download via Bluetooth, and then display in a popup alongside the analysis result. You can save images to the phone's Gallery.
+..1 minute later.. Now that the 'identify' server is running, we can ask 'what are you looking at?' again. A photo is taken and analyzed. The app shows photo analysis text right away, but asks if you want to download the image.  If 'View' is selected, the image will download via Bluetooth, and then display in a popup alongside the analysis result. You can save images to the phone's Gallery.
 
 ![screen](../master/screens/BatBot_identify_results.jpg)
 ![screen](../master/screens/BatBot_transfer_image.jpg)
