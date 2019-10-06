@@ -32,9 +32,9 @@ The Android app starts with a selection screen for the BatBot Bluetooth connecti
 ![screen](../master/screens/BatBot_connected.jpg)
 
 
-## example voice command and response:
+## primary user interface
 
- Here is the main user interface consisting of a bat-image virtual joystick controller, and 5 buttons. The buttons work as follows:
+ The main user interface consists of a yellow and black bat-image virtual joystick controller, and 5 buttons. The buttons work as follows:
 
  - [voice command text] translated text acts like a 'repeat command' button.
  - [*] set the operating mode to 'collision avoidance'.
@@ -44,10 +44,14 @@ The Android app starts with a selection screen for the BatBot Bluetooth connecti
 
 The *, ok and # buttons work the same as matching buttons on the IR remote control.
 Note that all IR buttons are mapped to appropriate robot functionality.
+Press the 'ok' button anytime to stop the robot and return to 'default' mode.
 
-The large oval bat image functions as a virtual joystick.  If you press it, a small blue circle appears and tracks under your finger -- inside a larger circular boundry that also displays. By moving your finger up and down the robot will move forward and backward. The further your finger from the joystick's center, the faster the robot goes. If you move your finger right and left, the robot turns right or left. Again the further your finger is from the joystick center, the faster it goes. If the robot is put into another 'mode' of operation, for example 'line following mode' or 'collision avoidance mode' or 'surveillance mode' or 'map mode' then the joystick only tracks horizontally to change the camera orientation. This is because those operation modes are robot directed. Press the 'ok' button to stop the robot and return to 'default' mode.
+The large oval bat-image widget functions as a virtual joystick.  If you press it, a small blue circle appears and tracks under your finger -- inside a larger circular boundry that also appears. By moving your finger up and down the robot will move forward and backward. The further your finger from the joystick's center, the faster the robot goes. If you move your finger right and left, the robot turns right or left. Again the further your finger is from the joystick center, the faster it goes. Note that if the robot is put into another 'mode' of operation, for example 'line following mode' or 'collision avoidance mode' or 'surveillance mode' or 'map mode' then the joystick functionlity changes also. Each operation mode has separate joystick functionality.
 
-The log area shows the last 7 lines or so of log data from the Jetson Nano. Log data includes voice commands, status, state, joystick movement, clicks and more. Displayed data currently scrolls offscreen as new log data arrives.
+Above the control buttons is a window into the Jetson Nano's 'batbot.py' log. The log area shows the last 7 lines or so of log data, scrolling up. Log data includes voice commands, status, state, joystick movement, clicks and more. The displayed data scrolls offscreen (and is not retained) as new log data arrives.
+
+
+## example voice command and response:
 
 Here the command 'What is your IP address?' was spoken. The recognized spoken text appears under the joystick and above the logs section, in white bold text. A popup window shows the command results. Using Bluetooth eliminates need for a LCD display on the robot. Translated text also acts as a 'repeat' button for the command.
 
