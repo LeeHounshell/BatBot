@@ -154,19 +154,21 @@ Here we are training the robot to recognize me. :-)
 
 ## query BatBot sensor values
 
-What happens if you ask BatBot to 'show sensor values.':
+if you ask BatBot to 'show sensor values.':
 
 ![screen](../master/screens/BatBot_show_sensors.jpg)
 ![screen](../master/screens/BatBot_sensor_values.jpg)
 
 ## query BatBot's camera resolution
 
-What happens if you ask BatBot to 'show camera resolution.':
+if you ask BatBot to 'show camera resolution.':
 
 ![screen](../master/screens/BatBot_show_resolution.jpg)
 ![screen](../master/screens/BatBot_resolution.jpg)
 
 ## query which ImageAI model/algorithm is being used
+
+if you ask BatBot to 'show AI algorithm.':
 
 ![screen](../master/screens/BatBot_ask_AI_algorithm.jpg)
 ![screen](../master/screens/BatBot_AI_algorithm.jpg)
