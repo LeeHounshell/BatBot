@@ -520,7 +520,7 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
                     removeUnusedImage(bt_message_event)
                 }
                 try {
-                    if (bt_message_event.message.split('\n')[2].trim().startsWith(I_SEE_SOMETHING)) {
+                    if (bt_message_event.message.split('\n')[3].trim().startsWith(I_SEE_SOMETHING)) {
                         setMessage(bt_message_event.message + "\n\nTrain or View this Image?")
                         builder.setNegativeButton("TRAIN") { dialog, which ->
                             Log.d(TAG, "--> click 'TRAIN'")
