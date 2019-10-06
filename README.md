@@ -64,11 +64,11 @@ BatBot's Jetson Nano runs a separate 'identity' server that determines image con
 ![screen](../master/screens/BatBot_identify.jpg)
 ![screen](../master/screens/BatBot_start_server.jpg)
 
-..1 minute later.. Now that the 'identify' server is running, we can ask 'what are you looking at?' again. A photo is taken and analyzed. The app shows photo analysis text right away, but asks if you want to download the image.  If 'View' is selected, the image will download via Bluetooth, and then display in a popup alongside the analysis result.
+..1 minute later.. Now that the 'identify' server is running, we can ask 'what are you looking at?' again. A photo is taken and analyzed. The app shows photo analysis text right away.
 
 ![screen](../master/screens/BatBot_identify_results.jpg)
 
-The app disables all buttons while downloading photos via Bluetooth. Then a popup will display containing the robot's photo. You can save images to the phone's Gallery or 'Train' the robot.
+ The app asks if you want to download this image.  If 'View' is selected, the image will download via Bluetooth, and then display in a popup alongside the same analysis result. The app disables all buttons while downloading photos. After a few seconds, a popup will display containing the robot's photo. Then save images to the phone's Gallery or 'Train' the robot.
 
 ![screen](../master/screens/BatBot_transfer_image.jpg)
 ![screen](../master/screens/BatBot_identify_results_image.jpg)
