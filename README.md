@@ -49,7 +49,7 @@ The large oval bat image functions as a virtual joystick.  If you press it, a sm
 
 The log area shows the last 7 lines or so of log data from the Jetson Nano. Log data includes voice commands, status, state, joystick movement, clicks and more. Displayed data currently scrolls offscreen as new log data arrives.
 
-Here the command 'What is your IP address?' was spoken. The recognized spoken text appears under the joystick and above the logs section, in white bold text, and in a popup window. Using Bluetooth eliminates need for a LCD display on the robot. Translated text also acts as a 'repeat' button for the command.
+Here the command 'What is your IP address?' was spoken. The recognized spoken text appears under the joystick and above the logs section, in white bold text. A popup window shows the command results. Using Bluetooth eliminates need for a LCD display on the robot. Translated text also acts as a 'repeat' button for the command.
 
 ![screen](../master/screens/BatBot_voice_command.jpg)
 ![screen](../master/screens/BatBot_IP_address.jpg)
