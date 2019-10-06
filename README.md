@@ -3,13 +3,13 @@ an experimental AI vision robot
 
 # BatBot
 
- This is a powerful AI research robot created from commodity parts. Lower half is an Elegoo Robot Car v3.0. Upper half is a Jetson Nano. An Android app controls it with Spoken English over Bluetooth. Robot has a camera, ultrasonic sensors and a free 40 pin GPIO available. AI vision pattern recognition software in the Jetson Nano controls the robot's behavior. High-level spoken commands like 'WHAT ARE YOU LOOKING AT?' instruct the robot photograph and identify objects. The command 'GO FIND SOME-OBJECT' instructs the robot to locate, identify and photograph an object. Low-level spoken commands like 'WHAT IS YOUR IP-ADDRESS?' or 'GO FORWARD' or 'LOOK TO THE LEFT' will obtain information and/or control the robot directly. You can teach BatBot to identify new objects by using voice commands from the Android app.
+ This is a powerful AI research robot created from commodity parts. Lower half is an Elegoo Robot Car v3.0. The upper half is a Jetson Nano. An Android app controls it with Spoken English translated and sent over Bluetooth. The robot has a camera, an ultrasonic distance sensor and an unused 40 pin GPIO available for expansion. Software in the Jetson Nano communicating with the robot's Arduino control behavior. High-level spoken commands like 'WHAT ARE YOU LOOKING AT?' instruct the robot photograph and identify objects. The command 'GO FIND SOME-OBJECT' instructs the robot to locate, identify and photograph an object. Low-level spoken commands like 'WHAT IS YOUR IP-ADDRESS?' or 'GO FORWARD' or 'LOOK TO THE LEFT' will obtain information and/or control the robot directly. Teach BatBot to identify new objects by using voice commands from the Android app.
 
- The companion Android app is a MVVM pattern written in Kotlin and Java. It uses the Bluetooth/BlueDot work by Martin O'Hanlon for virtual joystick controls and for communication to/from the Jetson Nano. Find BlueDot here: https://github.com/martinohanlon/BlueDot  
+ The companion Android app is a MVVM pattern written in Kotlin and Java. It uses the Bluetooth/BlueDot work by Martin O'Hanlon for virtual joystick controls and for communication to/from the Jetson Nano and Android. Get BlueDot here: https://github.com/martinohanlon/BlueDot  
 
- The Jetson Nano is programmed with Python and uses the BlueDot Bluetooth library, the PySerial library, the ImageAI library and numerous dependencies. The Jetson Nano runs AI visual pattern recognition and behavior control software. It uses 'ImageAI' to process image content. Included are four pre-trained models from the 'ImageAI' project. See https://github.com/OlafenwaMoses/ImageAI and https://stackabuse.com/object-detection-with-imageai-in-python/  This design lets you easily change the learning approach being used. There is no need for a LCD display to report an IP address; the Bluetooth companion app using speech recognition magic will show the Nano's IP on request.
+ The Jetson Nano is programmed with Python and also uses the BlueDot Bluetooth library. Additionally it uses PySerial, ImageAI and numerous dependency libraries. The Jetson Nano runs AI visual pattern recognition and behavior control software. It uses 'ImageAI' to process image content. Included are four pre-trained models from the 'ImageAI' project. See https://github.com/OlafenwaMoses/ImageAI and https://stackabuse.com/object-detection-with-imageai-in-python/  The layered design of this robot's functions lets you easily change the learning approach being used/tested.
 
- The Elegoo Arduino Robot Car is programmed in 'C' and uses Serial over USB communication.  It acts like a 'slave' for the Jetson Nano, carrying out mostly low-level tasks and reporting back. The Arduino and Nano communicate via the Serial cable connecting them. Note that when any object gets closer than 10cm to the distance sensor, the robot automatically stops.
+ The Elegoo Arduino Robot Car is programmed in 'C' and uses Serial over USB communication.  It acts like a 'slave' for the Jetson Nano, carrying out mostly low-level tasks and reporting back. The Arduino and Nano communicate via the Serial cable connecting them. Note that when any object gets closer than 10cm to the distance sensor, the robot automatically stops, to try and prevent damage.
 
 
 ## The BatBot
@@ -40,7 +40,7 @@ The large oval bat image functions as a virtual joystick.  If you press it, a sm
 
 ## example voice command and response:
 
-Here the command 'What is your IP address?' was spoken. The recognized spoken text appears under the joystick and above the logs section, in white bold text. That text also acts as a 'repeat' button for the last voice command. Results also display in Popup windows.
+Here the command 'What is your IP address?' was spoken. The recognized spoken text appears under the joystick and above the logs section, in white bold text, and in a popup window. This eliminates need for a LCD display on the robot. Translated text also acts as a 'repeat' button for the command.
 
 ![screen](../master/screens/BatBot_voice_command.jpg)
 ![screen](../master/screens/BatBot_IP_address.jpg)
@@ -48,39 +48,34 @@ Here the command 'What is your IP address?' was spoken. The recognized spoken te
 
 ## example of AI image recognition and training
 
-These screens show what might happen when you ask 'what are you looking at?'
-Initially the 'identify' server is not running, and must be started.
-Note the 'identify' server does not start until the first image identification request.
-Then the 'identify' server will startup with a specified AI 'algorithm' (model).
-The model can be changed using just voice commands.
+The following screens show what might happen if you ask 'what are you looking at?'
+
+Initially the 'identify' server is not running, and must be started. Note the 'identify' server does not start until the first image identification request. Then the 'identify' server will startup with a specified AI 'algorithm' (model). The model can be changed using voice commands.
 
 ![screen](../master/screens/BatBot_identify.jpg)
 ![screen](../master/screens/BatBot_start_server.jpg)
 
-Now that the server is running, we can ask 'what are you looking at?'
-A photo is taken and analyzed. The app shows analysis text right away.
-If View is selected, the image will download via Bluetooth, and
-then display in a popup alongside the analysis result.
+..1 minute later.. Now that the server is running, we can ask 'what are you looking at?' again. A photo is taken and analyzed. The app shows photo analysis text right away, but asks if you want to download the image.  If 'View' is selected, the image will download via Bluetooth, and then display in a popup alongside the analysis result. You can save images to the phone's Gallery.
 
 ![screen](../master/screens/BatBot_identify_results.jpg)
 ![screen](../master/screens/BatBot_transfer_image.jpg)
 ![screen](../master/screens/BatBot_identify_results_image.jpg)
 
-You can train BatBot if the analysis is incorrect. Saved images go to the Gallery.
+You can train BatBot if the analysis is incorrect, or save photos go to the Gallery.
 
 ![screen](../master/screens/BatBot_identify_results_train.jpg)
 ![screen](../master/screens/BatBot_identify_results_learn.jpg)
 
 ## query BatBot for sensor values
 
-What happens when you ask BatBot to 'show sensor values.':
+What happens if you ask BatBot to 'show sensor values.':
 
 ![screen](../master/screens/BatBot_show_sensors.jpg)
 ![screen](../master/screens/BatBot_sensor_values.jpg)
 
 ## query BatBot camera resolution
 
-What happens when you ask BatBot to 'show camera resolution.':
+What happens if you ask BatBot to 'show camera resolution.':
 
 ![screen](../master/screens/BatBot_show_resolution.jpg)
 ![screen](../master/screens/BatBot_resolution.jpg)
