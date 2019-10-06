@@ -19,6 +19,7 @@ an experimental AI vision robot
 This robot was built using the Elegoo Robot Car v3.0 as the main base; then piling on top of that the Jetson Nano (inside a case), a Samsung 500 Gig SSD, a phone-battery power supply and the camera, attached to the ultrasonic sensor. The figure-head is from a PEZ dispenser. No soldering is required to build this project. No 3D printing is required either. All parts can be ordered online or found in your local hardware store.
 
 The README.md in the 'robot' folder of this project lists the parts needed to make this.
+
 See https://www.elegoo.com/product/arduinocarv3-0/ for the Elegoo Car details.
 
 ![screen](../master/screens/batbot.png)
@@ -85,7 +86,7 @@ identify that thing.
 what are your looking at?
 start the server.
 kill the server.
-learn OBJECT-NAME.
+learn OBJECT.
 set map mode.
 what is your name?
 hello, BabBot.
