@@ -59,7 +59,7 @@ Here the command 'What is your IP address?' was spoken. The recognized spoken te
 
 The following screens show what might happen if you ask 'what are you looking at?'
 
-BatBot's Jetson Nano runs a separate 'identity' server that determines image content on request.  Initially the 'identify' server is not running, but it will start after the first image identification request. The 'identify' server starts with a specified AI 'algorithm' (model). The chosen AI model is changed using voice commands like 'next/previous algorithm' and 'kill server' when the 'identity' server is already running but you want to change the ImageAI model used..
+BatBot's Jetson Nano runs a separate 'identity' server that determines image content on request.  Initially the 'identify' server is not running, but it will start after the first image identification request or after saying 'start the server now.' The 'identify' server starts with a specified AI 'algorithm' (model). The chosen AI model is changed using voice commands like 'next/previous algorithm' and 'kill server' when the 'identity' server is already running but you want to change the ImageAI model used..
 
 ![screen](../master/screens/BatBot_identify.jpg)
 ![screen](../master/screens/BatBot_start_server.jpg)
