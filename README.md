@@ -15,7 +15,7 @@ an experimental AI vision robot
 
  The companion Android app is a MVVM pattern written in Kotlin and Java. It uses the Bluetooth/BlueDot work by Martin O'Hanlon for virtual joystick controls and for communication to/from the Jetson Nano and Android. Get BlueDot here: https://github.com/martinohanlon/BlueDot  
 
- The Jetson Nano is programmed with Python and also uses the BlueDot Bluetooth library. Additionally it uses PySerial, ImageAI and numerous dependency libraries. The Jetson Nano runs AI visual pattern recognition and behavior control software. It uses 'ImageAI' to process image content. Included are four pre-trained models from the 'ImageAI' project. See https://github.com/OlafenwaMoses/ImageAI and https://stackabuse.com/object-detection-with-imageai-in-python/  The layered design of this robot's functions lets you easily change the learning approach being used/tested.
+ The Jetson Nano is programmed with Python and also uses the BlueDot Bluetooth library. Additionally it uses PySerial, ImageAI and numerous dependency libraries. The Jetson Nano runs AI visual pattern recognition and behavior control software. It uses 'ImageAI' to process image content. Included are four pre-trained models from the 'ImageAI' project. See https://github.com/OlafenwaMoses/ImageAI and https://stackabuse.com/object-detection-with-imageai-in-python/  The layered design of this robot's functions allow easy prototyping of new ideas.
 
  The Elegoo Arduino Robot Car is programmed in 'C' and uses Serial over USB communication.  It acts like a 'slave' for the Jetson Nano, carrying out mostly low-level tasks and reporting back. The Arduino and Nano communicate via the Serial cable connecting them.
 
@@ -139,6 +139,8 @@ Above the control buttons is a window into the Jetson Nano's 'batbot.py' log. Th
 
 ## example voice command and response:
 
+![screen](../master/screens/BatBot_say_command.jpg)
+
 Here the command 'What is your IP address?' was spoken. The recognized spoken text appears under the joystick and above the logs section, in white bold text. A popup window shows the command results. Using Bluetooth eliminates need for a LCD display on the robot. Translated text also acts as a 'repeat' button for the command.
 
 ![screen](../master/screens/BatBot_voice_command.jpg)
@@ -156,7 +158,6 @@ BatBot's Jetson Nano runs a separate 'identity' server that determines image con
 
 ..1 minute later.. Now that the 'identify' server is running, we can ask 'what are you looking at?' again. A photo is taken and analyzed. The app shows photo analysis text right away. Note that the first request is slow, as shared librarys must load for the 'identify' server. Subsequent request are a couple of seconds.
 
-![screen](../master/screens/BatBot_say_command.jpg)
 ![screen](../master/screens/BatBot_identify_results.jpg)
 
  The app asks if you want to download this image.  If 'View' is selected, the image will download via Bluetooth, and then display in a popup alongside the same analysis result. The app disables all buttons while downloading photos. After a few seconds, a popup will display containing the robot's photo. Then save images to the phone's Gallery or 'Train' the robot.
@@ -199,21 +200,21 @@ then when movement is detected, you are notified:
 
 ## query BatBot sensor values
 
-if you ask BatBot to 'show sensor values.':
+ask BatBot to 'show sensor values.':
 
 ![screen](../master/screens/BatBot_show_sensors.jpg)
 ![screen](../master/screens/BatBot_sensor_values.jpg)
 
 ## query BatBot's camera resolution
 
-if you ask BatBot to 'show camera resolution.':
+ask BatBot to 'show camera resolution.':
 
 ![screen](../master/screens/BatBot_show_resolution.jpg)
 ![screen](../master/screens/BatBot_resolution.jpg)
 
 ## query which ImageAI model/algorithm is being used
 
-if you ask BatBot to 'show AI algorithm.':
+changed from DenseNet to InceptionV3. ask BatBot to 'show AI algorithm.':
 
 ![screen](../master/screens/BatBot_ask_AI_algorithm.jpg)
 ![screen](../master/screens/BatBot_AI_algorithm.jpg)
