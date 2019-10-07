@@ -190,7 +190,7 @@ then change your mind and ask BatBot to 'find a chair.':
 if you ask BatBot to 'enable security monitor.':
 
 ![screen](../master/screens/BatBot_security_monitor.jpg)
-![screen](../master/screens/BatBot_security_monitor_response.jpg)
+![screen](../master/screens/BatBot_security_monitor_running.jpg)
 
 then when movement is detected, you are notified:
 
