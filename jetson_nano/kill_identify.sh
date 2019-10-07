@@ -1,13 +1,13 @@
 #!/bin/bash
 
-echo
+printf
 SERVER=`pgrep -x "identify.py"`
 
 if [ "$SERVER" != "" ]
 then
-    echo "killing the 'identify' server.."
+    printf "killing the 'identify' server.."
     kill ${SERVER}
 else
-    echo "the 'identify' server is not running."
+    printf "the 'identify' server is not running."
 fi
 

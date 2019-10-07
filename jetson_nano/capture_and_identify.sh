@@ -30,12 +30,13 @@ then
     ./capture.sh ${image_name} ${resolution}
     python3 ./request_identify.py ${image_name} 2> /dev/null
 else
-    echo "starting the 'identify' server.."
-    echo "algorithm set to: ${algorithm}"
-    echo "please wait 1 minute.."
-    echo
-    echo "..and then retry.."
-    echo "the first request will be *very* slow."
-    echo "after that, it speeds up greatly."
+    printf "starting the 'identify' server.."
+    printf "algorithm set to: ${algorithm}"
+    printf "please wait 1 minute.."
+    printf
+    printf "..and then retry.."
+    printf "the first request will be *very* slow."
+    printf "after that, it speeds up greatly."
+
     nohup ./identify.py ${algorithm} > /dev/null 2>&1 &
 fi

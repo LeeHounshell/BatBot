@@ -11,6 +11,7 @@ import socket
 import struct
 import subprocess
 import time
+import re
 import os
 
 
@@ -23,6 +24,15 @@ time.sleep(3) # wait for Arduino
 K3_RESOLUTION     = '3k'
 HD_RESOLUTION     = 'hd'
 SD_RESOLUTION     = 'sd'
+
+TIME_TO_LOOK      = 5
+thing_to_find     = ''
+thing_capturetime = 0
+
+threat_detected   = False
+security_count    = 0
+security_time     = 0
+security_image    = '/tmp/security{}.jpg'
 
 resolution        = HD_RESOLUTION # one of [K3_RESOLUTION, HD_RESOLUTION, SD_RESOLUTION]
 algorithmList     = ['SqueezeNet', 'DenseNet', 'InceptionV3', 'ResNet']
@@ -167,33 +177,38 @@ def execute_commands(command_array):
 
 def do_star():
     global state
-    state = 'avoid'
     command_array = [run_star]
     result = execute_commands(command_array)
+    result = set_state('avoid')
     return result
 
 def do_stop():
     global state
-    state = 'default'
+    global threat_detected
     command_array = [allstop]
     result = execute_commands(command_array)
+    result = set_state('default')
+    threat_detected = False
     return result
 
 def do_sharp():
     global state
-    state = 'following'
     command_array = [run_sharp]
     result = execute_commands(command_array)
+    result = set_state('following')
     return result
 
-def run_command(arg0, arg1 = '', arg2 = '', arg3 = ''):
+# i am sure there is a better way to do this
+def run_command(arg0, arg1 = '', arg2 = '', arg3 = '', arg4 = ''):
     command = arg0
-    if len(arg1) > 0:
-        command = command + ' ' + arg1
-        if len(arg2) > 0:
-            command = command + ' ' + arg2
-            if len(arg3) > 0:
-                command = command + ' ' + arg3
+    if len(str(arg1)) > 0:
+        command = command + ' ' + str(arg1)
+        if len(str(arg2)) > 0:
+            command = command + ' ' + str(arg2)
+            if len(str(arg3)) > 0:
+                command = command + ' ' + str(arg3)
+                if len(str(arg4)) > 0:
+                    command = command + ' ' + str(arg4)
     p = subprocess.Popen(command,
                          shell=True,
                          stdout=subprocess.PIPE,
@@ -441,16 +456,28 @@ def show_algorithm_hint(result):
 
 def send_image_to_phone(filename, begin_header, end_header):
     global sending_now
-    sending_now = True
-    s.send(begin_header)
-    time.sleep(1) # wait for Android
-    image_data = open(filename, "rb").read()
-    print("IMAGE SIZE: " + str(len(image_data)))
-    s._send_data(image_data)
-    time.sleep(2) # wait for Android
-    s.send(end_header)
-    time.sleep(1) # wait for Android
+    try:
+        sending_now = True
+        s.send(begin_header)
+        time.sleep(1) # wait for Android
+        image_data = open(filename, "rb").read()
+        print("IMAGE SIZE: " + str(len(image_data)))
+        s._send_data(image_data)
+        time.sleep(2) # wait for Android
+        s.send(end_header)
+        time.sleep(1) # wait for Android
+    except Exception as e:
+        print("ERROR: in send_image_to_phone: e=" + str(e))
     sending_now = False
+
+def set_state(new_state):
+    global state
+    state_info = ''
+    if state == 'security':
+        if new_state != 'security':
+            state_info = '\n! ===> SECURITY MODE DISABLED.'
+    state = new_state
+    return state_info
 
 def command_contains(wordList, command):
     for word in wordList:
@@ -458,6 +485,10 @@ def command_contains(wordList, command):
             return False
     return True
 
+#
+# TODO: refactor this thing
+#       note the syntax checking dependency on test order
+#
 # a primitive language parser
 def data_received(commandsFromPhone):
     global resolution
@@ -466,14 +497,20 @@ def data_received(commandsFromPhone):
     global capture_count
     global algorithmIndex
     global algorithmFixed
+    global thing_to_find
+    global thing_capturetime
+    global security_time
+    global security_count
+    global threat_detected
 
     if sending_now:
-        print("\n===> FIXME: data_received while sending_now: " + commandsFromPhone)
+        print("\n===> WARNING: data_received while sending_now: " + commandsFromPhone)
         return
 
     pokeLogs = (commandsFromPhone == ' ')
     commandList = commandsFromPhone.splitlines()
     for data in commandList:
+        # decode the command in 'data'
 
         if data.startswith(capture_command):
            filename = data[len(capture_command):]
@@ -486,7 +523,10 @@ def data_received(commandsFromPhone):
            filename = data[len(delete_command):]
            if filename.startswith('/tmp/'):
                print("\n*** REQUEST DELETE IMAGE '" + filename + "' ***\n")
-               os.remove(filename)
+               try:
+                   os.remove(filename)
+               except Exception as e:
+                    print("ERROR: in '@DELETE' data_received: e=" + str(e))
            continue
 
         printResult = False
@@ -624,7 +664,7 @@ def data_received(commandsFromPhone):
                     text = line.decode('ascii')
                     result = result + '! ' + text
                 except Exception as e:
-                    print("ERROR: data_received: e=" + str(e))
+                    print("ERROR: in 'fortune' data_received: e=" + str(e))
             printResult = True
             valid = True
 
@@ -638,14 +678,28 @@ def data_received(commandsFromPhone):
             printResult = True
             valid = True
 
-        elif 'monitor' in data or 'security' in data: # FIXME: security monitor
+        elif 'monitor' in data or 'security' in data:
             command_array = [monitor]
             result = result + execute_commands(command_array)
+            result = result + "\n! ===> SECURITY MONITOR RUNNING!"
+            result = result + set_state('security')
             printResult = True
             valid = True
 
-        elif 'find' in data or 'search' in data or 'locate' in data: # FIXME: next word is object to locate
-            result = result + 'FIXME: find some object'
+        #
+        # TODO: implement better search movement than 'collision avoidance mode'
+        #       use a database history to determine where to search first.
+        #
+        elif 'find' in data or 'search' in data or 'locate' in data:
+            if thing_to_find != '':
+                result = result + "\n! I was looking for a '" + thing_to_find + "'"
+                result = result + "\n! but will abandon that search now."
+
+            thing_to_find = data.split()[-1] # get the last word
+            result = result + "\n! I will look for a '" + thing_to_find + "'"
+            result = result + "\n! and will tell you when I find it.\n"
+            thing_capturetime = 0
+            result = result + do_star() # set 'collision avoidance mode'
             printResult = True
             valid = True
 
@@ -711,9 +765,11 @@ def data_received(commandsFromPhone):
                     text = line.decode('ascii')
                     result = result + '! ' + text
                 except Exception as e:
-                    print("ERROR: data_received: e=" + str(e))
+                    print("ERROR: in 'photo' data_received: e=" + str(e))
+            result = result + '\n'
             printResult = True
             valid = True
+
         elif 'show algorithm' in data:
             result = result + "\n! AI algorithm set to '" + algorithmList[algorithmIndex] + "'\n"
             result = result + "\n! \n! AI algorithms I know about:"
@@ -762,7 +818,8 @@ def data_received(commandsFromPhone):
                     text = line.decode('ascii')
                     result = result + '! ' + text
                 except Exception as e:
-                    print("ERROR: data_received: e=" + str(e))
+                    print("ERROR: in 'identify' data_received: e=" + str(e))
+            result = result + '\n'
             printResult = True
             valid = True
 
@@ -774,19 +831,54 @@ def data_received(commandsFromPhone):
                     text = line.decode('ascii')
                     result = result + '! ' + text
                 except Exception as e:
-                    print("ERROR: data_received: e=" + str(e))
+                    print("ERROR: in 'kill' data_received: e=" + str(e))
+            result = result + '\n'
             printResult = True
             valid = True
 
-        elif 'learn' in data: # FIXME: teach item name
-            result = result + 'FIXME: learn about object'
+        elif 'learn' in data:
+            image_path = ''
+            image_name = ''
+            if not data.startswith('@TRAIN'):
+                image_name = data.split()[-1] # get the last word
+                capture_count += 1
+                image_path = capture_image.format(capture_count)
+                for line in run_command('./capture.sh', image_path, resolution):
+                    try:
+                        text = line.decode('ascii')
+                        result = result + '! ' + text
+                    except Exception as e:
+                        print("ERROR: in 'learn' data_received: e=" + str(e))
+                result = result + '\n'
+            else:
+                # e.g. --> @TRAIN '/tmp/capture22.jpg' learn='Lee'
+                items = re.findall("([^']*)", data)
+                image_path = items[2]
+                image_name = items[6]
+            if image_name != '' and image_path != '':
+                for line in run_command('./learn_about.sh', image_path, image_name.strip().replace(" ", "_"), algorithmList[algorithmIndex]):
+                    try:
+                        text = line.decode('ascii')
+                        result = result + '! ' + text
+                    except Exception as e:
+                        print("ERROR: in 'learn' data_received: e=" + str(e))
+                result = result + '\n'
+            else:
+                result = result + "\n! THE 'LEARN' COMMAND FAILED!"
+                result = result + "\n! \n! I tried to understand: "
+                result = result + "\n! " + data
             printResult = True
             valid = True
 
-        elif 'map' in data: # FIXME: map the world
-            state = 'map'
+        #
+        # TODO: map the world. keep the map in a searchable database.
+        #       enable 'find' to use the map to locate objects.
+        #       create 'GO TO [PLACENAME]' and 'REMEMBER [PLACENAME]' commands.
+        #
+        elif 'map' in data:
             command_array = [map_world]
             result = result + execute_commands(command_array)
+            result = result + set_state('map')
             printResult = True
             valid = True
 
@@ -811,6 +903,77 @@ def data_received(commandsFromPhone):
             valid = True
 
         #--------------------------------------------
+
+        #
+        #TODO: keep a history of everything we see inside a database.
+        #      map the world and recognize current location in map.
+        #      use history and map to quickly find objects already seen.
+        #
+        # check if we are looking for something
+        if thing_to_find != '':
+            now = time.time()
+            elapsed = now - thing_capturetime
+            if elapsed > TIME_TO_LOOK:
+                printResult = True
+                print("\nlooking for: '" + thing_to_find + "'")
+                capture_count += 1
+                image_path = capture_image.format(capture_count)
+                capture_results = run_command('./capture_and_identify.sh', image_path, resolution, algorithmList[algorithmIndex])
+                thing_capturetime = time.time()
+                found = False
+                for line in capture_results:
+                    try:
+                        text = line.decode('ascii')
+                        result = result + text
+                        if thing_to_find in text:
+                            found = True
+                    except Exception as e:
+                        print("ERROR: in 'find' data_received: e=" + str(e))
+                if found:
+                    for line in capture_results:
+                        try:
+                            text = line.decode('ascii')
+                            result = result + "! " + text
+                        except Exception as e:
+                            print("ERROR: in 'find' data_received: e=" + str(e))
+                    result = result + "\n! \n! I found a '" + thing_to_find + "'!"
+                    thing_to_find = ''
+                    thing_capturetime = 0
+
+        #--------------------------------------------
+
+        # check if security monitor is running
+        if state == 'security':
+            now = time.time()
+            elapsed = now - security_time
+            if elapsed > TIME_TO_LOOK:
+                printResult = True
+                security_count += 1
+                image_path = security_image.format(security_count)
+                result = result + "\nchecking security..\n"
+                detected = False
+                threat = ''
+                for line in run_command('./security_monitor.sh', image_path, security_count, resolution, threat_detected):
+                    try:
+                        text = line.decode('ascii')
+                        if detected:
+                            result = result + "! " + text
+                        elif threat_detected: # only send the Android app 1 notification, but keep capturing
+                            result = result + text
+                        elif 'DETECTED' in text.upper():
+                            detected = True
+                            threat_detected = True
+                            threat = "! " + text
+                        else:
+                            result = result + text
+                    except Exception as e:
+                        print("ERROR: in 'learn' data_received: e=" + str(e))
+                result = result + threat
+                security_time = time.time()
+
+        #--------------------------------------------
+
+        # talk to Android
         data = data.strip()
         if len(data) > 0:
 

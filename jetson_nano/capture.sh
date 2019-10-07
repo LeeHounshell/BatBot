@@ -25,11 +25,10 @@ fi
 
 #
 # Note: be careful editing this file. side-effects can happen:
-# The first output lines must be the 2 echo lines below.
+# The first output lines must be the printf line below.
 # If not, the Android app currently won't find the IMAGE_FILE_HEADER
 #
 
-echo "File: ${image_name}"
 image_size=`ls -l "${image_name}" | sed 's/  */:/g' | cut -f5 -d:`
-echo "Size: ${image_size}"
 
+printf "File: ${image_name}\nSize: ${image_size}\n\n"
