@@ -167,7 +167,7 @@ Servo myservo; // used to control the ultrasonics servo
 
 int initialized               = 0;
 
-// FIXME: still need to adjust for daylight savings time here
+// TODO: adjust for daylight savings time here
 int adjustTimeZone            = -(7 * 60 * 60);
 
 time_t nowMillis              = 0L;
@@ -966,6 +966,9 @@ boolean function_nine() {
   return 1;
 }
 
+//
+// TODO: communicate with the Nano to map everything intelligently
+//
 // map your world
 boolean function_five() {
   if (*state != 'm') {
@@ -973,7 +976,6 @@ boolean function_five() {
     servoDelta = 10;
     println("$ 'map'", 1);
   }
-  // FIXME: communicate with the Nano to map everything
   return 1;
 }
 
@@ -981,9 +983,9 @@ boolean function_five() {
 boolean function_zero() {
   if (*state != 's') {
     state = "security";
+    servoDelta = 0;
     println("$ 'monitor'", 1);
   }
-  // FIXME: communicate with the Nano if distance sensor triggers
   return 1;
 }
 
@@ -996,7 +998,7 @@ boolean function_star() {
   set_servo_angle(90);
   delay(500);
   aheadDistance = get_distance();
-  if (aheadDistance <= 20) {
+  if (aheadDistance >= 20) {
     ++avoidState;
     switch (avoidState) {
       case 1: {
@@ -1004,7 +1006,7 @@ boolean function_star() {
         break;
       }
       case 2: {
-        delay(500);
+        delay(1000);
         set_servo_angle(10);
         break;
       }
@@ -1014,7 +1016,7 @@ boolean function_star() {
         break;
       }
       case 4: {
-        delay(500);
+        delay(1000);
         set_servo_angle(90);
         break;
       }
@@ -1029,51 +1031,59 @@ boolean function_star() {
         break;
       }
       case 7: {
-        delay(500);
+        delay(1000);
         set_servo_angle(90);
         break;
       }
       case 8: {
         delay(1000);
         if (rightDistance > leftDistance) {
-          right();
+          function_right();
           if (Serial.available()) {
             stop();
             return 1;
           }
-          delay(360);
         }
         else if (rightDistance < leftDistance) {
-          left();
+          function_left();
           if (Serial.available()) {
             stop();
             return 1;
           }
-          delay(360);
         }
         else if ((rightDistance <= 20) || (leftDistance <= 20)) {
-          back();
+          back(); // TODO: spin instead of backup
+          cmdMillis = millis();
+          cmdMillisLoop = 3;
+          have_cmd = 1;
           if (Serial.available()) {
             stop();
             return 1;
           }
-          delay(170);
         }
         else {
           forward();
+          cmdMillis = millis();
+          cmdMillisLoop = 3;
+          have_cmd = 1;
         }
         break;
       }
     }
   }
   else {
-      forward();
+      back(); // TODO: spin instead of backup
+      cmdMillis = millis();
+      cmdMillisLoop = 3;
+      have_cmd = 1;
   }
   return 1;
 }
 
+//
+// TODO: stop() case must talk with Jetson Nano for recovery instructions
+//
 // run Elegoo line following modified for Serial interrupt
-// FIXME: stop() case must talk with Jetson Nano for instructions
 boolean function_sharp() {
   if (*state != 'f') {
     state = "following";
@@ -1085,45 +1095,48 @@ boolean function_sharp() {
     case 1: {
       if (LT_M) {
         forward();
+        cmdMillis = millis();
+        cmdMillisLoop = 3;
+        have_cmd = 1;
       }
       else if (! LT_L && ! LT_M && ! LT_R) {
-        stop();
+        stop(); // TODO: get next move from Jetson Nano
       }
       break;
     }
     case 2: {
       if (LT_R) {
-        right();
+        function_right();
         while(LT_R) {
           if (Serial.available()) {
             break;
           }
           if (! LT_L && ! LT_M && ! LT_R) {
-            stop();
+            function_left();
             break;
           }
         }
       }
       else if (! LT_L && ! LT_M && ! LT_R) {
-        stop();
+        stop(); // TODO: get next move from Jetson Nano
       }
       break;
     }
     case 3: {
       if (LT_L) {
-        left();
+        function_left();
         while(LT_L) {
           if (Serial.available()) {
             break;
           }
           if (! LT_L && ! LT_M && ! LT_R) {
-            stop();
+            function_right();
             break;
           }
         }
       }
       else if (! LT_L && ! LT_M && ! LT_R) {
-        stop();
+        stop(); // TODO: get next move from Jetson Nano
       }
       followState = 0;
       break;
