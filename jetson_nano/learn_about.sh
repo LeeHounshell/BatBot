@@ -6,13 +6,13 @@ algorithm=${3}
 
 if [ "$image_path" == "" ]
 then
-    printf "usage: learn_about.sh path name algorithm"
+    echo "usage: learn_about.sh path name algorithm"
     exit 0
 fi
 
 if [ "$image_name" == "" ]
 then
-    printf "usage: learn_about.sh path name algorithm"
+    echo "usage: learn_about.sh path name algorithm"
     exit 0
 fi
 
