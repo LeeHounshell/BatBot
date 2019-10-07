@@ -8,5 +8,5 @@ echo "start-batbot.sh: THE SYSTEM IS READY.. START THE BATBOT!"
 
 cd /home/lee/src/BatBot/jetson_nano
 
-nohup /usr/bin/python3 ./batbot.py &
+nohup ./batbot.sh &
 

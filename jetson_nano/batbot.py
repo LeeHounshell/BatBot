@@ -133,6 +133,7 @@ def read_data_from_arduino():
             arduino.flush()
         except Exception as e:
             print("ERROR: read_data_from_arduino: e=" + str(e))
+            sys.exit(1)
     return robot_data
 
 def read_all_data_from_arduino():
@@ -372,6 +373,7 @@ def process_blue_dot_slider(movementCommand):
 
     except Exception as e:
         print("ERROR: process_blue_dot_slider: e=" + str(e))
+        sys.exit(2)
     return str(slider)
 
 def process_blue_dot_joystick(movementCommand, isRelease):
@@ -445,6 +447,7 @@ def process_blue_dot_joystick(movementCommand, isRelease):
 
     except Exception as e:
         print("ERROR: process_blue_dot_joystick: e=" + str(e))
+        sys.exit(3)
     return str(joystick) + ' ' + joy_direction
 
 def show_algorithm_hint(result):
@@ -468,6 +471,7 @@ def send_image_to_phone(filename, begin_header, end_header):
         time.sleep(1) # wait for Android
     except Exception as e:
         print("ERROR: in send_image_to_phone: e=" + str(e))
+        sys.exit(4)
     sending_now = False
 
 def set_state(new_state):
@@ -851,7 +855,7 @@ def data_received(commandsFromPhone):
                         text = line.decode('ascii')
                         result = result + '! ' + text
                     except Exception as e:
-                        print("ERROR: in 'learn' data_received: e=" + str(e))
+                        print("ERROR: in 'learn' #1 data_received: e=" + str(e))
                 result = result + '\n'
             else:
                 # e.g. --> @TRAIN '/tmp/capture22.jpg' learn='Lee'
@@ -864,7 +868,7 @@ def data_received(commandsFromPhone):
                         text = line.decode('ascii')
                         result = result + '! ' + text
                     except Exception as e:
-                        print("ERROR: in 'learn' data_received: e=" + str(e))
+                        print("ERROR: in 'learn' #2 data_received: e=" + str(e))
                 result = result + '\n'
             else:
                 result = result + "\n! THE 'LEARN' COMMAND FAILED!"
@@ -1058,21 +1062,23 @@ result = read_all_data_from_arduino()
 #print(result)
 
 
-while True:
-    try:
-        print('===> CREATING BLUETOOTH SERVER <===')
-    
-        s = BluetoothServer(data_received_callback = data_received,
-                when_client_connects=client_connect,
-                when_client_disconnects=client_disconnect)
-    
-        print('---> waiting for connection <---')
-        pause()
-    
-    except ConnectionAbortedError as ex:
-        print("*** ERROR ***: got connection request for closed socket: ex=" + str(ex))
-    except OSError as ex:
-        print("*** ERROR ***: got mysterious OSError: ex=" + str(ex))
-    except Exception as ex:
-        print("*** PROGRAM ERROR ***: ex=" + str(ex))
-    
+try:
+    print('===> CREATING BLUETOOTH SERVER <===')
+
+    s = BluetoothServer(data_received_callback = data_received,
+            when_client_connects=client_connect,
+            when_client_disconnects=client_disconnect)
+
+    print('---> waiting for connection <---')
+    pause()
+
+except ConnectionAbortedError as ex:
+    print("*** ERROR ***: got connection request for closed socket: ex=" + str(ex))
+    sys.exit(5)
+except OSError as ex:
+    print("*** ERROR ***: got mysterious OSError: ex=" + str(ex))
+    sys.exit(6)
+except Exception as ex:
+    print("*** PROGRAM ERROR ***: ex=" + str(ex))
+    sys.exit(7)
+

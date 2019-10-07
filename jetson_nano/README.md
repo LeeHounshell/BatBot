@@ -1,5 +1,9 @@
 # This is BatBot on the Jetson Nano
 
+## batbot.sh
+
+This scripts starts the batbot.py and restarts it on error.
+
 ## batbot.py
 
 This is the main BatBot control and communications program.
@@ -49,6 +53,11 @@ Currently 4 model types (from ImageAI) are supported here:
 ## kill_identify.sh
 
 Script to stop the 'identify' server.
+
+## learn_about.sh
+
+Append instruction to train BatBot model on new images to /tmp/BatBot_TRAIN.txt.
+The text file can be processed offline as a batch job for training models about new objects.
 
 ## models
 
