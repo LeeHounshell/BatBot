@@ -55,7 +55,7 @@ then
         # If not, the Android app currently won't find the IMAGE_FILE_HEADER
         #
         image_size=`ls -l "${image_name}" | sed 's/  */:/g' | cut -f5 -d:`
-        printf "SECURITY: MOVEMENT DETECTED!\nFile: ${image_name}\nSize: ${image_size}\n\n"
+        printf "MOVEMENT DETECTED!\nFile: ${image_name}\nSize: ${image_size}\n\n"
         security_breach=true
     else
         if [ "$security_breach" == false ]

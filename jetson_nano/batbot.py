@@ -454,7 +454,7 @@ def show_algorithm_hint(result):
     result = result + "\n! Say 'kill server' to do that."
     result = result + '\n! once the \'identify\' server starts, '
     result = result + '\n! the AI algorithm is fixed until restart.'
-    result = result + '\n! \n! The current algorithm is ' + algorithmList[algorithmIndex]
+    result = result + '\n! \n! The current algorithm is ' + algorithmList[algorithmIndex] + '\n'
     return result
 
 def send_image_to_phone(filename, begin_header, end_header):
@@ -688,7 +688,7 @@ def data_received(commandsFromPhone):
         elif 'monitor' in data or 'security' in data:
             command_array = [monitor]
             result = result + execute_commands(command_array)
-            result = result + "\n! ===> SECURITY MONITOR RUNNING!"
+            result = result + "\n! ===> SECURITY MONITOR RUNNING!\n"
             result = result + set_state('security')
             printResult = True
             valid = True
@@ -700,7 +700,7 @@ def data_received(commandsFromPhone):
         elif 'find' in data or 'search' in data or 'locate' in data:
             if thing_to_find != '':
                 result = result + "\n! I was looking for a '" + thing_to_find + "'"
-                result = result + "\n! but will abandon that search now."
+                result = result + "\n! but will abandon that search now.."
 
             thing_to_find = data.split()[-1] # get the last word
             result = result + "\n! I will look for a '" + thing_to_find + "'"
@@ -757,9 +757,9 @@ def data_received(commandsFromPhone):
         elif 'resolution' in data:
             result = result + '\n! ==> the resolution is set at ' + resolution
             result = result + "\n! \n! resolutions I know about:"
-            result = result + "\n! HD (default) at 1920x1024"
+            result = result + "\n! HD at 1920x1024 (default)"
             result = result + "\n! SD at 960x616"
-            result = result + "\n! 3K at 3264x2464"
+            result = result + "\n! 3K at 3264x2464\n"
             printResult = True
             valid = True
 
@@ -782,6 +782,7 @@ def data_received(commandsFromPhone):
             result = result + "\n! \n! AI algorithms I know about:"
             for potential_algorithm in algorithmList:
                 result = result + "\n! " + potential_algorithm
+            result = result + "\n"
             printResult = True
             valid = True
 
@@ -812,6 +813,7 @@ def data_received(commandsFromPhone):
             result = result + "\n! \n! AI algorithms I know about:"
             for potential_algorithm in algorithmList:
                 result = result + "\n! " + potential_algorithm
+            result = result + "\n"
             printResult = True
             valid = True
 
@@ -873,7 +875,7 @@ def data_received(commandsFromPhone):
             else:
                 result = result + "\n! THE 'LEARN' COMMAND FAILED!"
                 result = result + "\n! \n! I tried to understand: "
-                result = result + "\n! " + data
+                result = result + "\n! " + data + "\n"
             printResult = True
             valid = True
 
@@ -943,7 +945,7 @@ def data_received(commandsFromPhone):
                             result = result + "! " + text
                         except Exception as e:
                             print("ERROR: in 'find' data_received: e=" + str(e))
-                    result = result + "\n! \n! I found a '" + thing_to_find + "'!"
+                    result = result + "\n! \n! I found a '" + thing_to_find + "'!\n"
                     thing_to_find = ''
                     thing_capturetime = 0
 
