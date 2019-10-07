@@ -29,10 +29,10 @@ This robot was built using the Elegoo Robot Car v3.0 as the main base; then pili
 The README.md in the 'robot' folder of this project lists the parts needed to make BatBot.
 [Robot README](https://github.com/LeeHounshell/BatBot/blob/master/robot/README.md)
 
-The README.md in the 'jetson_nano' folder of this project details the AI architeture.
+The README.md in the 'jetson_nano' folder of this project details the AI architecture.
 [Jetson Nano README](https://github.com/LeeHounshell/BatBot/blob/master/jetson_nano/README.md)
 
-The README.md in the 'batbot_app' folder of this project details the Android architeture.
+The README.md in the 'batbot_app' folder of this project details the Android architecture.
 [Android app README](https://github.com/LeeHounshell/BatBot/blob/master/batbot_app/README.md)
 
 See https://www.elegoo.com/product/arduinocarv3-0/ for the Elegoo Car details.
@@ -96,7 +96,7 @@ capture an image.
 show the algorithm setting.
 set previous algorithm.
 use the next algorithm.
-what algorthims do you know?
+what algorithms do you know?
 identify that thing.
 what are your looking at?
 start the server.
@@ -132,7 +132,7 @@ The *, ok and # buttons work the same as matching buttons on the IR remote contr
 Note that all IR buttons are mapped to appropriate robot functionality.
 Press the 'ok' button anytime to stop the robot and return to 'default' mode.
 
-The large oval bat-image widget functions as a virtual joystick.  If you press it, a small blue circle appears and tracks under your finger -- inside a larger circular boundry that also appears. By moving your finger up and down the robot will move forward and backward. The further your finger from the joystick's center, the faster the robot goes. If you move your finger right and left, the robot turns right or left. Again the further your finger is from the joystick center, the faster it goes. Note that if the robot is put into another 'mode' of operation, for example 'line following mode' or 'collision avoidance mode' or 'surveillance mode' or 'map mode' then the joystick functionlity changes also. Each operation mode has separate joystick functionality.
+The large oval bat-image widget functions as a virtual joystick.  If you press it, a small blue circle appears and tracks under your finger -- inside a larger circular boundry that also appears. By moving your finger up and down the robot will move forward and backward. The further your finger from the joystick's center, the faster the robot goes. If you move your finger right and left, the robot turns right or left. Again the further your finger is from the joystick center, the faster it goes. Note that if the robot is put into another 'mode' of operation, for example 'line following mode' or 'collision avoidance mode' or 'surveillance mode' or 'map mode' then the joystick functionality changes also. Each operation mode has separate joystick functionality.
 
 Above the control buttons is a window into the Jetson Nano's 'batbot.py' log. The log area shows the last 7 lines or so of log data, scrolling up. Log data includes voice commands, status, state, joystick movement, clicks and more. The displayed data scrolls offscreen (and is not retained) as new log data arrives.
 
