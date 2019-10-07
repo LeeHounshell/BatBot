@@ -164,7 +164,7 @@ BatBot's Jetson Nano runs a separate 'identity' server that determines image con
 ![screen](../master/screens/BatBot_transfer_image.jpg)
 ![screen](../master/screens/BatBot_identify_results_image.jpg)
 
-Here we are training the robot to recognize me. :-)
+Here we are training the robot to recognize a coffee cup.
 
 ![screen](../master/screens/BatBot_identify_results_train.jpg)
 ![screen](../master/screens/BatBot_identify_results_learn.jpg)
