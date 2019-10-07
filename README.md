@@ -5,6 +5,14 @@ an experimental AI vision robot
 
  This is a powerful AI research robot created from commodity parts. Lower half is an Elegoo Robot Car v3.0. The upper half is a Jetson Nano. An Android app controls it with Spoken English translated and sent over Bluetooth. The robot has a camera, an ultrasonic distance sensor and an unused 40 pin GPIO available for expansion. Software in the Jetson Nano communicating with the robot's Arduino control behavior. High-level spoken commands like 'WHAT ARE YOU LOOKING AT?' instruct the robot photograph and identify objects. The command 'GO FIND SOME-OBJECT' instructs the robot to locate, identify and photograph an object. Low-level spoken commands like 'WHAT IS YOUR IP-ADDRESS?' or 'GO FORWARD' or 'LOOK TO THE LEFT' will obtain information and/or control the robot directly. Teach BatBot to identify new objects by using voice commands from the Android app.
 
+ The robot has five 'operating modes':
+
+- default (accept commands from Android and the IR remote)
+- collision avoidance (try not to hit anything. optionally search for an object by name.)
+- line following (try and follow a black-tape line. optionally search for an object by name.)
+- security monitor (detect, photograph and report any detected motion)
+- map the world (try and map out everything around the robot)
+
  The companion Android app is a MVVM pattern written in Kotlin and Java. It uses the Bluetooth/BlueDot work by Martin O'Hanlon for virtual joystick controls and for communication to/from the Jetson Nano and Android. Get BlueDot here: https://github.com/martinohanlon/BlueDot  
 
  The Jetson Nano is programmed with Python and also uses the BlueDot Bluetooth library. Additionally it uses PySerial, ImageAI and numerous dependency libraries. The Jetson Nano runs AI visual pattern recognition and behavior control software. It uses 'ImageAI' to process image content. Included are four pre-trained models from the 'ImageAI' project. See https://github.com/OlafenwaMoses/ImageAI and https://stackabuse.com/object-detection-with-imageai-in-python/  The layered design of this robot's functions lets you easily change the learning approach being used/tested.
