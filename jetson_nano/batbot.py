@@ -514,9 +514,12 @@ def data_received(commandsFromPhone):
 
         if data.startswith(capture_command):
            filename = data[len(capture_command):]
-           print("\n*** SENDING IMAGE '" + filename + "' TO PHONE ***")
-           send_image_to_phone(filename, "~BEGIN CAPTURE~", "~END CAPTURE~")
-           print("*** IMAGE '" + filename + "' SENT TO PHONE ***\n")
+           if os.path.exists(filename):
+               print("\n*** SENDING IMAGE '" + filename + "' TO PHONE ***")
+               send_image_to_phone(filename, "~BEGIN CAPTURE~", "~END CAPTURE~")
+               print("*** IMAGE '" + filename + "' SENT TO PHONE ***\n")
+           else:
+               print("\n*** IMAGE '" + filename + "' NO LONGER EXISTS! ***")
            continue
 
         if data.startswith(delete_command):
@@ -950,10 +953,12 @@ def data_received(commandsFromPhone):
                 printResult = True
                 security_count += 1
                 image_path = security_image.format(security_count)
-                result = result + "\nchecking security..\n"
+                result = result + "checking security..\n"
                 detected = False
                 threat = ''
-                for line in run_command('./security_monitor.sh', image_path, security_count, resolution, threat_detected):
+                if threat_detected:
+                    threat = 'threat detected.'
+                for line in run_command('./security_monitor.sh', image_path, security_count, resolution, threat):
                     try:
                         text = line.decode('ascii')
                         if detected:

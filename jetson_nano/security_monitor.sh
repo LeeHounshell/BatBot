@@ -10,6 +10,8 @@ image_prefix="/tmp/security"
 if [ "$security_breach" == "" ]
 then
     security_breach=false
+else
+    security_breach=true
 fi
 
 if [ "$resolution" == "" ]
@@ -56,12 +58,18 @@ then
         printf "SECURITY: MOVEMENT DETECTED!\nFile: ${image_name}\nSize: ${image_size}\n\n"
         security_breach=true
     else
-        printf "SECURITY: no threats"
+        if [ "$security_breach" == false ]
+	then
+            printf "SECURITY: no threats\n"
+        fi
     fi
-    if [ ! "$security_breach" == true ]
-    then
-        rm "${prev_image}"
-    fi
+    #
+    # TODO: cleanup /tmp
+    #if [ "$security_breach" == false ]
+    #then
+    #    rm "${prev_image}"
+    #fi
+    #
 else
     printf "SECURITY: initializing"
 fi
