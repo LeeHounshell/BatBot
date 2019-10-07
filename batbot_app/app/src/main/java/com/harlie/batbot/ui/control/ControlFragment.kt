@@ -624,6 +624,9 @@ class ControlFragment : Fragment(), OnProgressBarListener  {
             m_ControlViewModel!!.initialize()
 
             // Attempt to connect to the device
+            m_downloadingNow.set(false)
+            m_robotConnection.set(false)
+            m_havePing = false
             msg("connecting..")
             m_ControlViewModel!!.connect(m_device!!, true)
 
