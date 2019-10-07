@@ -169,6 +169,10 @@ Here we are training the robot to recognize me. :-)
 ![screen](../master/screens/BatBot_identify_results_train.jpg)
 ![screen](../master/screens/BatBot_identify_results_learn.jpg)
 
+The training data is saved for offline batch submission later.
+
+![screen](../master/screens/BatBot_training.jpg)
+
 ## ask BatBot to find an object
 
 if you ask BatBot to 'find a table.':
