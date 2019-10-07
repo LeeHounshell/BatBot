@@ -9,7 +9,7 @@ an experimental AI vision robot
 
 - default (accept commands from Android and the IR remote)
 - collision avoidance (try not to hit anything. optionally search for an object by name.)
-- line following (try and follow a black-tape line. optionally search for an object by name.)
+- line following (try and follow a black-tape line.)
 - security monitor (detect, photograph and report any detected motion)
 - map the world (try and map out everything around the robot)
 
@@ -27,6 +27,13 @@ an experimental AI vision robot
 This robot was built using the Elegoo Robot Car v3.0 as the main base; then piling on top of that the Jetson Nano (inside a case), a Samsung 500 Gig SSD, a phone-battery power supply and the camera, attached to the ultrasonic sensor. The figure-head is from a PEZ dispenser. No soldering is required to build this project. No 3D printing is required either. All parts can be ordered online or found in your local hardware store.
 
 The README.md in the 'robot' folder of this project lists the parts needed to make BatBot.
+[README](BatBot/blob/master/robot/README.md)
+
+The README.md in the 'jetson_nano' folder of this project details the AI architeture.
+[README](BatBot/blob/master/batbot_app/README.md)
+
+The README.md in the 'batbot_app' folder of this project details the Android architeture.
+[README](BatBot/blob/master/batbot_app/README.md)
 
 See https://www.elegoo.com/product/arduinocarv3-0/ for the Elegoo Car details.
 
@@ -147,8 +154,9 @@ BatBot's Jetson Nano runs a separate 'identity' server that determines image con
 ![screen](../master/screens/BatBot_identify.jpg)
 ![screen](../master/screens/BatBot_start_server.jpg)
 
-..1 minute later.. Now that the 'identify' server is running, we can ask 'what are you looking at?' again. A photo is taken and analyzed. The app shows photo analysis text right away.
+..1 minute later.. Now that the 'identify' server is running, we can ask 'what are you looking at?' again. A photo is taken and analyzed. The app shows photo analysis text right away. Note that the first request is slow, as shared librarys must load for the 'identify' server. Subsequent request are a couple of seconds.
 
+![screen](../master/screens/BatBot_say_command.jpg)
 ![screen](../master/screens/BatBot_identify_results.jpg)
 
  The app asks if you want to download this image.  If 'View' is selected, the image will download via Bluetooth, and then display in a popup alongside the same analysis result. The app disables all buttons while downloading photos. After a few seconds, a popup will display containing the robot's photo. Then save images to the phone's Gallery or 'Train' the robot.
@@ -160,6 +168,30 @@ Here we are training the robot to recognize me. :-)
 
 ![screen](../master/screens/BatBot_identify_results_train.jpg)
 ![screen](../master/screens/BatBot_identify_results_learn.jpg)
+
+## ask BatBot to find an object
+
+if you ask BatBot to 'find a table.':
+
+![screen](../master/screens/BatBot_find_table.jpg)
+![screen](../master/screens/BatBot_find_table_response.jpg)
+
+then change your mind and ask BatBot to 'find a chair.':
+
+![screen](../master/screens/BatBot_find_chair.jpg)
+![screen](../master/screens/BatBot_find_chair_response.jpg)
+
+## ask BatBot to be a security monitor
+
+if you ask BatBot to 'enable security monitor.':
+
+![screen](../master/screens/BatBot_security_monitor.jpg)
+![screen](../master/screens/BatBot_security_monitor_response.jpg)
+
+then when movement is detected, you are notified:
+
+![screen](../master/screens/BatBot_movement_detected.jpg)
+![screen](../master/screens/BatBot_security_threat.jpg)
 
 ## query BatBot sensor values
 
