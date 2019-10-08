@@ -8,36 +8,36 @@ YOU ACCEPT FULL RESPONSIBILITY FOR ANY DAMAGE, INJURY, DEATH, DELAY or FAILURE R
 
 First assemble the Elegoo robot car. Build it per included instructions, except when mounting the battery case, move that to the back set of 2 bolt holes only. This will make a little extra space in between the case and the Arduino to use later for the Jetson Nano Assembly.
 
-Next assemble the Jetson Nano WiFi card and Antenna. Then put that in the acrylic transparent case with the Fan installed. Remeber to install a jumper for the Barrel Connector Power Supply at this time.
+Next assemble the Jetson Nano WiFi card and Antenna. Then put that in the acrylic transparent case with the Fan installed. Remeber to install a jumper for the Barrel Connector Power Supply at this time. This video will help with case assembly: https://www.youtube.com/watch?v=v0yUUtqKDhU
 
-Then attach and configure the Jetson Nano's SSD. Make the Jetson Nano boot from the SSD, instead of from the SD card. Use the jetsonhacks instructions here: https://www.jetsonhacks.com/2019/09/17/jetson-nano-run-from-usb-drive/
+Attach and configure the Jetson Nano's SSD. Make the Jetson Nano boot from the SSD, instead of from the SD card. Use the jetsonhacks instructions here: https://www.jetsonhacks.com/2019/09/17/jetson-nano-run-from-usb-drive/
 
 Now use the foam packaging from the "SD Card Reader" (see below) and 1 zip tie to hold the Samsung SSD firmly between the Jetson Nano and the foam protector. Use pliers to bend the zip ties at exactly the right place, for best fit. Be sure everything in mounted on the case side opposite the fan. Be aware that the camera connection area will be facing up. And the 40 PIN GPIO will be on the back bottom section.
 
-Next position the 2 inch L Shape Stainless Steel Angle Bracket above the SSD and foam protector and against the Jetson Nano case's back. (The "back" holds the fan assembly.) After double-checking exact placement (you want the L Bracket to be supported by the foam-top. the top of the bracket should be nearly aligned with the top of the case. the bottom of the bracket will be resting on the foam and SSD)
+Next position the 2-inch L Shape Stainless Steel Angle Bracket above the SSD and foam protector and against the Jetson Nano case's "front." (Note the "back" holds the fan assembly.) Double-check exact placement. you want the L Bracket to be supported by the foam-top. the top of the bracket should be nearly aligned with the top of the case. the bottom of the bracket will be resting on the foam and SSD.
 
 Then.. CAREFUL THIS NEXT STEP.. put one of the Gorilla Double-Sided Tapes on the side of the L Bracket that you will affix to the Jetson Nano's case.
-You got one shot at this, that tape is strong, so if you position it wrong, that will be trouble.. So do it right. Tape the L Bracket to the Jetson Nano case.
+You got one shot at this, that tape is strong, so if you position it wrong, that will be trouble.. So do it right.. Tape the L Bracket to the Jetson Nano case.
 
-Now use another zip tie, again with pliers to bend everything just right, to affix the top of the L Bracket to the Jetson Nano case.
+Now use another zip tie to affix the top of the L Bracket to the Jetson Nano case.
+Again use pliers to bend everything just right.
 Be careful that the 5v barrel power plugin is not covered by the zip tie.
-You need the 5v barrel connector to set everything up.
-If done right, everything will snugly hold the L Bracket's top against the top-front of the case.
+You need the 5v barrel connector to set everything up, later.
+If done right, the zip tie will snugly hold the L Bracket's top against the top-front of the case.
 
-You should be able to fit the Jetson Nano Assembly, including the SSD and foam protector exactly between the battery case and the Arduino.
-Measure it and double-check that everything fits snug but not tight.
+You should be able to fit the Jetson Nano Assembly, including the SSD and foam protector, exactly between the battery case and the Arduino.
+Measure it and double-check that everything fits snug but not too tight.
 For me it was an exact fit.
-I guess it depends on where Elegoo drills the holes to mount the battery.
-I don't know if every kit is exactly the same.
+It really depends on where Elegoo drills the holes to mount the battery.. I don't know if every kit is exactly the same.
 So find your exact placement for the Jetson Nano Assembly on top of the Elegoo car.
 
-Now do it again but this time position mirror hangers in between, and adjust them so the hangers support the Nano's edges.
-Be sure to carefully position and measure the mirror hangers so that they hold the Nano firmly in place.
+Now do the placement again but this time position mirror hangers on the robot. Adjust them so the hangers support the Nano's edges, with the nano resting on and in-between the hangers.
+Be sure to carefully position and exactly measure mirror hanger placement so that they hold the Nano firmly in place.
 This prevents left-right movement. The Nano should not "rock" either.
-Be able to lift the Nano out, and able set it firmly held back in place as needed.
+Make sure you can lift the Nano out, and set it firmly back in place as needed.
 Double check everything. Ensure none of the mirror hangers touch wheels.
-Use masking tape to hold all the mirror hangers in place.
-And remove the Jetson Nano and set it aside. Be sure the mirror hangers do not move.
+Then use masking tape to hold all the mirror hangers in place so you can glue them.
+Remove the Jetson Nano and set it aside. Be sure the mirror hangers do not move.
 
 Next you will tape down the mirror hangers with Gorilla Tape.
 Again.. CAREFUL THIS NEXT STEP.. That Gorilla Tape is strong.
@@ -92,8 +92,6 @@ Remember that the barrel connector requires a jumper on the Nano.
 
 Everything should boot. Welcome to BatBot.
 
-Use the files 'jetson_nano/requirements.txt' and 'jetson_nano/packages.txt' to install software dependencies. The readme under jetson_nano tells you how to do that.
-
 Use the 'Settings' program on the Jetson Nano to setup wifi and bluetooth.
 Use Bluetooth to pair the Jetson Nano and your phone.
 Build and install Synergy so you don't need a keyboard and mouse attached to the Nano.
@@ -108,7 +106,14 @@ Then paste in the robot/batbot.sketch and compile and upload that to the robot.
 
 Quit the 'arduino' program.
 
-In the terminal window cd to the BatBot directory.  Then 'cd jetson_nano' and run the BatBot with the command './batbot.sh'
+Reference the Jetson Nano README to setup and install the Jetson Nano's software dependencies and and boot configuration.
+[Jetson Nano README](https://github.com/LeeHounshell/BatBot/blob/master/jetson_nano/README.md)
+
+Now in the terminal window, cd to the BatBot directory.
+Then 'cd jetson_nano' and run the BatBot with the command './batbot.sh'
+You will see log messages from that.
+
+Finally install the Android app on your phone. Run the app to control BatBot.
 
 
 

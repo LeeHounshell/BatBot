@@ -26,10 +26,10 @@ an experimental AI vision robot
 
 This robot was built using the Elegoo Robot Car v3.0 as the main base; then piling on top of that the Jetson Nano (inside a case), a Samsung 500 Gig SSD, a phone-battery power supply and the camera, attached to the ultrasonic sensor. The figure-head is from a PEZ dispenser. No soldering is required to build this project. No 3D printing is required either. All parts can be ordered online or found in your local hardware store.
 
-Go here for a list of parts needed to make BatBot.
+Go here for a assembly instructions and list of parts needed to make BatBot.
 [Robot README](https://github.com/LeeHounshell/BatBot/blob/master/robot/README.md)
 
-Go here for info about the AI architecture.
+Go here for info about the AI architecture and setup of the Jetson Nano.
 [Jetson Nano README](https://github.com/LeeHounshell/BatBot/blob/master/jetson_nano/README.md)
 
 Go here for Android architecture details.
