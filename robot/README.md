@@ -121,7 +121,8 @@ Finally install the Android app on your phone. Run the app to control BatBot.
 See the Android README for app install instructions.
 [Android app README](https://github.com/LeeHounshell/BatBot/blob/master/batbot_app/README.md)
 
-When everything is working, charge your batteries and remove the Jumper for the 5v power supply.
+When everything is working, add the 'start-batbot.sh' script to your boot configuration.
+Charge your batteries and remove the Jumper for the 5v power supply.
 Insert and plug in all batteries. Flip the robot's 'on' switch. Boot BatBot and have fun!
 
 
