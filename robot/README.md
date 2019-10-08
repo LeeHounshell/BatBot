@@ -118,6 +118,7 @@ Then 'cd jetson_nano' and run the BatBot with the command './batbot.sh'
 You will see log messages from that.
 
 Finally install the Android app on your phone. Run the app to control BatBot.
+[Android app README](https://github.com/LeeHounshell/BatBot/blob/master/batbot_app/README.md)
 
 
 
