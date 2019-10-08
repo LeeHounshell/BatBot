@@ -6,7 +6,10 @@ YOU ACCEPT FULL RESPONSIBILITY FOR ANY DAMAGE, INJURY, DEATH, DELAY or FAILURE R
 
 # BatBot Assembly Instructions
 
-First assemble the Elegoo robot car. Build it per included instructions, except when mounting the battery case, move that to the back set of 2 bolt holes only. This will make a little extra space in between the case and the Arduino to use later for the Jetson Nano Assembly.
+First assemble the Elegoo robot car. Build it per included instructions, except when mounting the battery case, move that to the back set of 2 bolt holes only. This will make a little extra space in between the case and the Arduino to use later for the Jetson Nano Assembly. These videos will help with car assembly:
+- https://www.youtube.com/watch?v=xTILIkExKZo&t=2872s
+- https://www.youtube.com/watch?v=DD8sYXKe268&t=932s
+- https://www.youtube.com/watch?v=6QQta3Cc568&t=780s
 
 Next assemble the Jetson Nano WiFi card and Antenna. Then put that in the acrylic transparent case with the Fan installed. Remeber to install a jumper for the Barrel Connector Power Supply at this time. This video will help with case assembly: https://www.youtube.com/watch?v=v0yUUtqKDhU
 
