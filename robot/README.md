@@ -88,6 +88,11 @@ This is the breakdown:
     $9 Angled USB C Cable Extension 90 Degree Type C to USB 3.0 
     https://www.amazon.com/gp/product/B077M8G7XL/ref=ppx_yo_dt_b_asin_title_o03_s00?ie=UTF8&psc=1
 
+## Accessory Figure-Head
+
+    $7 PEZ dispenser
+    https://www.amazon.com/Pez-Candy-Justice-League-Batman/dp/B078SH5KJH/ref=sr_1_1?keywords=pez+dispenser+batman&qid=1570505999&sr=8-1
+
 ## Bracket for Battery Support Frame
 
     $14 Stainless Steel Angle Bracket L Shape 90 Degree 2 inches wide 
@@ -100,7 +105,7 @@ This is the breakdown:
 
 ## From your local Hardware Store
 
-    3 pipe clamps. 2 for the ultrasonics and 1 for the camera.  sorry, i don't have the size. but the camera clamp is one size smaller.
+    3 pipe clamps. 2 for the ultrasonics and 1 for the camera. sorry, i don't have the size. but the camera clamp is one size smaller.
 
     3 flat two-inch mounting brackets for constructing the Battery Support Frame with 4 half-inch bolts, and nuts and washers to fit.
 
