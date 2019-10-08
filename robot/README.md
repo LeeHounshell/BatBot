@@ -121,6 +121,8 @@ Finally install the Android app on your phone. Run the app to control BatBot.
 See the Android README for app install instructions.
 [Android app README](https://github.com/LeeHounshell/BatBot/blob/master/batbot_app/README.md)
 
+If you purchased a PEZ figure-head for the robot, carefully break it off and use Gorilla Tape to hold that in place. Be careful with placement. The servo assembly with mounted camera and ultrasonics rotates and you want to ensure that the servo can not hit the figure-head when it moves. The figure-head needs to be positioned against the Arduino in back, and flush with the side.
+
 When everything is working, add the 'start-batbot.sh' script to your boot configuration.
 Charge your batteries and remove the Jumper for the 5v power supply.
 Insert and plug in all batteries. Flip the robot's 'on' switch. Boot BatBot and have fun!
