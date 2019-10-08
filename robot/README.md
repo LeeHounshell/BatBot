@@ -12,9 +12,10 @@ Next assemble the Jetson Nano WiFi card and Antenna. Then put that in the acryli
 
 Attach and configure the Jetson Nano's SSD. Make the Jetson Nano boot from the SSD, instead of from the SD card. Use the jetsonhacks instructions here: https://www.jetsonhacks.com/2019/09/17/jetson-nano-run-from-usb-drive/
 
-Now use the foam packaging from the "SD Card Reader" (see below) and 1 zip tie to hold the Samsung SSD firmly between the Jetson Nano and the foam protector. Use pliers to bend the zip ties at exactly the right place, for best fit. Be sure everything in mounted on the case side opposite the fan. Be aware that the camera connection area will be facing up. And the 40 PIN GPIO will be on the back bottom section.
+Now use the foam packaging from the "SD Card Reader" (see below) and 1 zip tie to hold the Samsung SSD firmly between the Jetson Nano and the foam protector. Use pliers to bend the zip ties at exactly the right place, for best fit. Be sure everything is mounted on the case side opposite the fan. Be aware that the camera connection area will be facing up. And the 40 PIN GPIO will be on the back bottom section.
 
-Next position the 2-inch L Shape Stainless Steel Angle Bracket above the SSD and foam protector and against the Jetson Nano case's "front." (Note the "back" holds the fan assembly.) Double-check exact placement. you want the L Bracket to be supported by the foam-top. the top of the bracket should be nearly aligned with the top of the case. the bottom of the bracket will be resting on the foam and SSD.
+Next position the 2-inch L Shape Stainless Steel Angle Bracket above the SSD and foam protector and against the Jetson Nano case's "front." (Note the "back" holds the fan assembly.) Double-check exact placement.
+The top of the bracket should be nearly aligned with the top of the case. The bottom of the bracket will be resting on the foam and SSD.
 
 Then.. CAREFUL THIS NEXT STEP.. put one of the Gorilla Double-Sided Tapes on the side of the L Bracket that you will affix to the Jetson Nano's case.
 You got one shot at this, that tape is strong, so if you position it wrong, that will be trouble.. So do it right.. Tape the L Bracket to the Jetson Nano case.
@@ -59,7 +60,7 @@ Briefly hold a lighter to that point to melt the Nylon. The screwdriver will pun
 BE VERY CAREFUL HERE.. THE NYLON MELTS QUICKLY. Only a small touch of the flame is needed.
 
 Use bolts, washers and nuts to attach the battery holder to the L Bracket.
-I only used 2 of the L Bracket 4 holes to attach the battery case in this manner.
+I only used 2 of the L Bracket's 4 holes to attach the battery case in this manner.
 
 Now build the support frame for the battery.
 First make a flat support structure from the flat mounting brackets, as shown in in the pictures.
@@ -68,7 +69,7 @@ The long support bolt will extend at 90 degrees through one of the mounting brac
 Use 2 nuts to hold it in place at the proper height.
 This long support bolt will keep the battery and mount from drooping.
 
-Next you need to find a piece of foam about a quarter inch thick that you can put into the battery holder to protect the battery from rubbing against the bolts.
+Next you need to find a piece of foam about a quarter inch thick that you can put into the battery holder to protect the battery from rubbing against the bolts. I repurposed some packing foam.
 Use the battery to trace an outline of the shape you want, then cut it with scissors.
 The foam cut-out should fit neatly into the battery holder with enough room to slide the battery in on top.
 
@@ -77,8 +78,8 @@ Now mount the 40 PIN GPIO ribbon cable to the back of the Jetson Nano.
 And fit the Jetson Nano Assembly onto the robot. It will be firmly held in place by the mirror hangers and the Battery Support Frame.
 Attach the robot's serial cable to the Jetson Nano by wrapping it once around the Nano's case.
 
-Attach the plastic pipe clams to the ultrasonic sensor, as shown in photos.
-Also attach a plastic pipe clamp to the camera. A single screw attaches the camera's pipe clamp to one of the clamps on the ultrasonic sensor. A rubber band holds the other sensor clamp in place for additional support.
+Attach the plastic pipe clamps to the ultrasonic sensor, as shown in photos.
+Also attach a plastic pipe clamp to the camera. A single screw attaches the camera's pipe clamp to one of the clamps on the ultrasonic sensor. A rubber band holds the other ultrasonic sensor clamp in place for additional support.
 
 Attach the 300mm camera ribbon cable to the camera and to the Jetson Nano.
 
