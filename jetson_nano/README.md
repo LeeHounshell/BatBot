@@ -18,6 +18,36 @@ When an image is sent back to Android using Bluetooth, some signaling has to fir
 temporarily 'disable' the heartbeat messages. Once the image is transferred, heartbeat
 functionality resumes.
 
+# Jetson Nano Software Setup
+
+Bundled with this project is a list of python modules and another list of ubuntu moduels.
+Those can be easily used to setup the systems software dependencies. See below for
+instruction on how to use the 'requirements.txt' and 'packages.txt' to load your system. 
+
+Additionally you will need to allocate 'swap' space on your Jetson Nano.
+I am using a /swapfile that is 7 Gig. Create it from the command line with 'dd'.
+The swapfile must be mounted from /etc/fstab. This is my /etc/fstab:
+
+    /dev/root            /                     ext4           defaults                                     0 1
+    /swapfile	none	swap	sw	0	0
+    none	/dev/shm	tmpfs	rw,nosuid,nodev,noexec	0	0
+
+You need to setup the /etc/rc.local service to run /etc/rc.local during boot.
+Then use the example rc.local script provided to customize your own system.
+There are 3 'startup' files used for initializing everything at boot.
+They are invoked from the 'rc.local' script.
+
+ - start-bluetooth.sh
+ - start-synergy.sh
+ - start-batbot.sh
+
+I recommend building and configuring 'synergy' v1 to share your laptop keyboard/mouse with BatBot.
+See below for additional details.
+
+
+
+# BatBot Scripts and Programs
+
 ## batbot.sh
 
 This scripts starts the batbot.py and restarts it on error.
