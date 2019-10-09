@@ -25,7 +25,18 @@ Those can be easily used to setup the systems software dependencies. See below f
 instruction on how to use the 'requirements.txt' and 'packages.txt' to load your system. 
 
 Additionally you will need to allocate 'swap' space on your Jetson Nano.
-I am using a /swapfile that is 7 Gig. Create it from the command line with 'dd'.
+I am using a /swapfile that is 7 Gig. Create it from the command line with 'dd':
+
+    # each time you run the 'dd' command below, one Gig is added to /swapfile
+    sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 oflag=append conv=notrunc
+    sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 oflag=append conv=notrunc
+    sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 oflag=append conv=notrunc
+    sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 oflag=append conv=notrunc
+    sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 oflag=append conv=notrunc
+    sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 oflag=append conv=notrunc
+    sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 oflag=append conv=notrunc
+
+
 The swapfile must be mounted from /etc/fstab. This is my /etc/fstab:
 
     /dev/root   /          ext4     defaults                  0     1
@@ -43,6 +54,12 @@ They are invoked from the 'rc.local' script.
 
 I recommend building and configuring 'synergy' v1 to share your laptop keyboard/mouse with BatBot. I use 2 Wifi connections in BatBot. The 2nd Wifi is configured for synergy, so that none of my Internet requests interfere with my keyboard and mouse. See below for additional details.
 
+Bluetooth needs to be run in 'compatibility' mode. You need to add the '-C' option to 'bluetoothd' when that gets run by ubuntu. To add compatibility mode for Bluetooth, change the startup options in nv-bluetooth-service.conf. Here is what mine looks like:
+
+    $ sudo bash
+    # cd /lib/systemd/system/bluetooth.service.d
+    # grep ExecStart nv-bluetooth-service.conf
+    ExecStart=/usr/lib/bluetooth/bluetoothd -C -d --noplugin=audio,a2dp,avrcp
 
 
 # BatBot Scripts and Programs
