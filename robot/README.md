@@ -128,6 +128,40 @@ Charge your batteries and remove the Jumper for the 5v power supply.
 Insert and plug in all batteries. Flip the robot's 'on' switch. Boot BatBot and have fun!
 
 
+# IR Controls
+
+![screen](../master/robot/screens/IR_controls.jpg)
+
+The arrow buttons make the robot go forward, back, and turn right and left.
+
+The ok buttons stops the robot and changes to 'default' mode.
+
+The 1 button makes the camera look left.
+
+The 2 button makes the camera look forward.
+
+The 3 button makes the camera look right.
+
+The 4 button makes the camera look full right.
+
+The 5 button sets 'map' mode.
+
+The 6 button makes the camera look full left.
+
+The 7 button makes the robot slow down.
+
+The 8 button displays sensor values and status.
+
+The 9 button makes the robot speed up.
+
+The * button sets 'collision avoidance + find object' mode.
+
+The 0 button sets 'security' mode.
+
+The # button sets 'line following' mode.
+
+
+
 # All together the BatBot cost me a little over $500
 
 This is the breakdown:
