@@ -298,13 +298,13 @@ Top right view
 
 ![screen](../../master/robot/screens/BatBot_top_right.jpg)
 
-Top view of the bottom half
-
-![screen](../../master/robot/screens/BatBot_tophalf_bottom.jpg)
-
 Mirror Hangers for holding the Jetson Nano in place
 
 ![screen](../../master/robot/screens/BatBot_mirror_hangers.jpg)
+
+Top half removed. Bottom view of the Jetson Nano half
+
+![screen](../../master/robot/screens/BatBot_tophalf_bottom.jpg)
 
 Battery with foam cutout insert
 
