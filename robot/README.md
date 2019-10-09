@@ -134,7 +134,7 @@ Insert and plug in all batteries. Flip the robot's 'on' switch. Boot BatBot and 
 
 The arrow buttons make the robot go forward, back, and turn right and left.
 
-The ok buttons stops the robot and changes to 'default' mode.
+The ok button stops the robot and changes to 'default' mode.
 
 The 1 button makes the camera look left.
 
@@ -281,4 +281,68 @@ This is the breakdown:
 
     3 one-inch square-ish shape mirror hangers for Jetson Nano base side supports. I used "Reflections Mirror Accessories #193672".
 
+
+# Robot Assembly Photos
+
+Here are some photos to help with the assembly.
+
+Back right view
+
+![screen](../../master/robot/screens/BatBot_back_right.jpg)
+
+Top left view
+
+![screen](../../master/robot/screens/BatBot_top_left.jpg)
+
+Top right view
+
+![screen](../../master/robot/screens/BatBot_top_right.jpg)
+
+Top view of the bottom half
+
+![screen](../../master/robot/screens/BatBot_tophalf_bottom.jpg)
+
+Mirror Hangers for holding the Jetson Nano in place
+
+![screen](../../master/robot/screens/BatBot_mirror_hangers.jpg)
+
+Battery with foam cutout insert
+
+![screen](../../master/robot/screens/BatBot_battery_and_foam.jpg)
+
+Battery Support Frame #1
+
+![screen](../../master/robot/screens/BatBot_battery_support_1.jpg)
+
+Battery Support Frame #2
+
+![screen](../../master/robot/screens/BatBot_battery_support_2.jpg)
+
+Battery Support Frame #3
+
+![screen](../../master/robot/screens/BatBot_battery_support_3.jpg)
+
+Battery Support Frame #4
+
+![screen](../../master/robot/screens/BatBot_battery_support_4.jpg)
+
+Battery Support Frame bottom view
+
+![screen](../../master/robot/screens/BatBot_battery_support_bottom.jpg)
+
+BatBot with top half separated #1
+
+![screen](../../master/robot/screens/BatBot_separated_1.jpg)
+
+BatBot with top half separated #2
+
+![screen](../../master/robot/screens/BatBot_separated_2.jpg)
+
+BatBot with top half separated #3
+
+![screen](../../master/robot/screens/BatBot_separated_3.jpg)
+
+BatBot figure head
+
+![screen](../../master/robot/screens/BatBot_figurehead.jpg)
 
