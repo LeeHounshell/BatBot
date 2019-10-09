@@ -65,7 +65,7 @@ BE VERY CAREFUL HERE.. THE NYLON MELTS QUICKLY. Only a small touch of the flame 
 Use bolts, washers and nuts to attach the battery holder to the L Bracket.
 I only used 2 of the L Bracket's 4 holes to attach the battery case in this manner.
 
-Now build the support frame for the battery.
+Now build the support frame for the battery. See photos below.
 First make a flat support structure from the flat mounting brackets, as shown in in the pictures.
 You will be able to attach the extension to the 2 remaining holes in the L Bracket.
 The long support bolt will extend at 90 degrees through one of the mounting brackets.
@@ -329,6 +329,14 @@ Battery Support Frame #4
 Battery Support Frame bottom view
 
 ![screen](../../master/robot/screens/BatBot_battery_support_bottom.jpg)
+
+BatBot camera and ultrasonic sensor #1
+
+![screen](../../master/robot/screens/BatBot_camera_1.jpg)
+
+BatBot camera and ultrasonic sensor #2
+
+![screen](../../master/robot/screens/BatBot_camera_2.jpg)
 
 BatBot with top half separated #1
 
