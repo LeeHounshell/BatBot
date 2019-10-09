@@ -130,7 +130,7 @@ Insert and plug in all batteries. Flip the robot's 'on' switch. Boot BatBot and 
 
 # IR Controls
 
-![screen](../master/robot/screens/IR_controls.jpg)
+![screen](../../master/robot/screens/IR_controls.jpg)
 
 The arrow buttons make the robot go forward, back, and turn right and left.
 
