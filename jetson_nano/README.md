@@ -28,9 +28,9 @@ Additionally you will need to allocate 'swap' space on your Jetson Nano.
 I am using a /swapfile that is 7 Gig. Create it from the command line with 'dd'.
 The swapfile must be mounted from /etc/fstab. This is my /etc/fstab:
 
-    /dev/root            /                     ext4           defaults                                     0 1
-    /swapfile	none	swap	sw	0	0
-    none	/dev/shm	tmpfs	rw,nosuid,nodev,noexec	0	0
+    /dev/root   /          ext4     defaults                  0     1
+    /swapfile   none       swap     sw                        0     0
+    none        /dev/sh    tmpfs    rw,nosuid,nodev,noexec    0     0
 
 You need to setup the /etc/rc.local service to run /etc/rc.local during boot.
 Then use the example rc.local script provided to customize your own system.
@@ -41,8 +41,7 @@ They are invoked from the 'rc.local' script.
  - start-synergy.sh
  - start-batbot.sh
 
-I recommend building and configuring 'synergy' v1 to share your laptop keyboard/mouse with BatBot.
-See below for additional details.
+I recommend building and configuring 'synergy' v1 to share your laptop keyboard/mouse with BatBot. I use 2 Wifi connections in BatBot. The 2nd Wifi is configured for synergy, so that none of my Internet requests interfere with my keyboard and mouse. See below for additional details.
 
 
 
