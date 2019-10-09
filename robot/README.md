@@ -245,6 +245,6 @@ This is the breakdown:
 
     1 three-inch long support bolt with 3 nuts and washers to fit.
 
-    3 one-inch square-ish shape mirror hangers for Jetson Nano base support sides. I used "Reflections Mirror Accessories #193672".
+    3 one-inch square-ish shape mirror hangers for Jetson Nano base side supports. I used "Reflections Mirror Accessories #193672".
 
 

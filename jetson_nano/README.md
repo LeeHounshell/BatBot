@@ -1,5 +1,23 @@
 # This is BatBot on the Jetson Nano
 
+The system is designed in a layered manner, so that it is easy to extend or change.
+The main python script receives queries and heartbeat messages from Android.
+Each time a message is received, the script reads any waiting data from the Arduino's
+serial line. That data is parsed, and passed back to Android in the form of log info.
+The main python script is also responsible for determining the 'meaning' of each voice
+command's text to figure out what action to take. BatBot scans for keywords to identify
+intent of a command. Command requests that require an image to be identified are passed
+from the main python script into a set of external programs that determine if the 'identify'
+server is running. BatBot uses an 'identify' server to pass requests for image analysis.
+This eliminates startup overhead inherent in making use of AI model technology. It is
+possible to reconfigure and stop/restart the 'identify' server from voice commands sent
+to the main python script. The 'identify' server passes back to the client text that
+says what the server thinks the image is. The client then 'prints' that information to stdout,
+so that the main batbot.py script can obtain the results by reading process output.
+When an image is sent back to Android using Bluetooth, some signaling has to first
+temporarily 'disable' the heartbeat messages. Once the image is transferred, heartbeat
+functionality resumes.
+
 ## batbot.sh
 
 This scripts starts the batbot.py and restarts it on error.
