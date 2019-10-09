@@ -28,12 +28,7 @@ Additionally you will need to allocate 'swap' space on your Jetson Nano.
 I am using a /swapfile that is 7 Gig. Create it from the command line with 'dd':
 
     # each time you run the 'dd' command below, one Gig is added to /swapfile
-    sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 oflag=append conv=notrunc
-    sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 oflag=append conv=notrunc
-    sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 oflag=append conv=notrunc
-    sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 oflag=append conv=notrunc
-    sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 oflag=append conv=notrunc
-    sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 oflag=append conv=notrunc
+    # run this command 7 times
     sudo dd if=/dev/zero of=/swapfile bs=1M count=1024 oflag=append conv=notrunc
 
 
