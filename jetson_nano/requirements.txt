@@ -147,7 +147,7 @@ pytools==2019.1.1
 pytz==2018.3
 pyudev==0.21.0
 pyxdg==0.26
-PyYAML==5.1.2
+PyYAML==5.4
 pyzmq==18.1.0
 qtconsole==4.5.2
 requests==2.22.0
